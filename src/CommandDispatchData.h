@@ -234,7 +234,7 @@ const UNMARSHAL_t UnmarshalArray[] = {
 
 #else
 
-    // PARAMETER_LAST_TYPE is the end of the command parameter list.    
+    // PARAMETER_LAST_TYPE is the end of the command parameter list.
 #define PARAMETER_LAST_TYPE             (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
@@ -326,12 +326,20 @@ const MARSHAL_t MarshalArray[] = {
 #ifdef TPM_NUVOTON
 
 #define NTC2_CFG_STRUCT_P_MARSHAL	(UINT16_P_MARSHAL + 1)
-    (MARSHAL_t)NTC2_CFG_STRUCT_Marshal               
-#define RESPONSE_PARAMETER_LAST_TYPE    (NTC2_CFG_STRUCT_P_MARSHAL)
+    (MARSHAL_t)NTC2_CFG_STRUCT_Marshal,
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
+#define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_SECRET_KEY_P_MARSHAL)
 
-#else     
+#else
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
+#define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
     // RESPONSE_PARAMETER_LAST_TYPE is the end of the response parameter list.
-#define RESPONSE_PARAMETER_LAST_TYPE    (UINT16_P_MARSHAL)
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_SECRET_KEY_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4057,6 +4065,34 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 #else
 #define _Vendor_TCG_TestDataAddress 0
 #endif
+#if CC_KYBER_KeyGen
+#include "KYBER_KeyGen_fp.h"
+typedef TPM_RC  (KYBER_KeyGen_Entry)(
+				    KYBER_KeyGen_Out *out
+				    );
+typedef const struct {
+    KYBER_KeyGen_Entry   *entry;
+    UINT16               inSize;
+    UINT16               outSize;
+    UINT16               offsetOfTypes;
+    UINT16               paramOffsets[1];
+    BYTE                 types[4];
+} KYBER_KeyGen_COMMAND_DESCRIPTOR_t;
+KYBER_KeyGen_COMMAND_DESCRIPTOR_t _KYBER_KeyGenData = {
+    /* entry  */          &TPM2_KYBER_KeyGen,
+    /* inSize */          0,
+    /* outSize */         (UINT16)(sizeof(KYBER_KeyGen_Out)),
+    /* offsetOfTypes */   offsetof(KYBER_KeyGen_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(KYBER_KeyGen_Out, secret_key))},
+    /* types */           {END_OF_LIST,
+			   TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL,
+			   TPM2B_KYBER_SECRET_KEY_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _KYBER_KeyGenDataAddress (&_KYBER_KeyGenData)
+#else
+#define _KYBER_KeyGenDataAddress 0
+#endif
 
 #ifdef TPM_NUVOTON
 
@@ -4086,7 +4122,7 @@ NTC2_PreConfig_COMMAND_DESCRIPTOR_t _NTC2_PreConfigData = {
 #define _NTC2_PreConfigDataAddress (&_NTC2_PreConfigData)
 
 typedef TPM_RC (NTC2_LockPreConfig_Entry) ();
-				   
+
 typedef const struct {
     NTC2_LockPreConfig_Entry    *entry;
     UINT16           		inSize;
@@ -4514,6 +4550,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_Policy_AC_SendSelect)
     (COMMAND_DESCRIPTOR_t *)_Policy_AC_SendSelectDataAddress,
 #endif // CC_Policy_AC_SendSelect
+#if (PAD_LIST || CC_KYBER_KeyGen)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_KeyGenDataAddress,
+#endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,
 #endif
@@ -4523,7 +4562,7 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
     (COMMAND_DESCRIPTOR_t *)_NTC2_LockPreConfigDataAddress,
     (COMMAND_DESCRIPTOR_t *)_NTC2_GetConfigDataAddress,
 #endif
-#endif    
+#endif
     0
 };
 #endif

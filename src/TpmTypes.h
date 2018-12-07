@@ -1966,4 +1966,22 @@ typedef struct {
 } TPML_AC_CAPABILITIES;
 #endif
 
+/* Kyber Mods */
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[736];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_PUBLIC_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[1632];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_SECRET_KEY;
+/* Kyber Mods */
+
 #endif

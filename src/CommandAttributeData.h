@@ -434,12 +434,19 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_Policy_AC_SendSelect)
     TPMA_CC_INITIALIZER(0x0196, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+
+/* Kyber Mods */
+#if (PAD_LIST  || CC_KYBER_KeyGen)
+    TPMA_CC_INITIALIZER(0x0197, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+/* Kyber Mods */
+
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     TPMA_CC_INITIALIZER(0x0000, 0, 0, 0, 0, 0, 0, 1, 0),
 #endif
 
 #ifdef TPM_NUVOTON
-    
+
 #if (PAD_LIST || CC_NTC2_PreConfig)
     TPMA_CC_INITIALIZER(0x0211, 0, 1, 0, 0, 0, 0, 1, 0),     // TPM_CC_NTC2_PreConfig
 #endif
@@ -933,6 +940,14 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
     (COMMAND_ATTRIBUTES)(CC_Policy_AC_SendSelect        *  // 0x0196
 			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
 #endif
+
+/* Kyber Mods */
+#if (PAD_LIST  || CC_KYBER_KeyGen)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_KeyGen                *  // 0x0197
+			 (IS_IMPLEMENTED+ENCRYPT_2)),
+#endif
+/* Kyber Mods */
+
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     (COMMAND_ATTRIBUTES)(CC_Vendor_TCG_Test             *  // 0x0000
 			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),

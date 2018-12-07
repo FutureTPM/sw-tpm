@@ -44,7 +44,7 @@
 CCFLAGS += -DUSE_BIT_FIELD_STRUCTURES=NO
 
 # add this for big endian machines
-# CCFLAGS += -DBIG_ENDIAN_TPM=YES 
+# CCFLAGS += -DBIG_ENDIAN_TPM=YES
 
 HEADERS = 				\
 	ActivateCredential_fp.h		\
@@ -141,6 +141,7 @@ HEADERS = 				\
 	IncrementalSelfTest_fp.h	\
 	InternalRoutines.h		\
 	KdfTestData.h			\
+	KYBER_KeyGen_fp.h \
 	LibSupport.h			\
 	LoadExternal_fp.h		\
 	Load_fp.h			\
@@ -269,9 +270,26 @@ HEADERS = 				\
 	swap.h				\
 					\
 	ntc2lib.h			\
-	ntc2_fp.h
+	ntc2_fp.h \
+	cbd.h \
+	fips202.h \
+	ntt.h \
+	poly.h \
+	polyvec.h \
+	indcpa.h \
+	randombytes.h \
+	reduce.h \
 
 OBJFILES = \
+	poly.o \
+	polyvec.o \
+	fips202.o \
+	reduce.o \
+	cbd.o \
+	precomp.o \
+	ntt.o \
+	indcpa.o \
+	randombytes.o \
 	AlgorithmCap.o			\
 	AlgorithmTests.o		\
 	AsymmetricCommands.o		\
@@ -375,6 +393,15 @@ OBJFILES = \
 	ntc2lib.o			\
 	ntc2.o
 
+cbd.o: $(HEADERS)
+fips202.o : $(HEADERS)
+ntt.o : $(HEADERS)
+poly.o : $(HEADERS)
+polyvec.o : $(HEADERS)
+randombytes.o : $(HEADERS)
+reduce.o : $(HEADERS)
+rng.o : $(HEADERS)
+verify.o: $(HEADERS)
 AlgorithmCap.o			: $(HEADERS)
 AlgorithmTests.o		: $(HEADERS)
 AsymmetricCommands.o		: $(HEADERS)
@@ -475,3 +502,4 @@ Vendor_TCG_Test.o		: $(HEADERS)
 
 ntc2lib.o			: $(HEADERS)
 ntc2.o				: $(HEADERS)
+

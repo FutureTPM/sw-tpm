@@ -89,7 +89,7 @@ extern "C" {
     UINT16
     TPM_GENERATED_Marshal(TPM_GENERATED *source, BYTE **buffer, INT32 *size);
     UINT16
-    TPM_ALG_ID_Marshal(TPM_ALG_ID *source, BYTE **buffer, INT32 *size);    
+    TPM_ALG_ID_Marshal(TPM_ALG_ID *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM_ECC_CURVE_Marshal(TPM_ECC_CURVE *source, BYTE **buffer, INT32 *size);
     UINT16
@@ -376,6 +376,10 @@ extern "C" {
     TPMS_CREATION_DATA_Marshal(TPMS_CREATION_DATA *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_CREATION_DATA_Marshal(TPM2B_CREATION_DATA *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_KYBER_SECRET_KEY_Marshal(TPM2B_KYBER_SECRET_KEY *source, BYTE **buffer, INT32 *size);
 
 #ifdef __cplusplus
 }

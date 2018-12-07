@@ -82,7 +82,7 @@
 #define  SET      1
 #define  CLEAR    0
 /* From Vendor-Specific: Table 1 - Defines for Processor Values */
-#ifndef  BIG_ENDIAN_TPM       
+#ifndef  BIG_ENDIAN_TPM
 #define  BIG_ENDIAN_TPM       NO
 #endif
 #define  LITTLE_ENDIAN_TPM          !BIG_ENDIAN_TPM
@@ -91,6 +91,12 @@
 #define  AUTO_ALIGN                 NO
 
 /* From Vendor-Specific: Table 3 - Defines for Key Size Constants */
+
+/* Kyber Mods */
+#define  KYBER_KEY_SIZES_BITS       {512}
+#define  KYBER_KEY_SIZE_BITS_512    KYBER_ALLOWED_KEY_SIZE_512
+/* Kyber Mods */
+
 #define  RSA_KEY_SIZES_BITS         {1024,2048}
 #define  RSA_KEY_SIZE_BITS_1024     RSA_ALLOWED_KEY_SIZE_1024
 #define  RSA_KEY_SIZE_BITS_2048     RSA_ALLOWED_KEY_SIZE_2048
@@ -265,6 +271,10 @@
 #define ALG_TDES                        ALG_NO
 #define ALG_XOR                         ALG_YES
 
+/* Kyber Mods */
+#define  ALG_KYBER                      ALG_YES
+/* Kyber Mods */
+
 /* From TCG Algorithm Registry: Table 2 - Definition of TPM_ALG_ID Constants */
 typedef UINT16                          TPM_ALG_ID;
 #define     ALG_ERROR_VALUE             0x0000
@@ -391,6 +401,14 @@ typedef UINT16                          TPM_ALG_ID;
 #if         ALG_CAMELLIA
 #define TPM_ALG_CAMELLIA                (TPM_ALG_ID)(ALG_CAMELLIA_VALUE)
 #endif   // ALG_CAMELLIA
+
+/* Kyber Mods */
+#define     ALG_KYBER_VALUE             0x002A
+#if         ALG_KYBER
+#define TPM_ALG_KYBER                   (TPM_ALG_ID)(ALG_KYBER_VALUE)
+#endif   // ALG_KYBER
+/* Kyber Mods */
+
 #define     ALG_CMAC_VALUE              0x003F
 #if         ALG_CMAC
 #define TPM_ALG_CMAC                    (TPM_ALG_ID)(ALG_CMAC_VALUE)
@@ -622,6 +640,10 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define  CC_Vendor_TCG_Test               CC_YES
 #define  CC_VerifySignature               CC_YES
 #define  CC_ZGen_2Phase                   (CC_YES && ALG_ECC)
+
+/* Kyber Mods */
+#define CC_KYBER_KeyGen                   (CC_YES && ALG_KYBER)
+/* Kyber Mods */
 
 #ifdef TPM_NUVOTON
 #define  CC_NTC2_PreConfig                CC_YES
@@ -982,13 +1004,19 @@ typedef UINT32                              TPM_CC;
 #if         CC_Policy_AC_SendSelect
 #define TPM_CC_Policy_AC_SendSelect         (TPM_CC)(0x00000196)
 #endif
+/* Kyber Mods */
+#if         CC_KYBER_KeyGen
+#define TPM_CC_KYBER_KeyGen                 (TPM_CC)(0x00000197)
+#endif
+/* Kyber Mods */
+
 #define CC_VEND                             0x20000000
 #if         CC_Vendor_TCG_Test
 #define TPM_CC_Vendor_TCG_Test              (TPM_CC)(0x20000000)
 #endif
 
 #ifdef TPM_NUVOTON
-#ifndef CC_NTC2_PreConfig                
+#ifndef CC_NTC2_PreConfig
 #   define CC_NTC2_PreConfig NO
 #endif
 #if CC_NTC2_PreConfig == YES
@@ -1140,6 +1168,7 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_AC_GetCapability)                     \
 					  + (ADD_FILL || CC_AC_Send)                              \
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
+                      + (ADD_FILL || CC_KYBER_KeyGen)                         \
 					  )
 
 

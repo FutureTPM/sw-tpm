@@ -66,7 +66,7 @@
 
 typedef struct {
     TPMI_DH_OBJECT		keyHandle;
-    TPM2B_PUBLIC_KEY_RSA	cipherText; 
+    TPM2B_PUBLIC_KEY_RSA	cipherText;
     TPMT_RSA_DECRYPT		inScheme;
     TPM2B_DATA			label;
 } RSA_Decrypt_In;

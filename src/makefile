@@ -75,7 +75,7 @@ TcpServerPosix.o	: $(HEADERS)
 tpm_server:	$(OBJFILES)
 		$(CC) $(OBJFILES) $(LNFLAGS) -o tpm_server
 
-clean:		
+clean:
 		rm -f *.o tpm_server *~
 
 %.o:		%.c

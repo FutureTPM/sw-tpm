@@ -448,4 +448,9 @@
 #include "ntc2_fp.h"
 #endif
 
+/* Kyber Commands */
+#if CC_KYBER_KeyGen
+#include "KYBER_KeyGen_fp.h"
+#endif
+
 #endif
