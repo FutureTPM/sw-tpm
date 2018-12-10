@@ -4422,3 +4422,14 @@ TPM2B_CREATION_DATA_Unmarshal(TPM2B_CREATION_DATA *target, BYTE **buffer, INT32 
     }
     return rc;
 }
+
+TPM_RC
+KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = UINT8_Unmarshal(target, buffer, size);
+    }
+    return rc;
+}

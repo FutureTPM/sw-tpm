@@ -1,3 +1,4 @@
 .~lock.ibmtpm.doc#
 src/tpm_server
 src/*.o
+src/NVChip

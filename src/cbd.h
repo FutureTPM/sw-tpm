@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include "poly.h"
 
-void cbd(poly *r, const unsigned char *buf);
+void cbd(poly *r, const unsigned char *buf, const uint64_t kyber_eta);
 
 #endif

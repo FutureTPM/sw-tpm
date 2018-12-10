@@ -317,44 +317,68 @@ TPM2_ZGen_2Phase(
 #if ALG_KYBER
 TPM_RC
 TPM2_KYBER_KeyGen(
+		 KYBER_KeyGen_In      *in,            // In: input parameter list
 		 KYBER_KeyGen_Out     *out            // OUT: output parameter list
 		 )
 {
-    TPM_RC                   result = TPM_RC_SUCCESS;
+    TPM_RC   result = TPM_RC_SUCCESS;
+    uint64_t kyber_polyvecbytes           = 0;
+    uint64_t kyber_polyveccompressedbytes = 0;
+    uint64_t kyber_indcpa_publickeybytes = 0;
+    uint64_t kyber_indcpa_secretkeybytes = 0;
+    uint64_t kyber_k = 0;
+    uint64_t kyber_eta = 0;
+    uint64_t kyber_publickeybytes = 0;
+    uint64_t kyber_secretkeybytes = 0;
+
+    // Parameter check
+    if (in->sec_sel >= 2 && in->sec_sel <= 4) {
+        printf("Good security parameter given\n");
+        printf("KYBER K received is %u\n", in->sec_sel);
+
+        kyber_k = in->sec_sel;
+        kyber_polyvecbytes           = kyber_k * KYBER_POLYBYTES;
+        kyber_polyveccompressedbytes = kyber_k * 352;
+
+        kyber_indcpa_publickeybytes = kyber_polyveccompressedbytes + KYBER_SYMBYTES;
+        kyber_indcpa_secretkeybytes = kyber_polyvecbytes;
+
+        kyber_publickeybytes =  kyber_indcpa_publickeybytes;
+        kyber_secretkeybytes =  kyber_indcpa_secretkeybytes + kyber_indcpa_publickeybytes + 2*KYBER_SYMBYTES;
+
+        if (in->sec_sel == 2) {
+            kyber_eta = 5; /* Kyber512 */
+        } else if (in->sec_sel == 3) {
+            kyber_eta = 4; /* Kyber768 */
+        } else {
+            kyber_eta = 3; /* Kyber1024 */
+        }
+
+        printf("Public Key size is %lu\n", kyber_publickeybytes);
+        printf("Secret Key size is %lu\n", kyber_secretkeybytes);
+        printf("Kyber ETA is %lu\n", kyber_eta);
+    } else {
+        printf("Bad security parameter given\n");
+        // TODO: Proper Error codes
+        return result + 2;
+    }
 
     // Command Output
-    indcpa_keypair((unsigned char *)&out->public_key.b.buffer, (unsigned char *)&out->secret_key.b.buffer);
-    for (size_t i = 0; i < KYBER_INDCPA_PUBLICKEYBYTES; i++) {
-      out->secret_key.b.buffer[i+KYBER_INDCPA_SECRETKEYBYTES] = out->public_key.b.buffer[i];
+    indcpa_keypair((unsigned char *)&out->public_key.b.buffer,
+            (unsigned char *)&out->secret_key.b.buffer,
+            kyber_k, kyber_polyveccompressedbytes, kyber_eta);
+    for (size_t i = 0; i < kyber_indcpa_publickeybytes; i++) {
+      out->secret_key.b.buffer[i+kyber_indcpa_secretkeybytes] = out->public_key.b.buffer[i];
     }
-    sha3_256((unsigned char *)out->secret_key.b.buffer+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES,
+    sha3_256((unsigned char *)out->secret_key.b.buffer+kyber_secretkeybytes-2*KYBER_SYMBYTES,
             out->public_key.b.buffer,
-            KYBER_PUBLICKEYBYTES);
+            kyber_publickeybytes);
     /* Value z for pseudo-random output on reject */
-    CryptRandomGenerate(KYBER_SYMBYTES, out->secret_key.b.buffer+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES);
+    CryptRandomGenerate(KYBER_SYMBYTES, out->secret_key.b.buffer+kyber_secretkeybytes-KYBER_SYMBYTES);
 
-    out->public_key.b.size = 736;
-    out->secret_key.b.size = 1632;
 
-    //printf("Kyber Public Key: [\n");
-    //for (size_t i = 0; i < KYBER_PUBLICKEYBYTES; i++) {
-    //    printf("%02X", out->public_key.b.buffer[i]);
-
-    //    if (i != KYBER_PUBLICKEYBYTES - 1) {
-    //        printf(", ");
-    //    }
-    //}
-    //printf("]\n");
-
-    //printf("Kyber Secret Key: [\n");
-    //for (size_t i = 0; i < KYBER_SECRETKEYBYTES; i++) {
-    //    printf("%02X", out->secret_key.b.buffer[i]);
-
-    //    if (i != KYBER_SECRETKEYBYTES - 1) {
-    //        printf(", ");
-    //    }
-    //}
-    //printf("]\n");
+    out->public_key.b.size = kyber_publickeybytes;
+    out->secret_key.b.size = kyber_secretkeybytes;
 
     return result;
 }

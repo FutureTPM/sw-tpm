@@ -229,13 +229,17 @@ const UNMARSHAL_t UnmarshalArray[] = {
 #ifdef TPM_NUVOTON
 
 #define NTC2_CFG_STRUCT_P_UNMARSHAL	(TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal
-#define PARAMETER_LAST_TYPE             (NTC2_CFG_STRUCT_P_UNMARSHAL)
+    (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal,
+#define KYBER_Sec_Sel_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
+#define PARAMETER_LAST_TYPE             (KYBER_Sec_Sel_P_UNMARSHAL)
 
 #else
+#define KYBER_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
 
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
-#define PARAMETER_LAST_TYPE             (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (KYBER_Sec_Sel_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4068,6 +4072,7 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 #if CC_KYBER_KeyGen
 #include "KYBER_KeyGen_fp.h"
 typedef TPM_RC  (KYBER_KeyGen_Entry)(
+				    KYBER_KeyGen_In  *in,
 				    KYBER_KeyGen_Out *out
 				    );
 typedef const struct {
@@ -4076,15 +4081,16 @@ typedef const struct {
     UINT16               outSize;
     UINT16               offsetOfTypes;
     UINT16               paramOffsets[1];
-    BYTE                 types[4];
+    BYTE                 types[5];
 } KYBER_KeyGen_COMMAND_DESCRIPTOR_t;
 KYBER_KeyGen_COMMAND_DESCRIPTOR_t _KYBER_KeyGenData = {
     /* entry  */          &TPM2_KYBER_KeyGen,
-    /* inSize */          0,
+    /* inSize */          (UINT16)(sizeof(KYBER_KeyGen_In)),
     /* outSize */         (UINT16)(sizeof(KYBER_KeyGen_Out)),
     /* offsetOfTypes */   offsetof(KYBER_KeyGen_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         {(UINT16)(offsetof(KYBER_KeyGen_Out, secret_key))},
-    /* types */           {END_OF_LIST,
+    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
+               END_OF_LIST,
 			   TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL,
 			   TPM2B_KYBER_SECRET_KEY_P_MARSHAL,
                END_OF_LIST}
