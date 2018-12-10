@@ -2,9 +2,12 @@
 #include "indcpa.h"
 #include "poly.h"
 #include "polyvec.h"
-#include "randombytes.h"
 #include "fips202.h"
 #include "ntt.h"
+
+// Random functions from TPM
+#include "Tpm.h"
+#include "CryptRand_fp.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -194,7 +197,7 @@ void indcpa_keypair(unsigned char *pk,
   int i;
   unsigned char nonce=0;
 
-  randombytes(buf, KYBER_SYMBYTES);
+  CryptRandomGenerate(KYBER_SYMBYTES, buf);
   sha3_512(buf, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed);

@@ -2213,7 +2213,6 @@ TPM2B_CREATION_DATA_Marshal(TPM2B_CREATION_DATA *source, BYTE **buffer, INT32 *s
 UINT16
 TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, INT32 *size)
 {
-    printf("Calling Marshal Public\n");
     UINT16 written = 0;
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;
@@ -2222,7 +2221,6 @@ TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, IN
 UINT16
 TPM2B_KYBER_SECRET_KEY_Marshal(TPM2B_KYBER_SECRET_KEY *source, BYTE **buffer, INT32 *size)
 {
-    printf("Calling Marshal Secret\n");
     UINT16 written = 0;
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;

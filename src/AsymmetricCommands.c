@@ -313,7 +313,6 @@ TPM2_ZGen_2Phase(
 #include "KYBER_KeyGen_fp.h"
 #include "indcpa.h"
 #include "fips202.h"
-#include "randombytes.h"
 #if CC_KYBER_KeyGen  // Conditional expansion of this file
 #if ALG_KYBER
 TPM_RC
@@ -324,8 +323,6 @@ TPM2_KYBER_KeyGen(
     TPM_RC                   result = TPM_RC_SUCCESS;
 
     // Command Output
-    printf("Generating Kyber Keys in the TPM!\n");
-
     indcpa_keypair((unsigned char *)&out->public_key.b.buffer, (unsigned char *)&out->secret_key.b.buffer);
     for (size_t i = 0; i < KYBER_INDCPA_PUBLICKEYBYTES; i++) {
       out->secret_key.b.buffer[i+KYBER_INDCPA_SECRETKEYBYTES] = out->public_key.b.buffer[i];
@@ -333,31 +330,31 @@ TPM2_KYBER_KeyGen(
     sha3_256((unsigned char *)out->secret_key.b.buffer+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES,
             out->public_key.b.buffer,
             KYBER_PUBLICKEYBYTES);
-    randombytes(out->secret_key.b.buffer+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES,
-            KYBER_SYMBYTES);         /* Value z for pseudo-random output on reject */
+    /* Value z for pseudo-random output on reject */
+    CryptRandomGenerate(KYBER_SYMBYTES, out->secret_key.b.buffer+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES);
 
     out->public_key.b.size = 736;
     out->secret_key.b.size = 1632;
 
-    printf("Kyber Public Key: [\n");
-    for (size_t i = 0; i < KYBER_PUBLICKEYBYTES; i++) {
-        printf("%02X", out->public_key.b.buffer[i]);
+    //printf("Kyber Public Key: [\n");
+    //for (size_t i = 0; i < KYBER_PUBLICKEYBYTES; i++) {
+    //    printf("%02X", out->public_key.b.buffer[i]);
 
-        if (i != KYBER_PUBLICKEYBYTES - 1) {
-            printf(", ");
-        }
-    }
-    printf("]\n");
+    //    if (i != KYBER_PUBLICKEYBYTES - 1) {
+    //        printf(", ");
+    //    }
+    //}
+    //printf("]\n");
 
-    printf("Kyber Secret Key: [\n");
-    for (size_t i = 0; i < KYBER_SECRETKEYBYTES; i++) {
-        printf("%02X", out->secret_key.b.buffer[i]);
+    //printf("Kyber Secret Key: [\n");
+    //for (size_t i = 0; i < KYBER_SECRETKEYBYTES; i++) {
+    //    printf("%02X", out->secret_key.b.buffer[i]);
 
-        if (i != KYBER_SECRETKEYBYTES - 1) {
-            printf(", ");
-        }
-    }
-    printf("]\n");
+    //    if (i != KYBER_SECRETKEYBYTES - 1) {
+    //        printf(", ");
+    //    }
+    //}
+    //printf("]\n");
 
     return result;
 }
