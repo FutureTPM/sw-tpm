@@ -452,5 +452,8 @@
 #if CC_KYBER_KeyGen
 #include "KYBER_KeyGen_fp.h"
 #endif
+#if CC_KYBER_Enc
+#include "KYBER_Enc_fp.h"
+#endif
 
 #endif

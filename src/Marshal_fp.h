@@ -380,6 +380,10 @@ extern "C" {
     TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_KYBER_SECRET_KEY_Marshal(TPM2B_KYBER_SECRET_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_KYBER_SHARED_KEY_Marshal(TPM2B_KYBER_SHARED_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, INT32 *size);
 
 #ifdef __cplusplus
 }

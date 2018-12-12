@@ -311,6 +311,7 @@ TPM2_ZGen_2Phase(
 /* Kyber Mods */
 #include "Tpm.h"
 #include "KYBER_KeyGen_fp.h"
+#include "kyber_params.h"
 #include "indcpa.h"
 #include "fips202.h"
 #if CC_KYBER_KeyGen  // Conditional expansion of this file
@@ -376,7 +377,6 @@ TPM2_KYBER_KeyGen(
     /* Value z for pseudo-random output on reject */
     CryptRandomGenerate(KYBER_SYMBYTES, out->secret_key.b.buffer+kyber_secretkeybytes-KYBER_SYMBYTES);
 
-
     out->public_key.b.size = kyber_publickeybytes;
     out->secret_key.b.size = kyber_secretkeybytes;
 
@@ -384,4 +384,115 @@ TPM2_KYBER_KeyGen(
 }
 #endif // ALG_KYBER
 #endif // CC_KYBER_KeyGen
+
+#include "KYBER_Enc_fp.h"
+#if CC_KYBER_Enc  // Conditional expansion of this file
+#if ALG_KYBER
+
+static void print_array(unsigned char * buffer, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        printf("%02X", buffer[i]);
+
+        if (i != (size - 1)) {
+            printf(", ");
+        }
+    }
+}
+
+TPM_RC
+TPM2_KYBER_Enc(
+		 KYBER_Enc_In      *in,            // In: input parameter list
+		 KYBER_Enc_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   result = TPM_RC_SUCCESS;
+    uint64_t kyber_polyvecbytes           = 0;
+    uint64_t kyber_polyveccompressedbytes = 0;
+    uint64_t kyber_indcpa_publickeybytes = 0;
+    uint64_t kyber_indcpa_secretkeybytes = 0;
+    uint64_t kyber_k = 0;
+    uint64_t kyber_eta = 0;
+    uint64_t kyber_publickeybytes = 0;
+    uint64_t kyber_secretkeybytes = 0;
+    uint64_t kyber_indcpa_bytes = 0;
+    uint64_t kyber_ciphertextbytes = 0;
+
+    // Input check
+    if (in->sec_sel >= 2 && in->sec_sel <= 4) {
+        // TODO: Check if public key belongs to the security level stated
+        printf("Starting Encryption\n");
+        printf("Good security parameter given\n");
+        printf("KYBER K received is %u\n", in->sec_sel);
+
+        kyber_k = in->sec_sel;
+        kyber_polyvecbytes           = kyber_k * KYBER_POLYBYTES;
+        kyber_polyveccompressedbytes = kyber_k * 352;
+
+        kyber_indcpa_publickeybytes = kyber_polyveccompressedbytes + KYBER_SYMBYTES;
+        kyber_indcpa_secretkeybytes = kyber_polyvecbytes;
+
+        kyber_publickeybytes =  kyber_indcpa_publickeybytes;
+        kyber_secretkeybytes =  kyber_indcpa_secretkeybytes + kyber_indcpa_publickeybytes + 2*KYBER_SYMBYTES;
+
+        kyber_indcpa_bytes = (kyber_polyveccompressedbytes + KYBER_POLYCOMPRESSEDBYTES);
+        kyber_ciphertextbytes = kyber_indcpa_bytes;
+
+        if (in->sec_sel == 2) {
+            kyber_eta = 5; /* Kyber512 */
+        } else if (in->sec_sel == 3) {
+            kyber_eta = 4; /* Kyber768 */
+        } else {
+            kyber_eta = 3; /* Kyber1024 */
+        }
+
+        printf("Public Key size is %lu\n", kyber_publickeybytes);
+        printf("Secret Key size is %lu\n", kyber_secretkeybytes);
+        printf("Cipher Text size is %lu\n", kyber_ciphertextbytes);
+        printf("Kyber ETA is %lu\n", kyber_eta);
+    } else {
+        printf("Bad security parameter given\n");
+        // TODO: Proper Error codes
+        return result + 2;
+    }
+
+    /* Will contain key, coins */
+    unsigned char  kr[2*KYBER_SYMBYTES];
+    unsigned char buf[2*KYBER_SYMBYTES];
+
+    CryptRandomGenerate(KYBER_SYMBYTES, buf);
+    /* Don't release system RNG output */
+    sha3_256(buf,buf,KYBER_SYMBYTES);
+
+    /* Multitarget countermeasure for coins + contributory KEM */
+    sha3_256(buf+KYBER_SYMBYTES, (unsigned char *)&in->public_key,
+            kyber_publickeybytes);
+    sha3_512(kr, buf, 2*KYBER_SYMBYTES);
+
+    /* coins are in kr+KYBER_SYMBYTES */
+    indcpa_enc((unsigned char *)&out->cipher_text, buf,
+            (unsigned char *)&in->public_key, kr+KYBER_SYMBYTES,
+            kyber_k,
+            kyber_polyveccompressedbytes,
+            kyber_eta);
+
+    /* overwrite coins in kr with H(c) */
+    sha3_256(kr+KYBER_SYMBYTES, (unsigned char *)&out->cipher_text, kyber_ciphertextbytes);
+    /* hash concatenation of pre-k and H(c) to k */
+    sha3_256((unsigned char *)&out->shared_key, kr, 2*KYBER_SYMBYTES);
+
+    out->shared_key.b.size = 32;
+    out->cipher_text.b.size = kyber_ciphertextbytes;
+
+    printf("Kyber Shared Key: [");
+    print_array(out->shared_key.b.buffer, out->shared_key.b.size);
+    printf("]\n");
+
+    printf("Kyber Cipher Text: [");
+    print_array(out->cipher_text.b.buffer, out->cipher_text.b.size);
+    printf("]\n");
+
+    return result;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_Enc
 /* Kyber Mods */

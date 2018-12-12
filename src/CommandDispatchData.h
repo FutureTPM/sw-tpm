@@ -232,14 +232,18 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal,
 #define KYBER_Sec_Sel_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
-#define PARAMETER_LAST_TYPE             (KYBER_Sec_Sel_P_UNMARSHAL)
+#define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL)
 
 #else
 #define KYBER_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
+#define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
 
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
-#define PARAMETER_LAST_TYPE             (KYBER_Sec_Sel_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -334,16 +338,24 @@ const MARSHAL_t MarshalArray[] = {
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
 #define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_SECRET_KEY_P_MARSHAL)
+    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
+#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (TPM2B_KYBER_SECRET_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_SHARED_KEY_Marshal,
+#define TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL (TPM2B_KYBER_SHARED_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL)
 
 #else
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
 #define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
+#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (TPM2B_KYBER_SECRET_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_SHARED_KEY_Marshal,
+#define TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL (TPM2B_KYBER_SHARED_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
     // RESPONSE_PARAMETER_LAST_TYPE is the end of the response parameter list.
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_SECRET_KEY_P_MARSHAL)
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4100,6 +4112,39 @@ KYBER_KeyGen_COMMAND_DESCRIPTOR_t _KYBER_KeyGenData = {
 #define _KYBER_KeyGenDataAddress 0
 #endif
 
+#if CC_KYBER_Enc
+#include "KYBER_Enc_fp.h"
+typedef TPM_RC  (KYBER_Enc_Entry)(
+				    KYBER_Enc_In  *in,
+				    KYBER_Enc_Out *out
+				    );
+typedef const struct {
+    KYBER_Enc_Entry      *entry;
+    UINT16               inSize;
+    UINT16               outSize;
+    UINT16               offsetOfTypes;
+    UINT16               paramOffsets[2];
+    BYTE                 types[6];
+} KYBER_Enc_COMMAND_DESCRIPTOR_t;
+KYBER_Enc_COMMAND_DESCRIPTOR_t _KYBER_EncData = {
+    /* entry  */          &TPM2_KYBER_Enc,
+    /* inSize */          (UINT16)(sizeof(KYBER_Enc_In)),
+    /* outSize */         (UINT16)(sizeof(KYBER_Enc_Out)),
+    /* offsetOfTypes */   offsetof(KYBER_Enc_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(KYBER_Enc_In, public_key)),
+        (UINT16)(offsetof(KYBER_Enc_Out, cipher_text))},
+    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
+                           TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL,
+               END_OF_LIST,
+			   TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+			   TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _KYBER_EncDataAddress (&_KYBER_EncData)
+#else
+#define _KYBER_EncDataAddress 0
+#endif
+
 #ifdef TPM_NUVOTON
 
 typedef TPM_RC (NTC2_PreConfig_Entry) (
@@ -4558,6 +4603,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif // CC_Policy_AC_SendSelect
 #if (PAD_LIST || CC_KYBER_KeyGen)
     (COMMAND_DESCRIPTOR_t *)_KYBER_KeyGenDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_Enc)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_EncDataAddress,
 #endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

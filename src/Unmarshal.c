@@ -4433,3 +4433,14 @@ KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
     }
     return rc;
 }
+
+TPM_RC
+TPM2B_KYBER_PUBLIC_KEY_Unmarshal(TPM2B_KYBER_PUBLIC_KEY *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}

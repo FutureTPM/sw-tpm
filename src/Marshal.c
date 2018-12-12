@@ -2225,3 +2225,19 @@ TPM2B_KYBER_SECRET_KEY_Marshal(TPM2B_KYBER_SECRET_KEY *source, BYTE **buffer, IN
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;
 }
+
+UINT16
+TPM2B_KYBER_SHARED_KEY_Marshal(TPM2B_KYBER_SHARED_KEY *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}

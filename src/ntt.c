@@ -1,9 +1,9 @@
 #include "inttypes.h"
 #include "ntt.h"
 #include "reduce.h"
+#include <stddef.h>
 
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
+#include "kyber_params.h"
 
 extern const uint16_t omegas_inv_bitrev_montgomery[];
 extern const uint16_t psis_inv_montgomery[];

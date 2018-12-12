@@ -93,8 +93,10 @@
 /* From Vendor-Specific: Table 3 - Defines for Key Size Constants */
 
 /* Kyber Mods */
-#define  KYBER_KEY_SIZES_BITS       {512}
+#define  KYBER_KEY_SIZES_BITS       {512, 768, 1024}
 #define  KYBER_KEY_SIZE_BITS_512    KYBER_ALLOWED_KEY_SIZE_512
+#define  KYBER_KEY_SIZE_BITS_768    KYBER_ALLOWED_KEY_SIZE_768
+#define  KYBER_KEY_SIZE_BITS_1024   KYBER_ALLOWED_KEY_SIZE_1024
 /* Kyber Mods */
 
 #define  RSA_KEY_SIZES_BITS         {1024,2048}
@@ -643,6 +645,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 
 /* Kyber Mods */
 #define CC_KYBER_KeyGen                   (CC_YES && ALG_KYBER)
+#define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 /* Kyber Mods */
 
 #ifdef TPM_NUVOTON
@@ -1008,6 +1011,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_KeyGen
 #define TPM_CC_KYBER_KeyGen                 (TPM_CC)(0x00000197)
 #endif
+#if         CC_KYBER_Enc
+#define TPM_CC_KYBER_Enc                    (TPM_CC)(0x00000198)
+#endif
 /* Kyber Mods */
 
 #define CC_VEND                             0x20000000
@@ -1169,6 +1175,7 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_AC_Send)                              \
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
                       + (ADD_FILL || CC_KYBER_KeyGen)                         \
+                      + (ADD_FILL || CC_KYBER_Enc)                            \
 					  )
 
 

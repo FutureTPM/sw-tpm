@@ -1,7 +1,5 @@
 #include "reduce.h"
-
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
+#include "kyber_params.h"
 
 
 static const uint32_t qinv = 7679; // -inverse_mod(q,2^18)

@@ -5,7 +5,7 @@
 #include "fips202.h"
 #include "ntt.h"
 
-#include "KYBER_KeyGen_fp.h"
+#include "kyber_params.h"
 // Random functions from TPM
 #include "Tpm.h"
 #include "CryptRand_fp.h"
@@ -39,14 +39,14 @@ static void pack_pk(unsigned char *r, const polyvec *pk,
 *              - unsigned char *seed:           pointer to output seed to generate matrix A
 *              - const unsigned char *packedpk: pointer to input serialized public key
 **************************************************/
-//static void unpack_pk(polyvec *pk, unsigned char *seed,
-//        const unsigned char *packedpk, const uint64_t kyber_k,
-//        const uint64_t kyber_polyveccompressedbytes) {
-//  polyvec_decompress(pk, packedpk, kyber_k);
-//
-//  for(size_t i = 0; i < KYBER_SYMBYTES; i++)
-//    seed[i] = packedpk[i+kyber_polyveccompressedbytes];
-//}
+static void unpack_pk(polyvec *pk, unsigned char *seed,
+        const unsigned char *packedpk, const uint64_t kyber_k,
+        const uint64_t kyber_polyveccompressedbytes) {
+  polyvec_decompress(pk, packedpk, kyber_k, kyber_polyveccompressedbytes);
+
+  for(size_t i = 0; i < KYBER_SYMBYTES; i++)
+    seed[i] = packedpk[i+kyber_polyveccompressedbytes];
+}
 
 /*************************************************
 * Name:        pack_ciphertext
@@ -59,11 +59,11 @@ static void pack_pk(unsigned char *r, const polyvec *pk,
 *              const poly *pk:            pointer to the input vector of polynomials b
 *              const unsigned char *seed: pointer to the input polynomial v
 **************************************************/
-//static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v,
-//        const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes) {
-//  polyvec_compress(r, b, kyber_k);
-//  poly_compress(r+kyber_polyveccompressedbytes, v);
-//}
+static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v,
+        const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes) {
+  polyvec_compress(r, b, kyber_k, kyber_polyveccompressedbytes);
+  poly_compress(r+kyber_polyveccompressedbytes, v);
+}
 
 /*************************************************
 * Name:        unpack_ciphertext
@@ -89,7 +89,8 @@ static void pack_pk(unsigned char *r, const polyvec *pk,
 * Arguments:   - unsigned char *r:  pointer to output serialized secret key
 *              - const polyvec *sk: pointer to input vector of polynomials (secret key)
 **************************************************/
-static void pack_sk(unsigned char *r, const polyvec *sk, const uint64_t kyber_k) {
+static void pack_sk(unsigned char *r, const polyvec *sk,
+        const uint64_t kyber_k) {
   polyvec_tobytes(r, sk, kyber_k);
 }
 
@@ -102,7 +103,8 @@ static void pack_sk(unsigned char *r, const polyvec *sk, const uint64_t kyber_k)
 * Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
 *              - const unsigned char *packedsk: pointer to input serialized secret key
 **************************************************/
-//static void unpack_sk(polyvec *sk, const unsigned char *packedsk, const uint64_t kyber_k) {
+//static void unpack_sk(polyvec *sk, const unsigned char *packedsk,
+//        const uint64_t kyber_k) {
 //  polyvec_frombytes(sk, packedsk, kyber_k);
 //}
 
@@ -121,7 +123,8 @@ static void pack_sk(unsigned char *r, const polyvec *sk, const uint64_t kyber_k)
 *              - const unsigned char *seed: pointer to input seed
 *              - int transposed:            boolean deciding whether A or A^T is generated
 **************************************************/
-static void gen_matrix(polyvec *a, const unsigned char *seed, int transposed, const uint64_t kyber_k) {
+static void gen_matrix(polyvec *a, const unsigned char *seed, int transposed,
+        const uint64_t kyber_k) {
   unsigned int pos=0, ctr;
   uint16_t val;
   unsigned int nblocks;
@@ -224,51 +227,52 @@ void indcpa_keypair(unsigned char *pk,
 *              - const unsigned char *coin: pointer to input random coins used as seed (of length KYBER_SYMBYTES bytes)
 *                                           to deterministically generate all randomness
 **************************************************/
-//void indcpa_enc(unsigned char *c,
-//               const unsigned char *m,
-//               const unsigned char *pk,
-//               const unsigned char *coins)
-//{
-//  polyvec sp, pkpv, ep, at[KYBER_K], bp;
-//  poly v, k, epp;
-//  unsigned char seed[KYBER_SYMBYTES];
-//  int i;
-//  unsigned char nonce=0;
-//
-//
-//  unpack_pk(&pkpv, seed, pk);
-//
-//  poly_frommsg(&k, m);
-//
-//  polyvec_ntt(&pkpv, kyber_k);
-//
-//  gen_at(at, seed, kyber_k);
-//
-//  for(i=0;i<KYBER_K;i++)
-//    poly_getnoise(sp.vec+i,coins,nonce++);
-//
-//  polyvec_ntt(&sp);
-//
-//  for(i=0;i<KYBER_K;i++)
-//    poly_getnoise(ep.vec+i,coins,nonce++);
-//
-//  // matrix-vector multiplication
-//  for(i=0;i<KYBER_K;i++)
-//    polyvec_pointwise_acc(&bp.vec[i],&sp,at+i);
-//
-//  polyvec_invntt(&bp);
-//  polyvec_add(&bp, &bp, &ep);
-//
-//  polyvec_pointwise_acc(&v, &pkpv, &sp);
-//  poly_invntt(&v);
-//
-//  poly_getnoise(&epp,coins,nonce++);
-//
-//  poly_add(&v, &v, &epp);
-//  poly_add(&v, &v, &k);
-//
-//  pack_ciphertext(c, &bp, &v);
-//}
+void indcpa_enc(unsigned char *c,
+               const unsigned char *m,
+               const unsigned char *pk,
+               const unsigned char *coins,
+               const uint64_t kyber_k,
+               const uint64_t kyber_polyveccompressedbytes,
+               const uint64_t kyber_eta)
+{
+  polyvec sp, pkpv, ep, at[kyber_k], bp;
+  poly v, k, epp;
+  unsigned char seed[KYBER_SYMBYTES];
+  unsigned char nonce=0;
+
+  unpack_pk(&pkpv, seed, pk, kyber_k, kyber_polyveccompressedbytes);
+
+  poly_frommsg(&k, m);
+
+  polyvec_ntt(&pkpv, kyber_k);
+
+  gen_at(at, seed, kyber_k);
+
+  for(size_t i=0;i<kyber_k;i++)
+    poly_getnoise(sp.vec+i,coins,nonce++, kyber_eta);
+
+  polyvec_ntt(&sp, kyber_k);
+
+  for(size_t i=0;i<kyber_k;i++)
+    poly_getnoise(ep.vec+i,coins,nonce++, kyber_eta);
+
+  // matrix-vector multiplication
+  for(size_t i=0;i<kyber_k;i++)
+    polyvec_pointwise_acc(&bp.vec[i],&sp,at+i, kyber_k);
+
+  polyvec_invntt(&bp, kyber_k);
+  polyvec_add(&bp, &bp, &ep, kyber_k);
+
+  polyvec_pointwise_acc(&v, &pkpv, &sp, kyber_k);
+  poly_invntt(&v);
+
+  poly_getnoise(&epp,coins,nonce++, kyber_eta);
+
+  poly_add(&v, &v, &epp);
+  poly_add(&v, &v, &k);
+
+  pack_ciphertext(c, &bp, &v, kyber_k, kyber_polyveccompressedbytes);
+}
 
 /*************************************************
 * Name:        indcpa_dec

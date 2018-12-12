@@ -439,6 +439,9 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_KYBER_KeyGen)
     TPMA_CC_INITIALIZER(0x0197, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+#if (PAD_LIST  || CC_KYBER_Enc)
+    TPMA_CC_INITIALIZER(0x0198, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 /* Kyber Mods */
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
@@ -944,7 +947,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /* Kyber Mods */
 #if (PAD_LIST  || CC_KYBER_KeyGen)
     (COMMAND_ATTRIBUTES)(CC_KYBER_KeyGen                *  // 0x0197
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED)),
+#endif
+#if (PAD_LIST  || CC_KYBER_Enc)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Enc                   *  // 0x0198
+			 (IS_IMPLEMENTED)),
 #endif
 /* Kyber Mods */
 
