@@ -234,16 +234,25 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL)
+#define TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_SECRET_KEY_Unmarshal,
+#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
+
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL)
 
 #else
 #define KYBER_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
+#define TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_SECRET_KEY_Unmarshal,
+#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
 
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4145,6 +4154,39 @@ KYBER_Enc_COMMAND_DESCRIPTOR_t _KYBER_EncData = {
 #define _KYBER_EncDataAddress 0
 #endif
 
+#if CC_KYBER_Dec
+#include "KYBER_Dec_fp.h"
+typedef TPM_RC  (KYBER_Dec_Entry)(
+				    KYBER_Dec_In  *in,
+				    KYBER_Dec_Out *out
+				    );
+typedef const struct {
+    KYBER_Dec_Entry      *entry;
+    UINT16               inSize;
+    UINT16               outSize;
+    UINT16               offsetOfTypes;
+    UINT16               paramOffsets[2];
+    BYTE                 types[6];
+} KYBER_Dec_COMMAND_DESCRIPTOR_t;
+KYBER_Dec_COMMAND_DESCRIPTOR_t _KYBER_DecData = {
+    /* entry  */          &TPM2_KYBER_Dec,
+    /* inSize */          (UINT16)(sizeof(KYBER_Dec_In)),
+    /* outSize */         (UINT16)(sizeof(KYBER_Dec_Out)),
+    /* offsetOfTypes */   offsetof(KYBER_Dec_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(KYBER_Dec_In, secret_key)),
+        (UINT16)(offsetof(KYBER_Dec_In, cipher_text))},
+    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
+                           TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _KYBER_DecDataAddress (&_KYBER_DecData)
+#else
+#define _KYBER_DecDataAddress 0
+#endif
+
 #ifdef TPM_NUVOTON
 
 typedef TPM_RC (NTC2_PreConfig_Entry) (
@@ -4606,6 +4648,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_KYBER_Enc)
     (COMMAND_DESCRIPTOR_t *)_KYBER_EncDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_Dec)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
 #endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

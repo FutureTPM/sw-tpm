@@ -18,6 +18,9 @@ void indcpa_enc(unsigned char *c,
 
 void indcpa_dec(unsigned char *m,
                const unsigned char *c,
-               const unsigned char *sk);
+               const unsigned char *sk,
+               const uint64_t kyber_k,
+               const uint64_t kyber_polyveccompressedbytes,
+               const uint64_t kyber_eta);
 
 #endif

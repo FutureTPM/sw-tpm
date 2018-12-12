@@ -278,12 +278,14 @@ HEADERS = 				\
 	polyvec.h \
 	indcpa.h \
 	reduce.h \
+	verify.h \
 
 OBJFILES = \
 	poly.o \
 	polyvec.o \
 	fips202.o \
 	reduce.o \
+	verify.o \
 	cbd.o \
 	precomp.o \
 	ntt.o \

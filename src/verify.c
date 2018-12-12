@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdint.h>
+#include "verify.h"
 
 /*************************************************
 * Name:        verify

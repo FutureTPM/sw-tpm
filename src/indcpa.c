@@ -75,11 +75,11 @@ static void pack_ciphertext(unsigned char *r, const polyvec *b, const poly *v,
 *              - poly *v:                pointer to the output polynomial v
 *              - const unsigned char *c: pointer to the input serialized ciphertext
 **************************************************/
-//static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c,
-//        const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes) {
-//  polyvec_decompress(b, c, kyber_k);
-//  poly_decompress(v, c+kyber_polyveccompressedbytes);
-//}
+static void unpack_ciphertext(polyvec *b, poly *v, const unsigned char *c,
+        const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes) {
+  polyvec_decompress(b, c, kyber_k, kyber_polyveccompressedbytes);
+  poly_decompress(v, c+kyber_polyveccompressedbytes);
+}
 
 /*************************************************
 * Name:        pack_sk
@@ -103,10 +103,10 @@ static void pack_sk(unsigned char *r, const polyvec *sk,
 * Arguments:   - polyvec *sk:                   pointer to output vector of polynomials (secret key)
 *              - const unsigned char *packedsk: pointer to input serialized secret key
 **************************************************/
-//static void unpack_sk(polyvec *sk, const unsigned char *packedsk,
-//        const uint64_t kyber_k) {
-//  polyvec_frombytes(sk, packedsk, kyber_k);
-//}
+static void unpack_sk(polyvec *sk, const unsigned char *packedsk,
+        const uint64_t kyber_k) {
+  polyvec_frombytes(sk, packedsk, kyber_k);
+}
 
 #define gen_a(A,B,C)  gen_matrix(A,B,0,C)
 #define gen_at(A,B,C) gen_matrix(A,B,1,C)
@@ -284,22 +284,25 @@ void indcpa_enc(unsigned char *c,
 *              - const unsigned char *c:  pointer to input ciphertext (of length KYBER_INDCPA_BYTES)
 *              - const unsigned char *sk: pointer to input secret key (of length KYBER_INDCPA_SECRETKEYBYTES)
 **************************************************/
-//void indcpa_dec(unsigned char *m,
-//               const unsigned char *c,
-//               const unsigned char *sk)
-//{
-//  polyvec bp, skpv;
-//  poly v, mp;
-//
-//  unpack_ciphertext(&bp, &v, c);
-//  unpack_sk(&skpv, sk);
-//
-//  polyvec_ntt(&bp);
-//
-//  polyvec_pointwise_acc(&mp,&skpv,&bp);
-//  poly_invntt(&mp);
-//
-//  poly_sub(&mp, &mp, &v);
-//
-//  poly_tomsg(m, &mp);
-//}
+void indcpa_dec(unsigned char *m,
+               const unsigned char *c,
+               const unsigned char *sk,
+               const uint64_t kyber_k,
+               const uint64_t kyber_polyveccompressedbytes,
+               const uint64_t kyber_eta)
+{
+  polyvec bp, skpv;
+  poly v, mp;
+
+  unpack_ciphertext(&bp, &v, c, kyber_k, kyber_polyveccompressedbytes);
+  unpack_sk(&skpv, sk, kyber_k);
+
+  polyvec_ntt(&bp, kyber_k);
+
+  polyvec_pointwise_acc(&mp,&skpv,&bp, kyber_k);
+  poly_invntt(&mp);
+
+  poly_sub(&mp, &mp, &v);
+
+  poly_tomsg(m, &mp);
+}

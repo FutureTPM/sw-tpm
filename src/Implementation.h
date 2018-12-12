@@ -646,6 +646,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 /* Kyber Mods */
 #define CC_KYBER_KeyGen                   (CC_YES && ALG_KYBER)
 #define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
+#define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
 /* Kyber Mods */
 
 #ifdef TPM_NUVOTON
@@ -1014,6 +1015,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_Enc
 #define TPM_CC_KYBER_Enc                    (TPM_CC)(0x00000198)
 #endif
+#if         CC_KYBER_Dec
+#define TPM_CC_KYBER_Dec                    (TPM_CC)(0x00000199)
+#endif
 /* Kyber Mods */
 
 #define CC_VEND                             0x20000000
@@ -1176,6 +1180,7 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
                       + (ADD_FILL || CC_KYBER_KeyGen)                         \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
+                      + (ADD_FILL || CC_KYBER_Dec)                            \
 					  )
 
 
@@ -1224,6 +1229,9 @@ TPM2B_TYPE(MAX_HASH_BLOCK, MAX_HASH_BLOCK_SIZE);
 typedef TPM2B_MAX_HASH_BLOCK    TPM2B_HASH_BLOCK;
 
 
+#ifndef ALG_KYBER
+#   define ALG_KYBER       NO
+#endif
 #ifndef ALG_AES
 #   define ALG_AES         NO
 #endif

@@ -482,6 +482,10 @@ extern "C" {
     KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size);
     LIB_EXPORT TPM_RC
     TPM2B_KYBER_PUBLIC_KEY_Unmarshal(TPM2B_KYBER_PUBLIC_KEY *target, BYTE **buffer, INT32 *size);
+    LIB_EXPORT TPM_RC
+    TPM2B_KYBER_SECRET_KEY_Unmarshal(TPM2B_KYBER_SECRET_KEY *target, BYTE **buffer, INT32 *size);
+    LIB_EXPORT TPM_RC
+    TPM2B_KYBER_CIPHER_TEXT_Unmarshal(TPM2B_KYBER_CIPHER_TEXT *target, BYTE **buffer, INT32 *size);
 
 #ifdef __cplusplus
 }
