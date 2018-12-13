@@ -463,21 +463,21 @@ TPM2_KYBER_Enc(
     sha3_256(buf,buf,KYBER_SYMBYTES);
 
     /* Multitarget countermeasure for coins + contributory KEM */
-    sha3_256(buf+KYBER_SYMBYTES, (unsigned char *)&in->public_key,
+    sha3_256(buf+KYBER_SYMBYTES, (unsigned char *)&in->public_key.b.buffer,
             kyber_publickeybytes);
     sha3_512(kr, buf, 2*KYBER_SYMBYTES);
 
     /* coins are in kr+KYBER_SYMBYTES */
-    indcpa_enc((unsigned char *)&out->cipher_text, buf,
-            (unsigned char *)&in->public_key, kr+KYBER_SYMBYTES,
+    indcpa_enc((unsigned char *)&out->cipher_text.b.buffer, buf,
+            (unsigned char *)&in->public_key.b.buffer, kr+KYBER_SYMBYTES,
             kyber_k,
             kyber_polyveccompressedbytes,
             kyber_eta);
 
     /* overwrite coins in kr with H(c) */
-    sha3_256(kr+KYBER_SYMBYTES, (unsigned char *)&out->cipher_text, kyber_ciphertextbytes);
+    sha3_256(kr+KYBER_SYMBYTES, (unsigned char *)&out->cipher_text.b.buffer, kyber_ciphertextbytes);
     /* hash concatenation of pre-k and H(c) to k */
-    sha3_256((unsigned char *)&out->shared_key, kr, 2*KYBER_SYMBYTES);
+    sha3_256((unsigned char *)&out->shared_key.b.buffer, kr, 2*KYBER_SYMBYTES);
 
     out->shared_key.b.size = 32;
     out->cipher_text.b.size = kyber_ciphertextbytes;
@@ -489,6 +489,7 @@ TPM2_KYBER_Enc(
     printf("Kyber Cipher Text: [");
     print_array(out->cipher_text.b.buffer, out->cipher_text.b.size);
     printf("]\n");
+
 
     return result;
 }
