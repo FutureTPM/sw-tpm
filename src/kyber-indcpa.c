@@ -1,11 +1,11 @@
 #include <string.h>
-#include "indcpa.h"
-#include "poly.h"
-#include "polyvec.h"
+#include "kyber-indcpa.h"
+#include "kyber-poly.h"
+#include "kyber-polyvec.h"
 #include "fips202.h"
-#include "ntt.h"
+#include "kyber-ntt.h"
 
-#include "kyber_params.h"
+#include "kyber-params.h"
 // Random functions from TPM
 #include "Tpm.h"
 #include "CryptRand_fp.h"

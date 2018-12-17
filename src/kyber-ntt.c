@@ -1,13 +1,13 @@
 #include "inttypes.h"
-#include "ntt.h"
-#include "reduce.h"
+#include "kyber-ntt.h"
+#include "kyber-reduce.h"
 #include <stddef.h>
 
-#include "kyber_params.h"
+#include "kyber-params.h"
 
-extern const uint16_t omegas_inv_bitrev_montgomery[];
-extern const uint16_t psis_inv_montgomery[];
-extern const uint16_t zetas[];
+extern const uint16_t kyber_omegas_inv_bitrev_montgomery[];
+extern const uint16_t kyber_psis_inv_montgomery[];
+extern const uint16_t kyber_zetas[];
 
 /*************************************************
 * Name:        ntt
@@ -25,7 +25,7 @@ void ntt(uint16_t *p) {
   size_t k = 1;
   for(int level = 7; level >= 0; level--) {
     for(int start = 0; start < KYBER_N; start = j + (1<<level)) {
-      zeta = zetas[k++];
+      zeta = kyber_zetas[k++];
       for(j = start; j < start + (1<<level); ++j) {
         t = montgomery_reduce((uint32_t)zeta * p[j + (1<<level)]);
 
@@ -57,7 +57,7 @@ void invntt(uint16_t * a) {
     for(int start = 0; start < (1<<level); start++) {
       int jTwiddle = 0;
       for(int j = start; j < KYBER_N-1; j += 2*(1<<level)) {
-        W = omegas_inv_bitrev_montgomery[jTwiddle++];
+        W = kyber_omegas_inv_bitrev_montgomery[jTwiddle++];
         temp = a[j];
 
         if(level & 1) /* odd level */
@@ -73,5 +73,5 @@ void invntt(uint16_t * a) {
   }
 
   for(size_t j = 0; j < KYBER_N; j++)
-    a[j] = montgomery_reduce((a[j] * psis_inv_montgomery[j]));
+    a[j] = montgomery_reduce((a[j] * kyber_psis_inv_montgomery[j]));
 }

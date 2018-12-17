@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "poly.h"
-#include "ntt.h"
-#include "polyvec.h"
-#include "reduce.h"
-#include "cbd.h"
+#include "kyber-poly.h"
+#include "kyber-ntt.h"
+#include "kyber-polyvec.h"
+#include "kyber-reduce.h"
+#include "kyber-cbd.h"
 #include "fips202.h"
 
 #include "Tpm.h"

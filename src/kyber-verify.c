@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#include "verify.h"
+#include "kyber-verify.h"
 
 /*************************************************
 * Name:        verify

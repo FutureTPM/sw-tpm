@@ -271,25 +271,25 @@ HEADERS = 				\
 					\
 	ntc2lib.h			\
 	ntc2_fp.h \
-	cbd.h \
+	kyber-cbd.h \
 	fips202.h \
-	ntt.h \
-	poly.h \
-	polyvec.h \
-	indcpa.h \
-	reduce.h \
-	verify.h \
+	kyber-ntt.h \
+	kyber-poly.h \
+	kyber-polyvec.h \
+	kyber-indcpa.h \
+	kyber-reduce.h \
+	kyber-verify.h \
 
 OBJFILES = \
-	poly.o \
-	polyvec.o \
+	kyber-poly.o \
+	kyber-polyvec.o \
 	fips202.o \
-	reduce.o \
-	verify.o \
-	cbd.o \
-	precomp.o \
-	ntt.o \
-	indcpa.o \
+	kyber-reduce.o \
+	kyber-verify.o \
+	kyber-cbd.o \
+	kyber-precomp.o \
+	kyber-ntt.o \
+	kyber-indcpa.o \
 	AlgorithmCap.o			\
 	AlgorithmTests.o		\
 	AsymmetricCommands.o		\

@@ -3,7 +3,7 @@
 
 #include "Tpm.h"
 #include "KYBER_KeyGen_fp.h"
-#include "poly.h"
+#include "kyber-poly.h"
 
 typedef struct{
   poly vec[MAX_KYBER_K];

@@ -2,7 +2,7 @@
 #define POLY_H
 
 #include <stdint.h>
-#include "kyber_params.h"
+#include "kyber-params.h"
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial

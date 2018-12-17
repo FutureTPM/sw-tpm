@@ -311,8 +311,8 @@ TPM2_ZGen_2Phase(
 /* Kyber Mods */
 #include "Tpm.h"
 #include "KYBER_KeyGen_fp.h"
-#include "kyber_params.h"
-#include "indcpa.h"
+#include "kyber-params.h"
+#include "kyber-indcpa.h"
 #include "fips202.h"
 #if CC_KYBER_KeyGen  // Conditional expansion of this file
 #if ALG_KYBER
@@ -497,7 +497,7 @@ TPM2_KYBER_Enc(
 #endif // CC_KYBER_Enc
 
 #include "KYBER_Dec_fp.h"
-#include "verify.h"
+#include "kyber-verify.h"
 #if CC_KYBER_Dec  // Conditional expansion of this file
 #if ALG_KYBER
 

@@ -1,4 +1,4 @@
-#include "cbd.h"
+#include "kyber-cbd.h"
 
 #include "Tpm.h"
 #include "KYBER_KeyGen_fp.h"
