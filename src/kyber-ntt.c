@@ -18,7 +18,7 @@ extern const uint16_t kyber_zetas[];
 *
 * Arguments:   - uint16_t *p: pointer to in/output polynomial
 **************************************************/
-void ntt(uint16_t *p) {
+void kyber_ntt(uint16_t *p) {
   int j;
   uint16_t zeta, t;
 
@@ -49,7 +49,7 @@ void ntt(uint16_t *p) {
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void invntt(uint16_t * a) {
+void kyber_invntt(uint16_t * a) {
   uint16_t temp, W;
   uint32_t t;
 

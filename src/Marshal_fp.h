@@ -376,6 +376,10 @@ extern "C" {
     TPMS_CREATION_DATA_Marshal(TPMS_CREATION_DATA *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_CREATION_DATA_Marshal(TPM2B_CREATION_DATA *source, BYTE **buffer, INT32 *size);
+
+    /*****************************************************************************/
+    /*                                Kyber Mods                                 */
+    /*****************************************************************************/
     UINT16
     TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, INT32 *size);
     UINT16
@@ -384,6 +388,20 @@ extern "C" {
     TPM2B_KYBER_SHARED_KEY_Marshal(TPM2B_KYBER_SHARED_KEY *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, INT32 *size);
+    /*****************************************************************************/
+    /*                                Kyber Mods                                 */
+    /*****************************************************************************/
+
+    /*****************************************************************************/
+    /*                             Dilithium Mods                                */
+    /*****************************************************************************/
+    UINT16
+    TPM2B_DILITHIUM_PUBLIC_KEY_Marshal(TPM2B_DILITHIUM_PUBLIC_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_DILITHIUM_SECRET_KEY_Marshal(TPM2B_DILITHIUM_SECRET_KEY *source, BYTE **buffer, INT32 *size);
+    /*****************************************************************************/
+    /*                             Dilithium Mods                                */
+    /*****************************************************************************/
 
 #ifdef __cplusplus
 }

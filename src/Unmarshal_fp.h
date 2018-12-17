@@ -474,10 +474,10 @@ extern "C" {
     TPMS_CREATION_DATA_Unmarshal(TPMS_CREATION_DATA *target, BYTE **buffer, INT32 *size);
     LIB_EXPORT TPM_RC
     TPM2B_CREATION_DATA_Unmarshal(TPM2B_CREATION_DATA *target, BYTE **buffer, INT32 *size);
-    LIB_EXPORT TPM_RC
-    TPM2B_KYBER_PUBLIC_KEY_Unmarshal(TPM2B_KYBER_PUBLIC_KEY *target, BYTE **buffer, INT32 *size);
-    LIB_EXPORT TPM_RC
-    TPM2B_KYBER_SECRET_KEY_Unmarshal(TPM2B_KYBER_SECRET_KEY *target, BYTE **buffer, INT32 *size);
+
+    /*****************************************************************************/
+    /*                                Kyber Mods                                 */
+    /*****************************************************************************/
     LIB_EXPORT TPM_RC
     KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size);
     LIB_EXPORT TPM_RC
@@ -486,6 +486,22 @@ extern "C" {
     TPM2B_KYBER_SECRET_KEY_Unmarshal(TPM2B_KYBER_SECRET_KEY *target, BYTE **buffer, INT32 *size);
     LIB_EXPORT TPM_RC
     TPM2B_KYBER_CIPHER_TEXT_Unmarshal(TPM2B_KYBER_CIPHER_TEXT *target, BYTE **buffer, INT32 *size);
+    /*****************************************************************************/
+    /*                                Kyber Mods                                 */
+    /*****************************************************************************/
+
+    /*****************************************************************************/
+    /*                             Dilithium Mods                                */
+    /*****************************************************************************/
+    TPM_RC
+    DILITHIUM_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(TPM2B_DILITHIUM_PUBLIC_KEY *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(TPM2B_DILITHIUM_SECRET_KEY *target, BYTE **buffer, INT32 *size);
+    /*****************************************************************************/
+    /*                             Dilithium Mods                                */
+    /*****************************************************************************/
 
 #ifdef __cplusplus
 }

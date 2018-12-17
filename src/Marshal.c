@@ -2210,6 +2210,9 @@ TPM2B_CREATION_DATA_Marshal(TPM2B_CREATION_DATA *source, BYTE **buffer, INT32 *s
     return written;
 }
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 UINT16
 TPM2B_KYBER_PUBLIC_KEY_Marshal(TPM2B_KYBER_PUBLIC_KEY *source, BYTE **buffer, INT32 *size)
 {
@@ -2241,3 +2244,28 @@ TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, 
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+UINT16
+TPM2B_DILITHIUM_PUBLIC_KEY_Marshal(TPM2B_DILITHIUM_PUBLIC_KEY *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_DILITHIUM_SECRET_KEY_Marshal(TPM2B_DILITHIUM_SECRET_KEY *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/

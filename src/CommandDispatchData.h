@@ -230,7 +230,13 @@ const UNMARSHAL_t UnmarshalArray[] = {
 
 #define NTC2_CFG_STRUCT_P_UNMARSHAL	(TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal,
-#define KYBER_Sec_Sel_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
+#define DILITHIUM_Sec_Sel_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)DILITHIUM_Sec_Sel_Unmarshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (DILITHIUM_Sec_Sel_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal,
+#define TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Unmarshal,
+#define KYBER_Sec_Sel_P_UNMARSHAL (TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
@@ -242,7 +248,13 @@ const UNMARSHAL_t UnmarshalArray[] = {
 #define PARAMETER_LAST_TYPE             (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL)
 
 #else
-#define KYBER_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
+#define DILITHIUM_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)DILITHIUM_Sec_Sel_Unmarshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (DILITHIUM_Sec_Sel_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal,
+#define TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Unmarshal,
+#define KYBER_Sec_Sel_P_UNMARSHAL (TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
@@ -344,7 +356,11 @@ const MARSHAL_t MarshalArray[] = {
 
 #define NTC2_CFG_STRUCT_P_MARSHAL	(UINT16_P_MARSHAL + 1)
     (MARSHAL_t)NTC2_CFG_STRUCT_Marshal,
-#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Marshal,
+#define TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Marshal,
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
 #define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
@@ -355,7 +371,12 @@ const MARSHAL_t MarshalArray[] = {
 #define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL)
 
 #else
-#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
+
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Marshal,
+#define TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Marshal,
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
 #define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
@@ -4090,6 +4111,10 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 #else
 #define _Vendor_TCG_TestDataAddress 0
 #endif
+
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #if CC_KYBER_KeyGen
 #include "KYBER_KeyGen_fp.h"
 typedef TPM_RC  (KYBER_KeyGen_Entry)(
@@ -4186,6 +4211,47 @@ KYBER_Dec_COMMAND_DESCRIPTOR_t _KYBER_DecData = {
 #else
 #define _KYBER_DecDataAddress 0
 #endif
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#if CC_DILITHIUM_KeyGen
+#include "DILITHIUM_KeyGen_fp.h"
+typedef TPM_RC  (DILITHIUM_KeyGen_Entry)(
+				    DILITHIUM_KeyGen_In  *in,
+				    DILITHIUM_KeyGen_Out *out
+				    );
+typedef const struct {
+    DILITHIUM_KeyGen_Entry   *entry;
+    UINT16               inSize;
+    UINT16               outSize;
+    UINT16               offsetOfTypes;
+    UINT16               paramOffsets[1];
+    BYTE                 types[5];
+} DILITHIUM_KeyGen_COMMAND_DESCRIPTOR_t;
+DILITHIUM_KeyGen_COMMAND_DESCRIPTOR_t _DILITHIUM_KeyGenData = {
+    /* entry  */          &TPM2_DILITHIUM_KeyGen,
+    /* inSize */          (UINT16)(sizeof(DILITHIUM_KeyGen_In)),
+    /* outSize */         (UINT16)(sizeof(DILITHIUM_KeyGen_Out)),
+    /* offsetOfTypes */   offsetof(DILITHIUM_KeyGen_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(DILITHIUM_KeyGen_Out, secret_key))},
+    /* types */           {DILITHIUM_Sec_Sel_P_UNMARSHAL,
+               END_OF_LIST,
+			   TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL,
+			   TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _DILITHIUM_KeyGenDataAddress (&_DILITHIUM_KeyGenData)
+#else
+#define _DILITHIUM_KeyGenDataAddress 0
+#endif
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
 #ifdef TPM_NUVOTON
 
@@ -4651,6 +4717,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
+#endif
+#if (PAD_LIST || CC_DILITHIUM_KeyGen)
+    (COMMAND_DESCRIPTOR_t *)_DILITHIUM_KeyGenDataAddress,
 #endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

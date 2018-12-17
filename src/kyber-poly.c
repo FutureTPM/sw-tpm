@@ -146,7 +146,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce,
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
 void poly_ntt(poly *r) {
-  ntt(r->coeffs);
+  kyber_ntt(r->coeffs);
 }
 
 /*************************************************
@@ -159,7 +159,7 @@ void poly_ntt(poly *r) {
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
 void poly_invntt(poly *r) {
-  invntt(r->coeffs);
+  kyber_invntt(r->coeffs);
 }
 
 /*************************************************

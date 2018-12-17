@@ -4423,6 +4423,9 @@ TPM2B_CREATION_DATA_Unmarshal(TPM2B_CREATION_DATA *target, BYTE **buffer, INT32 
     return rc;
 }
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 TPM_RC
 KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
 {
@@ -4466,3 +4469,45 @@ TPM2B_KYBER_CIPHER_TEXT_Unmarshal(TPM2B_KYBER_CIPHER_TEXT *target, BYTE **buffer
     }
     return rc;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+TPM_RC
+DILITHIUM_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = UINT8_Unmarshal(target, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(TPM2B_DILITHIUM_PUBLIC_KEY *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(TPM2B_DILITHIUM_SECRET_KEY *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/

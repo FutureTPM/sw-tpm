@@ -92,12 +92,16 @@
 
 /* From Vendor-Specific: Table 3 - Defines for Key Size Constants */
 
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #define  KYBER_KEY_SIZES_BITS       {512, 768, 1024}
 #define  KYBER_KEY_SIZE_BITS_512    KYBER_ALLOWED_KEY_SIZE_512
 #define  KYBER_KEY_SIZE_BITS_768    KYBER_ALLOWED_KEY_SIZE_768
 #define  KYBER_KEY_SIZE_BITS_1024   KYBER_ALLOWED_KEY_SIZE_1024
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 
 #define  RSA_KEY_SIZES_BITS         {1024,2048}
 #define  RSA_KEY_SIZE_BITS_1024     RSA_ALLOWED_KEY_SIZE_1024
@@ -208,7 +212,7 @@
 #define  MIN_EVICT_OBJECTS              7	/* for PC Client */
 #define  NUM_POLICY_PCR_GROUP           1
 #define  NUM_AUTHVALUE_PCR_GROUP        1
-#define  MAX_CONTEXT_SIZE               2474
+#define  MAX_CONTEXT_SIZE               4096
 #define  MAX_DIGEST_BUFFER              1024
 #define  MAX_NV_INDEX_SIZE              2048
 #define  MAX_NV_BUFFER_SIZE             1024
@@ -221,8 +225,8 @@
 #define  CONTEXT_ENCRYPT_ALGORITHM      AES
 #define  NV_CLOCK_UPDATE_INTERVAL       12
 #define  NUM_POLICY_PCR                 1
-#define  MAX_COMMAND_SIZE               4096
-#define  MAX_RESPONSE_SIZE              4096
+#define  MAX_COMMAND_SIZE               8192
+#define  MAX_RESPONSE_SIZE              8192
 #define  ORDERLY_BITS                   8
 #define  MAX_SYM_DATA                   128
 #define  MAX_RNG_ENTROPY_SIZE           64
@@ -273,9 +277,21 @@
 #define ALG_TDES                        ALG_NO
 #define ALG_XOR                         ALG_YES
 
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #define  ALG_KYBER                      ALG_YES
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#define  ALG_DILITHIUM                  ALG_YES
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
 /* From TCG Algorithm Registry: Table 2 - Definition of TPM_ALG_ID Constants */
 typedef UINT16                          TPM_ALG_ID;
@@ -404,12 +420,27 @@ typedef UINT16                          TPM_ALG_ID;
 #define TPM_ALG_CAMELLIA                (TPM_ALG_ID)(ALG_CAMELLIA_VALUE)
 #endif   // ALG_CAMELLIA
 
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #define     ALG_KYBER_VALUE             0x002A
 #if         ALG_KYBER
 #define TPM_ALG_KYBER                   (TPM_ALG_ID)(ALG_KYBER_VALUE)
 #endif   // ALG_KYBER
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#define     ALG_DILITHIUM_VALUE             0x002B
+#if         ALG_DILITHIUM
+#define TPM_ALG_DILITHIUM                   (TPM_ALG_ID)(ALG_DILITHIUM_VALUE)
+#endif   // ALG_DILITHIUM
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
 #define     ALG_CMAC_VALUE              0x003F
 #if         ALG_CMAC
@@ -643,11 +674,23 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define  CC_VerifySignature               CC_YES
 #define  CC_ZGen_2Phase                   (CC_YES && ALG_ECC)
 
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #define CC_KYBER_KeyGen                   (CC_YES && ALG_KYBER)
 #define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#define CC_DILITHIUM_KeyGen               (CC_YES && ALG_DILITHIUM)
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
 #ifdef TPM_NUVOTON
 #define  CC_NTC2_PreConfig                CC_YES
@@ -1008,7 +1051,10 @@ typedef UINT32                              TPM_CC;
 #if         CC_Policy_AC_SendSelect
 #define TPM_CC_Policy_AC_SendSelect         (TPM_CC)(0x00000196)
 #endif
-/* Kyber Mods */
+
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #if         CC_KYBER_KeyGen
 #define TPM_CC_KYBER_KeyGen                 (TPM_CC)(0x00000197)
 #endif
@@ -1018,7 +1064,19 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_Dec
 #define TPM_CC_KYBER_Dec                    (TPM_CC)(0x00000199)
 #endif
-/* Kyber Mods */
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#if         CC_DILITHIUM_KeyGen
+#define TPM_CC_DILITHIUM_KeyGen                 (TPM_CC)(0x0000019A)
+#endif
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
 #define CC_VEND                             0x20000000
 #if         CC_Vendor_TCG_Test
@@ -1181,6 +1239,7 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_KeyGen)                         \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
+                      + (ADD_FILL || CC_DILITHIUM_KeyGen)                         \
 					  )
 
 
@@ -1229,9 +1288,26 @@ TPM2B_TYPE(MAX_HASH_BLOCK, MAX_HASH_BLOCK_SIZE);
 typedef TPM2B_MAX_HASH_BLOCK    TPM2B_HASH_BLOCK;
 
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #ifndef ALG_KYBER
 #   define ALG_KYBER       NO
 #endif
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#ifndef ALG_DILITHIUM
+#   define ALG_DILITHIUM       NO
+#endif
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
 #ifndef ALG_AES
 #   define ALG_AES         NO
 #endif
