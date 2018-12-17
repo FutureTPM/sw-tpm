@@ -2,7 +2,7 @@
 #define DILITHIUM_KEYGEN_FP_H
 
 typedef struct {
-    BYTE	sec_sel; // Possible security values are 2 (512), 3 (768) and 4 (1024).
+    BYTE	sec_sel;
 } DILITHIUM_KeyGen_In;
 
 #define RC_DILITHIUM_KeyGen_sec_sel		(TPM_RC_P + TPM_RC_1)
