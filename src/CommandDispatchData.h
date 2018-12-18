@@ -232,7 +232,9 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal,
 #define DILITHIUM_Mode_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)DILITHIUM_Mode_Unmarshal,
-#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (DILITHIUM_Mode_P_UNMARSHAL + 1)
+#define TPM2B_DILITHIUM_MESSAGE_P_UNMARSHAL (DILITHIUM_Mode_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_MESSAGE_Unmarshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_MESSAGE_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal,
 #define TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Unmarshal,
@@ -250,7 +252,9 @@ const UNMARSHAL_t UnmarshalArray[] = {
 #else
 #define DILITHIUM_Mode_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)DILITHIUM_Mode_Unmarshal,
-#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (DILITHIUM_Mode_P_UNMARSHAL + 1)
+#define TPM2B_DILITHIUM_MESSAGE_P_UNMARSHAL (DILITHIUM_Mode_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_DILITHIUM_MESSAGE_Unmarshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_MESSAGE_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal,
 #define TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Unmarshal,
@@ -356,7 +360,9 @@ const MARSHAL_t MarshalArray[] = {
 
 #define NTC2_CFG_STRUCT_P_MARSHAL	(UINT16_P_MARSHAL + 1)
     (MARSHAL_t)NTC2_CFG_STRUCT_Marshal,
-#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
+#define TPM2B_DILITHIUM_SIGNED_MESSAGE_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (TPM2B_DILITHIUM_SIGNED_MESSAGE_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Marshal,
 #define TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Marshal,
@@ -372,7 +378,9 @@ const MARSHAL_t MarshalArray[] = {
 
 #else
 
-#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
+#define TPM2B_DILITHIUM_SIGNED_MESSAGE_P_MARSHAL (UINT16_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal,
+#define TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL (TPM2B_DILITHIUM_SIGNED_MESSAGE_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_DILITHIUM_PUBLIC_KEY_Marshal,
 #define TPM2B_DILITHIUM_SECRET_KEY_P_MARSHAL (TPM2B_DILITHIUM_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_DILITHIUM_SECRET_KEY_Marshal,
@@ -4249,6 +4257,38 @@ DILITHIUM_KeyGen_COMMAND_DESCRIPTOR_t _DILITHIUM_KeyGenData = {
 #else
 #define _DILITHIUM_KeyGenDataAddress 0
 #endif
+#if CC_DILITHIUM_Sign
+#include "DILITHIUM_Sign_fp.h"
+typedef TPM_RC  (DILITHIUM_Sign_Entry)(
+				    DILITHIUM_Sign_In  *in,
+				    DILITHIUM_Sign_Out *out
+				    );
+typedef const struct {
+    DILITHIUM_Sign_Entry   *entry;
+    UINT16               inSize;
+    UINT16               outSize;
+    UINT16               offsetOfTypes;
+    UINT16               paramOffsets[2];
+    BYTE                 types[6];
+} DILITHIUM_Sign_COMMAND_DESCRIPTOR_t;
+DILITHIUM_Sign_COMMAND_DESCRIPTOR_t _DILITHIUM_SignData = {
+    /* entry  */          &TPM2_DILITHIUM_Sign,
+    /* inSize */          (UINT16)(sizeof(DILITHIUM_Sign_In)),
+    /* outSize */         (UINT16)(sizeof(DILITHIUM_Sign_Out)),
+    /* offsetOfTypes */   offsetof(DILITHIUM_Sign_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(DILITHIUM_Sign_In, message)),
+    (UINT16)(offsetof(DILITHIUM_Sign_In, secret_key))},
+    /* types */           {DILITHIUM_Mode_P_UNMARSHAL,
+               TPM2B_DILITHIUM_MESSAGE_P_UNMARSHAL,
+               TPM2B_DILITHIUM_SECRET_KEY_P_UNMARSHAL,
+               END_OF_LIST,
+			   TPM2B_DILITHIUM_SIGNED_MESSAGE_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _DILITHIUM_SignDataAddress (&_DILITHIUM_SignData)
+#else
+#define _DILITHIUM_SignDataAddress 0
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -4720,6 +4760,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_DILITHIUM_KeyGen)
     (COMMAND_DESCRIPTOR_t *)_DILITHIUM_KeyGenDataAddress,
+#endif
+#if (PAD_LIST || CC_DILITHIUM_Sign)
+    (COMMAND_DESCRIPTOR_t *)_DILITHIUM_SignDataAddress,
 #endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

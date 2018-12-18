@@ -470,6 +470,9 @@
 #if CC_DILITHIUM_KeyGen
 #include "DILITHIUM_KeyGen_fp.h"
 #endif
+#if CC_DILITHIUM_Sign
+#include "DILITHIUM_Sign_fp.h"
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/

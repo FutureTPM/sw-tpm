@@ -688,6 +688,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 #define CC_DILITHIUM_KeyGen               (CC_YES && ALG_DILITHIUM)
+#define CC_DILITHIUM_Sign                 (CC_YES && ALG_DILITHIUM)
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -1074,6 +1075,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_DILITHIUM_KeyGen
 #define TPM_CC_DILITHIUM_KeyGen                 (TPM_CC)(0x0000019A)
 #endif
+#if         CC_DILITHIUM_Sign
+#define TPM_CC_DILITHIUM_Sign                   (TPM_CC)(0x0000019B)
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -1106,7 +1110,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x00000196
+#define TPM_CC_LAST                         0x0000019B
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1239,7 +1243,8 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_KeyGen)                         \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
-                      + (ADD_FILL || CC_DILITHIUM_KeyGen)                         \
+                      + (ADD_FILL || CC_DILITHIUM_KeyGen)                     \
+                      + (ADD_FILL || CC_DILITHIUM_Sign)                       \
 					  )
 
 

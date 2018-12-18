@@ -689,6 +689,143 @@ TPM2_DILITHIUM_KeyGen(
 }
 #endif // ALG_DILITHIUM
 #endif // CC_DILITHIUM_KeyGen
+
+#if CC_DILITHIUM_Sign  // Conditional expansion of this file
+#include "Tpm.h"
+#include "DILITHIUM_Sign_fp.h"
+#include "dilithium-params.h"
+#include "dilithium-sign.h"
+#include "fips202.h"
+#include "dilithium-polyvec.h"
+#include "dilithium-sign.h"
+#include "dilithium-packing.h"
+#if ALG_DILITHIUM
+
+TPM_RC
+TPM2_DILITHIUM_Sign(
+		 DILITHIUM_Sign_In      *in,            // In: input parameter list
+		 DILITHIUM_Sign_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   result = TPM_RC_SUCCESS;
+    DilithiumParams params;
+    unsigned long long i, j;
+    unsigned int n;
+    unsigned char seedbuf[2*DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES];
+    unsigned char tr[DILITHIUM_CRHBYTES];
+    unsigned char *rho, *key, *mu;
+    uint16_t nonce = 0;
+    dilithium_poly c, chat;
+    dilithium_polyvecl mat[6], s1, y, yhat, z; // Max K in Dilithium
+    dilithium_polyveck s2, t0, w, w1;
+    dilithium_polyveck h, wcs2, wcs20, ct0, tmp;
+
+    if (in->mode >= 0 && in->mode <= 3) {
+        params = generate_dilithium_params(in->mode);
+    } else {
+        return TPM_RC_SUCCESS + 2;
+    }
+
+    rho = seedbuf;
+    key = seedbuf + DILITHIUM_SEEDBYTES;
+    mu = seedbuf + 2*DILITHIUM_SEEDBYTES;
+    dilithium_unpack_sk(rho, key, tr, &s1, &s2, &t0,
+            (unsigned char *)&in->secret_key.b.buffer, params.k,
+            params.l, params.poleta_size_packed, params.polt0_size_packed,
+            params.eta);
+
+    /* Copy tr and message into the sm buffer,
+     * backwards since m and sm can be equal in SUPERCOP API */
+    for(i = 1; i <= in->message.b.size; ++i)
+      out->signed_message.b.buffer[params.crypto_bytes + in->message.b.size - i] = in->message.b.buffer[in->message.b.size - i];
+    for(i = 0; i < DILITHIUM_CRHBYTES; ++i)
+      out->signed_message.b.buffer[params.crypto_bytes - DILITHIUM_CRHBYTES + i] = tr[i];
+
+    /* Compute CRH(tr, msg) */
+    shake256(mu, DILITHIUM_CRHBYTES, out->signed_message.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+            DILITHIUM_CRHBYTES + in->message.b.size);
+
+    /* Expand matrix and transform vectors */
+    dilithium_expand_mat(mat, rho, params.k, params.l);
+    dilithium_polyvecl_ntt(&s1, params.l);
+    dilithium_polyveck_ntt(&s2, params.k);
+    dilithium_polyveck_ntt(&t0, params.k);
+
+    rej:
+    /* Sample intermediate vector y */
+    for(i = 0; i < params.l; ++i)
+      dilithium_poly_uniform_gamma1m1(y.vec+i, key, nonce++);
+
+    /* Matrix-vector multiplication */
+    yhat = y;
+    dilithium_polyvecl_ntt(&yhat, params.l);
+    for(i = 0; i < params.k; ++i) {
+      dilithium_polyvecl_pointwise_acc_invmontgomery(w.vec+i, mat+i, &yhat,
+              params.l);
+      dilithium_poly_reduce(w.vec+i);
+      dilithium_poly_invntt_montgomery(w.vec+i);
+    }
+
+    /* Decompose w and call the random oracle */
+    dilithium_polyveck_csubq(&w, params.k);
+    dilithium_polyveck_decompose(&w1, &tmp, &w, params.k);
+    dilithium_challenge(&c, mu, &w1, params.k, params.polw1_size_packed);
+
+    /* Compute z, reject if it reveals secret */
+    chat = c;
+    dilithium_poly_ntt(&chat);
+    for(i = 0; i < params.l; ++i) {
+      dilithium_poly_pointwise_invmontgomery(z.vec+i, &chat, s1.vec+i);
+      dilithium_poly_invntt_montgomery(z.vec+i);
+    }
+    dilithium_polyvecl_add(&z, &z, &y, params.l);
+    dilithium_polyvecl_freeze(&z, params.l);
+    if(dilithium_polyvecl_chknorm(&z, DILITHIUM_GAMMA1 - params.beta, params.l))
+      goto rej;
+
+    /* Compute w - cs2, reject if w1 can not be computed from it */
+    for(i = 0; i < params.k; ++i) {
+      dilithium_poly_pointwise_invmontgomery(wcs2.vec+i, &chat, s2.vec+i);
+      dilithium_poly_invntt_montgomery(wcs2.vec+i);
+    }
+    dilithium_polyveck_sub(&wcs2, &w, &wcs2, params.k);
+    dilithium_polyveck_freeze(&wcs2, params.k);
+    dilithium_polyveck_decompose(&tmp, &wcs20, &wcs2, params.k);
+    dilithium_polyveck_csubq(&wcs20, params.k);
+    if(dilithium_polyveck_chknorm(&wcs20, DILITHIUM_GAMMA2 - params.beta, params.k))
+      goto rej;
+
+    for(i = 0; i < params.k; ++i)
+      for(j = 0; j < DILITHIUM_N; ++j)
+        if(tmp.vec[i].coeffs[j] != w1.vec[i].coeffs[j])
+          goto rej;
+
+    /* Compute hints for w1 */
+    for(i = 0; i < params.k; ++i) {
+      dilithium_poly_pointwise_invmontgomery(ct0.vec+i, &chat, t0.vec+i);
+      dilithium_poly_invntt_montgomery(ct0.vec+i);
+    }
+
+    dilithium_polyveck_csubq(&ct0, params.k);
+    if(dilithium_polyveck_chknorm(&ct0, DILITHIUM_GAMMA2, params.k))
+      goto rej;
+
+    dilithium_polyveck_add(&tmp, &wcs2, &ct0, params.k);
+    dilithium_polyveck_csubq(&tmp, params.k);
+    n = dilithium_polyveck_make_hint(&h, &wcs2, &tmp, params.k);
+    if(n > params.omega)
+      goto rej;
+
+    /* Write signature */
+    dilithium_pack_sig((unsigned char *)&out->signed_message.b.buffer, &z, &h,
+            &c, params.k, params.l, params.polz_size_packed, params.omega);
+
+    out->signed_message.b.size = in->message.b.size + params.crypto_bytes;
+
+    return result;
+}
+#endif // ALG_DILITHIUM
+#endif // CC_DILITHIUM_Sign
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/

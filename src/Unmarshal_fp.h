@@ -499,6 +499,8 @@ extern "C" {
     TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(TPM2B_DILITHIUM_PUBLIC_KEY *target, BYTE **buffer, INT32 *size);
     TPM_RC
     TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(TPM2B_DILITHIUM_SECRET_KEY *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_DILITHIUM_MESSAGE_Unmarshal(TPM2B_DILITHIUM_MESSAGE *target, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
