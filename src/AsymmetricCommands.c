@@ -504,13 +504,13 @@ TPM2_KYBER_Dec(
     indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES, params.k,
             params.polyveccompressedbytes, params.eta);
 
-    fail = verify(in->cipher_text.b.buffer, cmp, params.ciphertextbytes);
+    fail = kyber_verify(in->cipher_text.b.buffer, cmp, params.ciphertextbytes);
 
     /* overwrite coins in kr with H(c)  */
     sha3_256(kr+KYBER_SYMBYTES, in->cipher_text.b.buffer, params.ciphertextbytes);
 
     /* Overwrite pre-k with z on re-encryption failure */
-    cmov(kr, in->secret_key.b.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);
+    kyber_cmov(kr, in->secret_key.b.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);
 
     /* hash concatenation of pre-k and H(c) to k */
     sha3_256(out->shared_key.b.buffer, kr, 2*KYBER_SYMBYTES);
@@ -528,9 +528,94 @@ TPM2_KYBER_Dec(
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
+#if ALG_DILITHIUM
+#include "dilithium-params.h"
+
+typedef struct {
+    uint64_t k;
+    uint64_t l;
+    uint64_t eta;
+    uint64_t setabits;
+    uint64_t beta;
+    uint64_t omega;
+    uint64_t polt0_size_packed;
+    uint64_t polt1_size_packed;
+    uint64_t poleta_size_packed;
+    uint64_t polz_size_packed;
+    uint64_t crypto_publickeybytes;
+    uint64_t crypto_secretkeybytes;
+    uint64_t crypto_bytes;
+    uint64_t pol_size_packed;
+    uint64_t polw1_size_packed;
+    uint64_t polveck_size_packed;
+    uint64_t polvecl_size_packed;
+} DilithiumParams;
+
+static DilithiumParams generate_dilithium_params(BYTE mode) {
+    DilithiumParams params;
+
+    switch(mode) {
+        case 0:
+            params.k = 3;
+            params.l = 2;
+            params.eta = 7;
+            params.setabits = 4;
+            params.beta = 375;
+            params.omega = 64;
+            break;
+        case 1:
+            params.k = 4;
+            params.l = 3;
+            params.eta = 6;
+            params.setabits = 4;
+            params.beta = 325;
+            params.omega = 96;
+            break;
+        case 2:
+            params.k = 5;
+            params.l = 4;
+            params.eta = 5;
+            params.setabits = 4;
+            params.beta = 275;
+            params.omega = 120;
+            break;
+        case 3:
+            params.k = 6;
+            params.l = 5;
+            params.eta = 3;
+            params.setabits = 3;
+            params.beta = 175;
+            params.omega = 120;
+            break;
+    }
+
+    params.pol_size_packed     = ((DILITHIUM_N * DILITHIUM_QBITS) / 8);
+    params.polt1_size_packed   = ((DILITHIUM_N * (DILITHIUM_QBITS - DILITHIUM_D)) / 8);
+    params.polt0_size_packed   = ((DILITHIUM_N * DILITHIUM_D) / 8);
+    params.poleta_size_packed  = ((DILITHIUM_N * params.setabits) / 8);
+    params.polz_size_packed    = ((DILITHIUM_N * (DILITHIUM_QBITS - 3)) / 8);
+    params.polw1_size_packed   = ((DILITHIUM_N * 4) / 8);
+    params.polveck_size_packed = (params.k * params.pol_size_packed);
+    params.polvecl_size_packed = (params.l * params.pol_size_packed);
+
+    params.crypto_publickeybytes = (DILITHIUM_SEEDBYTES + params.k*params.polt1_size_packed);
+    params.crypto_secretkeybytes = (2*DILITHIUM_SEEDBYTES + (params.l + params.k)*params.poleta_size_packed + DILITHIUM_CRHBYTES + params.k*params.polt0_size_packed);
+    params.crypto_bytes = (params.l * params.polz_size_packed + (params.omega + params.k) + (DILITHIUM_N/8 + 8));
+
+
+    return params;
+}
+#endif
+
 #if CC_DILITHIUM_KeyGen  // Conditional expansion of this file
 #include "Tpm.h"
 #include "DILITHIUM_KeyGen_fp.h"
+#include "dilithium-params.h"
+#include "dilithium-sign.h"
+#include "fips202.h"
+#include "dilithium-polyvec.h"
+#include "dilithium-sign.h"
+#include "dilithium-packing.h"
 #if ALG_DILITHIUM
 
 TPM_RC
@@ -540,7 +625,66 @@ TPM2_DILITHIUM_KeyGen(
 		 )
 {
     TPM_RC   result = TPM_RC_SUCCESS;
-    printf("Executing Dilithium Key generation\n");
+    unsigned int i;
+    unsigned char seedbuf[3*DILITHIUM_SEEDBYTES];
+    unsigned char tr[DILITHIUM_CRHBYTES];
+    unsigned char *rho, *rhoprime, *key;
+    uint16_t nonce = 0;
+    dilithium_polyvecl mat[6]; // MAX K in Dilithium
+    dilithium_polyvecl s1, s1hat;
+    dilithium_polyveck s2, t, t1, t0;
+    DilithiumParams params;
+
+    if (in->mode >= 0 && in->mode <= 3) {
+        params = generate_dilithium_params(in->mode);
+    } else {
+        return TPM_RC_SUCCESS + 2;
+    }
+
+    /* Expand 32 bytes of randomness into rho, rhoprime and key */
+    CryptRandomGenerate(DILITHIUM_SEEDBYTES, seedbuf);
+    shake256(seedbuf, 3*DILITHIUM_SEEDBYTES, seedbuf, DILITHIUM_SEEDBYTES);
+    rho = seedbuf;
+    rhoprime = rho + DILITHIUM_SEEDBYTES;
+    key = rho + 2*DILITHIUM_SEEDBYTES;
+
+    /* Expand matrix */
+    dilithium_expand_mat(mat, rho, params.k, params.l);
+
+    /* Sample short vectors s1 and s2 */
+    for(i = 0; i < params.l; ++i)
+      dilithium_poly_uniform_eta(s1.vec+i, rhoprime, nonce++, params.eta);
+    for(i = 0; i < params.k; ++i)
+      dilithium_poly_uniform_eta(s2.vec+i, rhoprime, nonce++, params.eta);
+
+    /* Matrix-vector multiplication */
+    s1hat = s1;
+    dilithium_polyvecl_ntt(&s1hat, params.l);
+    for(i = 0; i < params.k; ++i) {
+      dilithium_polyvecl_pointwise_acc_invmontgomery(t.vec+i, mat+i, &s1hat, params.l);
+      dilithium_poly_reduce(t.vec+i);
+      dilithium_poly_invntt_montgomery(t.vec+i);
+    }
+
+    /* Add noise vector s2 */
+    dilithium_polyveck_add(&t, &t, &s2, params.k);
+
+    /* Extract t1 and write public key */
+    dilithium_polyveck_freeze(&t, params.k);
+    dilithium_polyveck_power2round(&t1, &t0, &t, params.k);
+    dilithium_pack_pk((unsigned char *)&out->public_key.b.buffer, rho, &t1, params.k,
+            params.polt1_size_packed);
+
+    /* Compute CRH(rho, t1) and write secret key */
+    shake256(tr, DILITHIUM_CRHBYTES, (unsigned char *)&out->public_key.b.buffer,
+            params.crypto_publickeybytes);
+    dilithium_pack_sk((unsigned char *)&out->secret_key.b.buffer, rho, key, tr, &s1, &s2, &t0,
+            params.k, params.l, params.poleta_size_packed,
+            params.polt0_size_packed, params.eta);
+
+    out->public_key.b.size = params.crypto_publickeybytes;
+    out->secret_key.b.size = params.crypto_secretkeybytes;
+
     return result;
 }
 #endif // ALG_DILITHIUM

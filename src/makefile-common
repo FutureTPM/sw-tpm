@@ -279,8 +279,23 @@ HEADERS = 				\
 	kyber-indcpa.h \
 	kyber-reduce.h \
 	kyber-verify.h \
+	dilithium-ntt.h \
+	dilithium-packing.h \
+	dilithium-params.h \
+	dilithium-poly.h \
+	dilithium-polyvec.h \
+	dilithium-reduce.h \
+	dilithium-rounding.h \
+	dilithium-sign.h \
 
 OBJFILES = \
+	dilithium-ntt.o \
+	dilithium-packing.o \
+	dilithium-poly.o \
+	dilithium-polyvec.o \
+	dilithium-reduce.o \
+	dilithium-rounding.o \
+	dilithium-sign.o \
 	kyber-poly.o \
 	kyber-polyvec.o \
 	fips202.o \

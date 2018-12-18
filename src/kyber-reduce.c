@@ -2,8 +2,8 @@
 #include "kyber-params.h"
 
 
-static const uint32_t qinv = 7679; // -inverse_mod(q,2^18)
-static const uint32_t rlog = 18;
+static const uint32_t kyber_qinv = 7679; // -inverse_mod(q,2^18)
+static const uint32_t kyber_rlog = 18;
 
 /*************************************************
 * Name:        montgomery_reduce
@@ -16,14 +16,14 @@ static const uint32_t rlog = 18;
 *
 * Returns:     unsigned integer in {0,...,2^13-1} congruent to a * R^-1 modulo q.
 **************************************************/
-uint16_t montgomery_reduce(uint32_t a) {
+uint16_t kyber_montgomery_reduce(uint32_t a) {
   uint32_t u;
 
-  u = (a * qinv);
-  u &= ((1<<rlog)-1);
+  u = (a * kyber_qinv);
+  u &= ((1<<kyber_rlog)-1);
   u *= KYBER_Q;
   a = a + u;
-  return a >> rlog;
+  return a >> kyber_rlog;
 }
 
 
@@ -37,7 +37,7 @@ uint16_t montgomery_reduce(uint32_t a) {
 *
 * Returns:     unsigned integer in {0,...,11768} congruent to a modulo q.
 **************************************************/
-uint16_t barrett_reduce(uint16_t a) {
+uint16_t kyber_barrett_reduce(uint16_t a) {
   uint32_t u;
 
   u = a >> 13;//((uint32_t) a * sinv) >> 16;
@@ -56,10 +56,10 @@ uint16_t barrett_reduce(uint16_t a) {
 *
 * Returns:     unsigned integer in {0,...,q-1} congruent to a modulo q.
 **************************************************/
-uint16_t freeze(uint16_t x) {
+uint16_t kyber_freeze(uint16_t x) {
   uint16_t m,r;
   int16_t c;
-  r = barrett_reduce(x);
+  r = kyber_barrett_reduce(x);
 
   m = r - KYBER_Q;
   c = m;

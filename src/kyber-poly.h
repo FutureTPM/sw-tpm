@@ -10,24 +10,24 @@
  */
 typedef struct{
   uint16_t coeffs[KYBER_N];
-} poly;
+} kyber_poly;
 
-void poly_compress(unsigned char *r, const poly *a);
-void poly_decompress(poly *r, const unsigned char *a);
+void kyber_poly_compress(unsigned char *r, const kyber_poly *a);
+void kyber_poly_decompress(kyber_poly *r, const unsigned char *a);
 
-void poly_tobytes(unsigned char *r, const poly *a);
-void poly_frombytes(poly *r, const unsigned char *a);
+void kyber_poly_tobytes(unsigned char *r, const kyber_poly *a);
+void kyber_poly_frombytes(kyber_poly *r, const unsigned char *a);
 
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES]);
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *r);
+void kyber_poly_frommsg(kyber_poly *r, const unsigned char msg[KYBER_SYMBYTES]);
+void kyber_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const kyber_poly *r);
 
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce,
-        uint64_t kyber_eta);
+void kyber_poly_getnoise(kyber_poly *r,const unsigned char *seed,
+        unsigned char nonce, uint64_t kyber_eta);
 
-void poly_ntt(poly *r);
-void poly_invntt(poly *r);
+void kyber_poly_ntt(kyber_poly *r);
+void kyber_poly_invntt(kyber_poly *r);
 
-void poly_add(poly *r, const poly *a, const poly *b);
-void poly_sub(poly *r, const poly *a, const poly *b);
+void kyber_poly_add(kyber_poly *r, const kyber_poly *a, const kyber_poly *b);
+void kyber_poly_sub(kyber_poly *r, const kyber_poly *a, const kyber_poly *b);
 
 #endif

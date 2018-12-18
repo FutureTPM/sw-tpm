@@ -27,14 +27,14 @@ void kyber_ntt(uint16_t *p) {
     for(int start = 0; start < KYBER_N; start = j + (1<<level)) {
       zeta = kyber_zetas[k++];
       for(j = start; j < start + (1<<level); ++j) {
-        t = montgomery_reduce((uint32_t)zeta * p[j + (1<<level)]);
+        t = kyber_montgomery_reduce((uint32_t)zeta * p[j + (1<<level)]);
 
-        p[j + (1<<level)] = barrett_reduce(p[j] + 4*KYBER_Q - t);
+        p[j + (1<<level)] = kyber_barrett_reduce(p[j] + 4*KYBER_Q - t);
 
         if(level & 1) /* odd level */
           p[j] = p[j] + t; /* Omit reduction (be lazy) */
         else
-          p[j] = barrett_reduce(p[j] + t);
+          p[j] = kyber_barrett_reduce(p[j] + t);
       }
     }
   }
@@ -61,17 +61,17 @@ void kyber_invntt(uint16_t * a) {
         temp = a[j];
 
         if(level & 1) /* odd level */
-          a[j] = barrett_reduce((temp + a[j + (1<<level)]));
+          a[j] = kyber_barrett_reduce((temp + a[j + (1<<level)]));
         else
           a[j] = (temp + a[j + (1<<level)]); /* Omit reduction (be lazy) */
 
         t = (W * ((uint32_t)temp + 4*KYBER_Q - a[j + (1<<level)]));
 
-        a[j + (1<<level)] = montgomery_reduce(t);
+        a[j + (1<<level)] = kyber_montgomery_reduce(t);
       }
     }
   }
 
   for(size_t j = 0; j < KYBER_N; j++)
-    a[j] = montgomery_reduce((a[j] * kyber_psis_inv_montgomery[j]));
+    a[j] = kyber_montgomery_reduce((a[j] * kyber_psis_inv_montgomery[j]));
 }

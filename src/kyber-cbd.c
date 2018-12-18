@@ -32,7 +32,7 @@ static uint64_t load_littleendian(const unsigned char *x, int bytes) {
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *buf: pointer to input byte array
 **************************************************/
-void cbd(poly *r, const unsigned char *buf, const uint64_t kyber_eta) {
+void kyber_cbd(kyber_poly *r, const unsigned char *buf, const uint64_t kyber_eta) {
     if (kyber_eta == 3) {
       uint32_t t,d, a[4], b[4];
       int i,j;

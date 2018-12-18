@@ -2,10 +2,10 @@
 #define DILITHIUM_KEYGEN_FP_H
 
 typedef struct {
-    BYTE	sec_sel;
+    BYTE	mode;
 } DILITHIUM_KeyGen_In;
 
-#define RC_DILITHIUM_KeyGen_sec_sel		(TPM_RC_P + TPM_RC_1)
+#define RC_DILITHIUM_KeyGen_mode		(TPM_RC_P + TPM_RC_1)
 
 typedef struct {
     TPM2B_DILITHIUM_PUBLIC_KEY	public_key;

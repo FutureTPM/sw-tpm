@@ -17,13 +17,13 @@
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_compress(unsigned char *r, const poly *a) {
+void kyber_poly_compress(unsigned char *r, const kyber_poly *a) {
   uint32_t t[8];
   unsigned int i,j,k=0;
 
   for(i=0;i<KYBER_N;i+=8) {
     for(j=0;j<8;j++)
-      t[j] = (((freeze(a->coeffs[i+j]) << 3) + KYBER_Q/2)/KYBER_Q) & 7;
+      t[j] = (((kyber_freeze(a->coeffs[i+j]) << 3) + KYBER_Q/2)/KYBER_Q) & 7;
 
     r[k]   =  t[0]       | (t[1] << 3) | (t[2] << 6);
     r[k+1] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
@@ -41,7 +41,7 @@ void poly_compress(unsigned char *r, const poly *a) {
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const unsigned char *a: pointer to input byte array
 **************************************************/
-void poly_decompress(poly *r, const unsigned char *a) {
+void kyber_poly_decompress(kyber_poly *r, const unsigned char *a) {
   unsigned int i;
   for(i=0;i<KYBER_N;i+=8) {
     r->coeffs[i+0] =  (((a[0] & 7) * KYBER_Q) + 4)>> 3;
@@ -64,13 +64,13 @@ void poly_decompress(poly *r, const unsigned char *a) {
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const poly *a:    pointer to input polynomial
 **************************************************/
-void poly_tobytes(unsigned char *r, const poly *a) {
+void kyber_poly_tobytes(unsigned char *r, const kyber_poly *a) {
   int i,j;
   uint16_t t[8];
 
   for(i=0;i<KYBER_N/8;i++) {
     for(j=0;j<8;j++)
-      t[j] = freeze(a->coeffs[8*i+j]);
+      t[j] = kyber_freeze(a->coeffs[8*i+j]);
 
     r[13*i+ 0] =  t[0]        & 0xff;
     r[13*i+ 1] = (t[0] >>  8) | ((t[1] & 0x07) << 5);
@@ -97,7 +97,7 @@ void poly_tobytes(unsigned char *r, const poly *a) {
 * Arguments:   - poly *r:                pointer to output polynomial
 *              - const unsigned char *a: pointer to input byte array
 **************************************************/
-void poly_frombytes(poly *r, const unsigned char *a) {
+void kyber_poly_frombytes(kyber_poly *r, const unsigned char *a) {
   int i;
   for(i=0;i<KYBER_N/8;i++) {
     r->coeffs[8*i+0] =  a[13*i+ 0]       | (((uint16_t)a[13*i+ 1] & 0x1f) << 8);
@@ -122,7 +122,7 @@ void poly_frombytes(poly *r, const unsigned char *a) {
 *              - const unsigned char *seed: pointer to input seed
 *              - unsigned char nonce:       one-byte input nonce
 **************************************************/
-void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce,
+void kyber_poly_getnoise(kyber_poly *r,const unsigned char *seed, unsigned char nonce,
         uint64_t kyber_eta) {
   unsigned char buf[kyber_eta*KYBER_N/4];
   unsigned char extseed[KYBER_SYMBYTES+1];
@@ -133,7 +133,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce,
 
   shake256(buf, kyber_eta*KYBER_N/4, extseed, KYBER_SYMBYTES+1);
 
-  cbd(r, buf, kyber_eta);
+  kyber_cbd(r, buf, kyber_eta);
 }
 
 /*************************************************
@@ -145,7 +145,7 @@ void poly_getnoise(poly *r,const unsigned char *seed, unsigned char nonce,
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void poly_ntt(poly *r) {
+void kyber_poly_ntt(kyber_poly *r) {
   kyber_ntt(r->coeffs);
 }
 
@@ -158,7 +158,7 @@ void poly_ntt(poly *r) {
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void poly_invntt(poly *r) {
+void kyber_poly_invntt(kyber_poly *r) {
   kyber_invntt(r->coeffs);
 }
 
@@ -171,10 +171,10 @@ void poly_invntt(poly *r) {
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_add(poly *r, const poly *a, const poly *b) {
+void kyber_poly_add(kyber_poly *r, const kyber_poly *a, const kyber_poly *b) {
   int i;
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = barrett_reduce(a->coeffs[i] + b->coeffs[i]);
+    r->coeffs[i] = kyber_barrett_reduce(a->coeffs[i] + b->coeffs[i]);
 }
 
 /*************************************************
@@ -186,11 +186,11 @@ void poly_add(poly *r, const poly *a, const poly *b) {
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_sub(poly *r, const poly *a, const poly *b)
+void kyber_poly_sub(kyber_poly *r, const kyber_poly *a, const kyber_poly *b)
 {
   int i;
   for(i=0;i<KYBER_N;i++)
-    r->coeffs[i] = barrett_reduce(a->coeffs[i] + 3*KYBER_Q - b->coeffs[i]);
+    r->coeffs[i] = kyber_barrett_reduce(a->coeffs[i] + 3*KYBER_Q - b->coeffs[i]);
 }
 
 /*************************************************
@@ -201,7 +201,7 @@ void poly_sub(poly *r, const poly *a, const poly *b)
 * Arguments:   - poly *r:                  pointer to output polynomial
 *              - const unsigned char *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
+void kyber_poly_frommsg(kyber_poly *r, const unsigned char msg[KYBER_SYMBYTES])
 {
   uint16_t i,j,mask;
 
@@ -221,7 +221,7 @@ void poly_frommsg(poly *r, const unsigned char msg[KYBER_SYMBYTES])
 * Arguments:   - unsigned char *msg: pointer to output message
 *              - const poly *a:      pointer to input polynomial
 **************************************************/
-void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *a) {
+void kyber_poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const kyber_poly *a) {
   uint16_t t;
   int i,j;
 
@@ -230,7 +230,7 @@ void poly_tomsg(unsigned char msg[KYBER_SYMBYTES], const poly *a) {
     msg[i] = 0;
     for(j=0;j<8;j++)
     {
-      t = (((freeze(a->coeffs[8*i+j]) << 1) + KYBER_Q/2)/KYBER_Q) & 1;
+      t = (((kyber_freeze(a->coeffs[8*i+j]) << 1) + KYBER_Q/2)/KYBER_Q) & 1;
       msg[i] |= t << j;
     }
   }

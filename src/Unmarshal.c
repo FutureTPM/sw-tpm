@@ -4477,7 +4477,7 @@ TPM2B_KYBER_CIPHER_TEXT_Unmarshal(TPM2B_KYBER_CIPHER_TEXT *target, BYTE **buffer
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 TPM_RC
-DILITHIUM_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
+DILITHIUM_Mode_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
 {
     TPM_RC rc = TPM_RC_SUCCESS;
 

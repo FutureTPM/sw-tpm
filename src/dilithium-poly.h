@@ -2,51 +2,51 @@
 #define POLY_H
 
 #include <stdint.h>
-#include "params.h"
+#include "dilithium-params.h"
 #include "fips202.h"
 
 typedef struct {
-  uint32_t coeffs[N];
-} poly __attribute__((aligned(32)));
+  uint32_t coeffs[DILITHIUM_N];
+} dilithium_poly __attribute__((aligned(32)));
 
-void poly_reduce(poly *a);
-void poly_csubq(poly *a);
-void poly_freeze(poly *a);
+void dilithium_poly_reduce(dilithium_poly *a);
+void dilithium_poly_csubq(dilithium_poly *a);
+void dilithium_poly_freeze(dilithium_poly *a);
 
-void poly_add(poly *c, const poly *a, const poly *b);
-void poly_sub(poly *c, const poly *a, const poly *b);
-void poly_neg(poly *a);
-void poly_shiftl(poly *a, unsigned int k);
+void dilithium_poly_add(dilithium_poly *c, const dilithium_poly *a, const dilithium_poly *b);
+void dilithium_poly_sub(dilithium_poly *c, const dilithium_poly *a, const dilithium_poly *b);
+void dilithium_poly_neg(dilithium_poly *a);
+void dilithium_poly_shiftl(dilithium_poly *a, unsigned int k);
 
-void poly_ntt(poly *a);
-void poly_invntt_montgomery(poly *a);
-void poly_pointwise_invmontgomery(poly *c, const poly *a, const poly *b);
+void dilithium_poly_ntt(dilithium_poly *a);
+void dilithium_poly_invntt_montgomery(dilithium_poly *a);
+void dilithium_poly_pointwise_invmontgomery(dilithium_poly *c, const dilithium_poly *a, const dilithium_poly *b);
 
-void poly_power2round(poly *a1, poly *a0, const poly *a);
-void poly_decompose(poly *a1, poly *a0, const poly *a);
-unsigned int poly_make_hint(poly *h, const poly *a, const poly *b);
-void poly_use_hint(poly *a, const poly *b, const poly *h);
+void dilithium_poly_power2round(dilithium_poly *a1, dilithium_poly *a0, const dilithium_poly *a);
+void dilithium_poly_decompose(dilithium_poly *a1, dilithium_poly *a0, const dilithium_poly *a);
+unsigned int dilithium_poly_make_hint(dilithium_poly *h, const dilithium_poly *a, const dilithium_poly *b);
+void dilithium_poly_use_hint(dilithium_poly *a, const dilithium_poly *b, const dilithium_poly *h);
 
-int  poly_chknorm(const poly *a, uint32_t B);
-void poly_uniform(poly *a, const unsigned char *buf);
-void poly_uniform_eta(poly *a,
-                      const unsigned char seed[SEEDBYTES],
-                      unsigned char nonce);
-void poly_uniform_gamma1m1(poly *a,
-                           const unsigned char seed[SEEDBYTES + CRHBYTES],
+int  dilithium_poly_chknorm(const dilithium_poly *a, uint32_t B);
+void dilithium_poly_uniform(dilithium_poly *a, const unsigned char *buf);
+void dilithium_poly_uniform_eta(dilithium_poly *a,
+                      const unsigned char seed[DILITHIUM_SEEDBYTES],
+                      unsigned char nonce, uint64_t dilithium_eta);
+void dilithium_poly_uniform_gamma1m1(dilithium_poly *a,
+                           const unsigned char seed[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES],
                            uint16_t nonce);
 
-void polyeta_pack(unsigned char *r, const poly *a);
-void polyeta_unpack(poly *r, const unsigned char *a);
+void dilithium_polyeta_pack(unsigned char *r, const dilithium_poly *a, uint64_t dilithium_eta);
+void dilithium_polyeta_unpack(dilithium_poly *r, const unsigned char *a, uint64_t dilithium_eta);
 
-void polyt1_pack(unsigned char *r, const poly *a);
-void polyt1_unpack(poly *r, const unsigned char *a);
+void dilithium_polyt1_pack(unsigned char *r, const dilithium_poly *a);
+void dilithium_polyt1_unpack(dilithium_poly *r, const unsigned char *a);
 
-void polyt0_pack(unsigned char *r, const poly *a);
-void polyt0_unpack(poly *r, const unsigned char *a);
+void dilithium_polyt0_pack(unsigned char *r, const dilithium_poly *a);
+void dilithium_polyt0_unpack(dilithium_poly *r, const unsigned char *a);
 
-void polyz_pack(unsigned char *r, const poly *a);
-void polyz_unpack(poly *r, const unsigned char *a);
+void dilithium_polyz_pack(unsigned char *r, const dilithium_poly *a);
+void dilithium_polyz_unpack(dilithium_poly *r, const unsigned char *a);
 
-void polyw1_pack(unsigned char *r, const poly *a);
+void dilithium_polyw1_pack(unsigned char *r, const dilithium_poly *a);
 #endif

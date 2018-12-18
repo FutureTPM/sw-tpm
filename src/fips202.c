@@ -463,6 +463,76 @@ void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, u
 }
 
 /*************************************************
+* Name:        shake256_absorb
+*
+* Description: Absorb step of the SHAKE256 XOF.
+*              non-incremental, starts by zeroeing the state.
+*
+* Arguments:   - uint64_t *s: pointer to (uninitialized) output Keccak state
+*              - const unsigned char *input: pointer to input to be absorbed
+*                                            into s
+*              - unsigned long long inlen: length of input in bytes
+**************************************************/
+void shake256_absorb(uint64_t *s,
+                     const unsigned char *input,
+                     unsigned long long inlen)
+{
+  keccak_absorb(s, SHAKE256_RATE, input, inlen, 0x1F);
+}
+
+/*************************************************
+* Name:        shake256_squeezeblocks
+*
+* Description: Squeeze step of SHAKE256 XOF. Squeezes full blocks of
+*              SHAKE256_RATE bytes each. Modifies the state. Can be called
+*              multiple times to keep squeezing, i.e., is incremental.
+*
+* Arguments:   - unsigned char *output: pointer to output blocks
+*              - unsigned long long nblocks: number of blocks to be squeezed
+*                                            (written to output)
+*              - uint64_t *s: pointer to input/output Keccak state
+**************************************************/
+void shake256_squeezeblocks(unsigned char *output,
+                            unsigned long nblocks,
+                            uint64_t *s)
+{
+  keccak_squeezeblocks(output, nblocks, s, SHAKE256_RATE);
+}
+
+/*************************************************
+* Name:        shake128
+*
+* Description: SHAKE128 XOF with non-incremental API
+*
+* Arguments:   - unsigned char *output: pointer to output
+*              - unsigned long long outlen: requested output length in bytes
+*              - const unsigned char *input: pointer to input
+*              - unsigned long long inlen: length of input in bytes
+**************************************************/
+void shake128(unsigned char *output,
+              unsigned long long outlen,
+              const unsigned char *input,
+              unsigned long long inlen)
+{
+  unsigned int i;
+  unsigned long nblocks = outlen/SHAKE128_RATE;
+  unsigned char t[SHAKE128_RATE];
+  uint64_t s[25];
+
+  shake128_absorb(s, input, inlen);
+  shake128_squeezeblocks(output, nblocks, s);
+
+  output += nblocks*SHAKE128_RATE;
+  outlen -= nblocks*SHAKE128_RATE;
+
+  if(outlen) {
+    shake128_squeezeblocks(t, 1, s);
+    for(i = 0; i < outlen; ++i)
+      output[i] = t[i];
+  }
+}
+
+/*************************************************
 * Name:        shake256
 *
 * Description: SHAKE256 XOF with non-incremental API

@@ -6,26 +6,26 @@
 #include "kyber-poly.h"
 
 typedef struct{
-  poly vec[MAX_KYBER_K];
-} polyvec;
+  kyber_poly vec[MAX_KYBER_K];
+} kyber_polyvec;
 
-void polyvec_compress(unsigned char *r, const polyvec *a,
+void kyber_polyvec_compress(unsigned char *r, const kyber_polyvec *a,
         const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes);
-void polyvec_decompress(polyvec *r, const unsigned char *a,
+void kyber_polyvec_decompress(kyber_polyvec *r, const unsigned char *a,
         const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes);
 
-void polyvec_tobytes(unsigned char *r, const polyvec *a,
+void kyber_polyvec_tobytes(unsigned char *r, const kyber_polyvec *a,
         const uint64_t kyber_k);
-void polyvec_frombytes(polyvec *r, const unsigned char *a,
-        const uint64_t kyber_k);
-
-void polyvec_ntt(polyvec *r, const uint64_t kyber_k);
-void polyvec_invntt(polyvec *r, const uint64_t kyber_k);
-
-void polyvec_pointwise_acc(poly *r, const polyvec *a, const polyvec *b,
+void kyber_polyvec_frombytes(kyber_polyvec *r, const unsigned char *a,
         const uint64_t kyber_k);
 
-void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b,
+void kyber_polyvec_ntt(kyber_polyvec *r, const uint64_t kyber_k);
+void kyber_polyvec_invntt(kyber_polyvec *r, const uint64_t kyber_k);
+
+void kyber_polyvec_pointwise_acc(kyber_poly *r, const kyber_polyvec *a, const kyber_polyvec *b,
+        const uint64_t kyber_k);
+
+void kyber_polyvec_add(kyber_polyvec *r, const kyber_polyvec *a, const kyber_polyvec *b,
         const uint64_t kyber_k);
 
 #endif

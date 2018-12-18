@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-int verify(const unsigned char *a, const unsigned char *b, size_t len);
+int kyber_verify(const unsigned char *a, const unsigned char *b, size_t len);
 
-void cmov(unsigned char *r, const unsigned char *x, size_t len, unsigned char b);
+void kyber_cmov(unsigned char *r, const unsigned char *x, size_t len, unsigned char b);
 
 #endif
