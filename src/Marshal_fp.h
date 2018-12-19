@@ -401,6 +401,8 @@ extern "C" {
     TPM2B_DILITHIUM_SECRET_KEY_Marshal(TPM2B_DILITHIUM_SECRET_KEY *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_DILITHIUM_MESSAGE_Marshal(TPM2B_DILITHIUM_MESSAGE *source, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/

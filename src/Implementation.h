@@ -689,6 +689,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 #define CC_DILITHIUM_KeyGen               (CC_YES && ALG_DILITHIUM)
 #define CC_DILITHIUM_Sign                 (CC_YES && ALG_DILITHIUM)
+#define CC_DILITHIUM_Verify               (CC_YES && ALG_DILITHIUM)
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -1078,6 +1079,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_DILITHIUM_Sign
 #define TPM_CC_DILITHIUM_Sign                   (TPM_CC)(0x0000019B)
 #endif
+#if         CC_DILITHIUM_Verify
+#define TPM_CC_DILITHIUM_Verify                 (TPM_CC)(0x0000019B)
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -1245,6 +1249,7 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_Dec)                            \
                       + (ADD_FILL || CC_DILITHIUM_KeyGen)                     \
                       + (ADD_FILL || CC_DILITHIUM_Sign)                       \
+                      + (ADD_FILL || CC_DILITHIUM_Verify)                     \
 					  )
 
 

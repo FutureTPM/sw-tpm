@@ -4519,6 +4519,17 @@ TPM2B_DILITHIUM_MESSAGE_Unmarshal(TPM2B_DILITHIUM_MESSAGE *target, BYTE **buffer
     }
     return rc;
 }
+
+TPM_RC
+TPM2B_DILITHIUM_SIGNED_MESSAGE_Unmarshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/

@@ -460,6 +460,9 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_DILITHIUM_Sign)
     TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+#if (PAD_LIST  || CC_DILITHIUM_Verify)
+    TPMA_CC_INITIALIZER(0x019C, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
@@ -992,6 +995,10 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_DILITHIUM_Sign)
     (COMMAND_ATTRIBUTES)(CC_DILITHIUM_Sign              *  // 0x019B
+			 (IS_IMPLEMENTED)),
+#endif
+#if (PAD_LIST  || CC_DILITHIUM_Verify)
+    (COMMAND_ATTRIBUTES)(CC_DILITHIUM_Verify            *  // 0x019C
 			 (IS_IMPLEMENTED)),
 #endif
 /*****************************************************************************/

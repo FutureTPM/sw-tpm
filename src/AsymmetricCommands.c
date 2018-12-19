@@ -826,6 +826,105 @@ TPM2_DILITHIUM_Sign(
 }
 #endif // ALG_DILITHIUM
 #endif // CC_DILITHIUM_Sign
+
+#if CC_DILITHIUM_Verify  // Conditional expansion of this file
+#include "Tpm.h"
+#include "DILITHIUM_Verify_fp.h"
+#include "dilithium-params.h"
+#include "dilithium-sign.h"
+#include "fips202.h"
+#include "dilithium-polyvec.h"
+#include "dilithium-sign.h"
+#include "dilithium-packing.h"
+#if ALG_DILITHIUM
+
+TPM_RC
+TPM2_DILITHIUM_Verify(
+		 DILITHIUM_Verify_In      *in,            // In: input parameter list
+		 DILITHIUM_Verify_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   result = TPM_RC_SUCCESS;
+    DilithiumParams params;
+    unsigned long long i;
+    unsigned char rho[DILITHIUM_SEEDBYTES];
+    unsigned char mu[DILITHIUM_CRHBYTES];
+    dilithium_poly c, chat, cp;
+    dilithium_polyvecl mat[6], z; // Max K for Dilithium
+    dilithium_polyveck t1, w1, h, tmp1, tmp2;
+
+    if (in->mode >= 0 && in->mode <= 3) {
+        params = generate_dilithium_params(in->mode);
+    } else {
+        return TPM_RC_SUCCESS + 2;
+    }
+
+    if(in->signed_message.b.size < params.crypto_bytes)
+      goto badsig;
+
+    out->message.b.size = in->signed_message.b.size - params.crypto_bytes;
+
+    dilithium_unpack_pk(rho, &t1, in->public_key.b.buffer, params.k, params.polt1_size_packed);
+    if(dilithium_unpack_sig(&z, &h, &c, in->signed_message.b.buffer, params.k, params.l, params.polz_size_packed, params.omega))
+      goto badsig;
+    if(dilithium_polyvecl_chknorm(&z, DILITHIUM_GAMMA1 - params.beta, params.l))
+      goto badsig;
+
+    /* Compute CRH(CRH(rho, t1), msg) using m as "playground" buffer */
+    if(in->signed_message.b.buffer != out->message.b.buffer)
+      for(i = 0; i < out->message.b.size; ++i)
+        out->message.b.buffer[params.crypto_bytes + i] = in->signed_message.b.buffer[params.crypto_bytes + i];
+
+    shake256(out->message.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+            DILITHIUM_CRHBYTES,
+            in->public_key.b.buffer, params.crypto_publickeybytes);
+    shake256(mu, DILITHIUM_CRHBYTES,
+            out->message.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+            DILITHIUM_CRHBYTES + out->message.b.size);
+
+    /* Matrix-vector multiplication; compute Az - c2^dt1 */
+    dilithium_expand_mat(mat, rho, params.k, params.l);
+    dilithium_polyvecl_ntt(&z, params.l);
+    for(i = 0; i < params.k; ++i)
+      dilithium_polyvecl_pointwise_acc_invmontgomery(tmp1.vec+i, mat+i, &z, params.l);
+
+    chat = c;
+    dilithium_poly_ntt(&chat);
+    dilithium_polyveck_shiftl(&t1, DILITHIUM_D, params.k);
+    dilithium_polyveck_ntt(&t1, params.k);
+    for(i = 0; i < params.k; ++i)
+      dilithium_poly_pointwise_invmontgomery(tmp2.vec+i, &chat, t1.vec+i);
+
+    dilithium_polyveck_sub(&tmp1, &tmp1, &tmp2, params.k);
+    dilithium_polyveck_reduce(&tmp1, params.k);
+    dilithium_polyveck_invntt_montgomery(&tmp1, params.k);
+
+    /* Reconstruct w1 */
+    dilithium_polyveck_csubq(&tmp1, params.k);
+    dilithium_polyveck_use_hint(&w1, &tmp1, &h, params.k);
+
+    /* Call random oracle and verify challenge */
+    dilithium_challenge(&cp, mu, &w1, params.k, params.polw1_size_packed);
+    for(i = 0; i < DILITHIUM_N; ++i)
+      if(c.coeffs[i] != cp.coeffs[i])
+        goto badsig;
+
+    /* All good, copy msg, return 0 */
+    for(i = 0; i < out->message.b.size; ++i)
+      out->message.b.buffer[i] = in->signed_message.b.buffer[params.crypto_bytes + i];
+
+    return result;
+
+    /* Signature verification failed */
+    badsig:
+    out->message.b.size = (UINT16) -1;
+    for(i = 0; i < in->signed_message.b.size; ++i)
+      out->message.b.buffer[i] = 0;
+
+    return result-1;
+}
+#endif // ALG_DILITHIUM
+#endif // CC_DILITHIUM_Verify
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/

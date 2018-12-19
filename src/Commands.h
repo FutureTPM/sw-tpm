@@ -473,6 +473,9 @@
 #if CC_DILITHIUM_Sign
 #include "DILITHIUM_Sign_fp.h"
 #endif
+#if CC_DILITHIUM_Verify
+#include "DILITHIUM_Verify_fp.h"
+#endif
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
