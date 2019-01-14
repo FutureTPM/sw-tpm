@@ -475,6 +475,13 @@ typedef UINT16                          TPM_ALG_ID;
 #define     ALG_LAST_VALUE              0x0044
 #define TPM_ALG_LAST                    (TPM_ALG_ID)(ALG_LAST_VALUE)
 
+typedef  UINT8             TPM_DILITHIUM_MODE;
+#define  TPM_DILITHIUM_MODE_NONE (TPM_DILITHIUM_MODE)(0x04)
+#define  TPM_DILITHIUM_MODE_0    (TPM_DILITHIUM_MODE)(0x00)
+#define  TPM_DILITHIUM_MODE_1    (TPM_DILITHIUM_MODE)(0x01)
+#define  TPM_DILITHIUM_MODE_2    (TPM_DILITHIUM_MODE)(0x02)
+#define  TPM_DILITHIUM_MODE_3    (TPM_DILITHIUM_MODE)(0x03)
+
 /*     From TCG Algorithm Registry: Table 3 - Definition of TPM_ECC_CURVE Constants */
 typedef  UINT16             TPM_ECC_CURVE;
 #define  TPM_ECC_NONE         (TPM_ECC_CURVE)(0x0000)

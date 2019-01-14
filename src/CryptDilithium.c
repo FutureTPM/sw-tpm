@@ -30,7 +30,7 @@ static DilithiumParams generate_dilithium_params(BYTE mode) {
     DilithiumParams params;
 
     switch(mode) {
-        case 0:
+        case TPM_DILITHIUM_MODE_0:
             params.k = 3;
             params.l = 2;
             params.eta = 7;
@@ -38,7 +38,7 @@ static DilithiumParams generate_dilithium_params(BYTE mode) {
             params.beta = 375;
             params.omega = 64;
             break;
-        case 1:
+        case TPM_DILITHIUM_MODE_1:
             params.k = 4;
             params.l = 3;
             params.eta = 6;
@@ -46,7 +46,7 @@ static DilithiumParams generate_dilithium_params(BYTE mode) {
             params.beta = 325;
             params.omega = 80;
             break;
-        case 2:
+        case TPM_DILITHIUM_MODE_2:
             params.k = 5;
             params.l = 4;
             params.eta = 5;
@@ -54,13 +54,18 @@ static DilithiumParams generate_dilithium_params(BYTE mode) {
             params.beta = 275;
             params.omega = 96;
             break;
-        case 3:
+        case TPM_DILITHIUM_MODE_3:
             params.k = 6;
             params.l = 5;
             params.eta = 3;
             params.setabits = 3;
             params.beta = 175;
             params.omega = 120;
+            break;
+        default:
+            // A call to this function should be protected against invalid
+            // dilithium modes, i.e.,
+            // TPM_DILITHIUM_MODE_0 <= mode <= TPM_DILITHIUM_MODE_3
             break;
     }
 
@@ -118,7 +123,8 @@ CryptDilithiumSign(
         return retVal;
 	}
 
-    if (sigOut->signature.dilithium.mode >= 0 && sigOut->signature.dilithium.mode <= 3) {
+    if (sigOut->signature.dilithium.mode >= TPM_DILITHIUM_MODE_0 &&
+            sigOut->signature.dilithium.mode <= TPM_DILITHIUM_MODE_3) {
         params = generate_dilithium_params(sigOut->signature.dilithium.mode);
     } else {
         return TPM_RC_VALUE;
@@ -259,7 +265,8 @@ CryptDilithiumValidateSignature(
 	}
 
     TEST(sig->sigAlg);
-    if (sig->signature.dilithium.mode >= 0 && sig->signature.dilithium.mode <= 3) {
+    if (sig->signature.dilithium.mode >= TPM_DILITHIUM_MODE_0 &&
+            sig->signature.dilithium.mode <= TPM_DILITHIUM_MODE_3) {
         params = generate_dilithium_params(sig->signature.dilithium.mode);
     } else {
         return TPM_RC_SUCCESS + 2;
@@ -368,7 +375,8 @@ CryptDilithiumGenerateKey(
     if (!IS_ATTRIBUTE(publicArea->objectAttributes, TPMA_OBJECT, sign))
         ERROR_RETURN(TPM_RC_NO_RESULT);
 
-    if (publicArea->parameters.dilithiumDetail.mode >= 0 && publicArea->parameters.dilithiumDetail.mode <= 3) {
+    if (publicArea->parameters.dilithiumDetail.mode >= TPM_DILITHIUM_MODE_0 &&
+            publicArea->parameters.dilithiumDetail.mode <= TPM_DILITHIUM_MODE_3) {
         params = generate_dilithium_params(publicArea->parameters.dilithiumDetail.mode);
     } else {
         return TPM_RC_VALUE;
