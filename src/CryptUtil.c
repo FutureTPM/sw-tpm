@@ -961,6 +961,12 @@ CryptCreateObject(
 					 rand);
 	    break;
 #endif // TPM_ALG_ECC
+#if ALG_DILITHIUM
+	    // Create DILITHIUM key
+	  case TPM_ALG_DILITHIUM:
+	    result = CryptDilithiumGenerateKey(object, rand);
+	    break;
+#endif // TPM_ALG_DILITHIUM
 	  case TPM_ALG_SYMCIPHER:
 	    result = CryptGenerateKeySymmetric(&object->publicArea,
 					       &object->sensitive,
@@ -1132,6 +1138,10 @@ CryptIsAsymSignScheme(
 		}
 	    break;
 #endif //TPM_ALG_ECC
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+        break;
+#endif // TPM_ALG_DILITHIUM
 	  default:
 	    isSignScheme = FALSE;
 	    break;
@@ -1318,6 +1328,11 @@ CryptSign(
 				  (TPMT_ECC_SCHEME *)signScheme, NULL);
 	    break;
 #endif //TPM_ALG_ECC
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+        result = CryptDilithiumSign(signature, signKey, digest);
+        break;
+#endif // TPM_ALG_DILITHIUM
 	  case TPM_ALG_KEYEDHASH:
 	    result = CryptHmacSign(signature, signKey, digest);
 	    break;
@@ -1367,6 +1382,12 @@ CryptValidateSignature(
 		  break;
 	      }
 #endif //TPM_ALG_RSA
+#if ALG_DILITHIUM
+	  case TPM_ALG_DILITHIUM:
+		  // Call DILITHIUM code to verify signature
+		  result = CryptDilithiumValidateSignature(signature, signObject, digest);
+		  break;
+#endif //TPM_ALG_DILITHIUM
 #if ALG_ECC
 	  case TPM_ALG_ECC:
 	    result = CryptEccValidateSignature(signature, signObject, digest);

@@ -125,6 +125,9 @@
 #include "CryptRsa_fp.h"
 #include "CryptPrimeSieve_fp.h"
 #endif
+#if ALG_DILITHIUM
+#include "CryptDilithium_fp.h"
+#endif
 #if ALG_ECC
 #include "CryptEccMain_fp.h"
 #include "CryptEccSignature_fp.h"

@@ -500,9 +500,17 @@ extern "C" {
     TPM_RC
     TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(TPM2B_DILITHIUM_SECRET_KEY *target, BYTE **buffer, INT32 *size);
     TPM_RC
-    TPM2B_DILITHIUM_MESSAGE_Unmarshal(TPM2B_DILITHIUM_MESSAGE *target, BYTE **buffer, INT32 *size);
-    TPM_RC
     TPM2B_DILITHIUM_SIGNED_MESSAGE_Unmarshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(TPMS_SIG_SCHEME_DILITHIUM *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMS_SIGNATURE_DILITHIUM_Unmarshal(TPMS_SIGNATURE_DILITHIUM *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMS_DILITHIUM_PARMS_Unmarshal(TPMS_DILITHIUM_PARMS *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMT_DILITHIUM_SCHEME_Unmarshal(TPMT_DILITHIUM_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull);
+    TPM_RC
+    TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(TPMI_ALG_DILITHIUM_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull);
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/

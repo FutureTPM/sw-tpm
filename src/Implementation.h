@@ -212,12 +212,14 @@
 #define  MIN_EVICT_OBJECTS              7	/* for PC Client */
 #define  NUM_POLICY_PCR_GROUP           1
 #define  NUM_AUTHVALUE_PCR_GROUP        1
-#define  MAX_CONTEXT_SIZE               4096
+//#define  MAX_CONTEXT_SIZE               4096
+#define  MAX_CONTEXT_SIZE               8192
 #define  MAX_DIGEST_BUFFER              1024
 #define  MAX_NV_INDEX_SIZE              2048
 #define  MAX_NV_BUFFER_SIZE             1024
 #define  MAX_CAP_BUFFER                 1024
-#define  NV_MEMORY_SIZE                 32768
+//#define  NV_MEMORY_SIZE                 32768
+#define  NV_MEMORY_SIZE                 65536
 #define  MIN_COUNTER_INDICES            8
 #define  NUM_STATIC_PCR                 16
 #define  MAX_ALG_LIST_SIZE              64
@@ -434,9 +436,9 @@ typedef UINT16                          TPM_ALG_ID;
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
-#define     ALG_DILITHIUM_VALUE             0x002B
+#define     ALG_DILITHIUM_VALUE         0x002B
 #if         ALG_DILITHIUM
-#define TPM_ALG_DILITHIUM                   (TPM_ALG_ID)(ALG_DILITHIUM_VALUE)
+#define TPM_ALG_DILITHIUM               (TPM_ALG_ID)(ALG_DILITHIUM_VALUE)
 #endif   // ALG_DILITHIUM
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
@@ -682,16 +684,6 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-#define CC_DILITHIUM_KeyGen               (CC_YES && ALG_DILITHIUM)
-#define CC_DILITHIUM_Sign                 (CC_YES && ALG_DILITHIUM)
-#define CC_DILITHIUM_Verify               (CC_YES && ALG_DILITHIUM)
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
 /*****************************************************************************/
 
 #ifdef TPM_NUVOTON
@@ -1070,22 +1062,6 @@ typedef UINT32                              TPM_CC;
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-#if         CC_DILITHIUM_KeyGen
-#define TPM_CC_DILITHIUM_KeyGen                 (TPM_CC)(0x0000019A)
-#endif
-#if         CC_DILITHIUM_Sign
-#define TPM_CC_DILITHIUM_Sign                   (TPM_CC)(0x0000019B)
-#endif
-#if         CC_DILITHIUM_Verify
-#define TPM_CC_DILITHIUM_Verify                 (TPM_CC)(0x0000019B)
-#endif
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-
 #define CC_VEND                             0x20000000
 #if         CC_Vendor_TCG_Test
 #define TPM_CC_Vendor_TCG_Test              (TPM_CC)(0x20000000)
@@ -1114,7 +1090,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x0000019B
+#define TPM_CC_LAST                         0x00000199
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1247,9 +1223,6 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_KeyGen)                         \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
-                      + (ADD_FILL || CC_DILITHIUM_KeyGen)                     \
-                      + (ADD_FILL || CC_DILITHIUM_Sign)                       \
-                      + (ADD_FILL || CC_DILITHIUM_Verify)                     \
 					  )
 
 

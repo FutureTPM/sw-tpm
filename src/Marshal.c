@@ -1328,6 +1328,14 @@ TPMT_KEYEDHASH_SCHEME_Marshal(TPMT_KEYEDHASH_SCHEME *source, BYTE **buffer, INT3
     return written;
 }
 
+UINT16
+TPMS_SIG_SCHEME_DILITHIUM_Marshal(TPMS_SIG_SCHEME_DILITHIUM *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPMS_SCHEME_HASH_Marshal(source, buffer, size);
+    return written;
+}
+
 /* Table 2:149 - Definition of Types for RSA Signature Schemes (TypedefTable()) */
 
 UINT16
@@ -1532,6 +1540,11 @@ TPMU_ASYM_SCHEME_Marshal(TPMU_ASYM_SCHEME  *source, BYTE **buffer, INT32 *size, 
 	written += TPMS_KEY_SCHEME_ECMQV_Marshal(&source->ecmqv, buffer, size);
 	break;
 #endif
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+	written += TPMS_SIG_SCHEME_DILITHIUM_Marshal(&source->dilithium, buffer, size);
+	break;
+#endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
 	written += TPMS_SIG_SCHEME_RSASSA_Marshal(&source->rsassa, buffer, size);
@@ -1590,6 +1603,14 @@ TPMI_ALG_RSA_SCHEME_Marshal(TPMI_ALG_RSA_SCHEME *source, BYTE **buffer, INT32 *s
     return written;
 }
 
+UINT16
+TPMI_ALG_DILITHIUM_SCHEME_Marshal(TPMI_ALG_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM_ALG_ID_Marshal(source, buffer, size);
+    return written;
+}
+
 /* Table 2:162 - Definition of TPMT_RSA_SCHEME Structure (StructuresTable()) */
 
 UINT16
@@ -1598,6 +1619,16 @@ TPMT_RSA_SCHEME_Marshal(TPMT_RSA_SCHEME *source, BYTE **buffer, INT32 *size)
     UINT16 written = 0;
 
     written += TPMI_ALG_RSA_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
+    return written;
+}
+
+UINT16
+TPMT_DILITHIUM_SCHEME_Marshal(TPMT_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMI_ALG_DILITHIUM_SCHEME_Marshal(&source->scheme, buffer, size);
     written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
     return written;
 }
@@ -1796,6 +1827,17 @@ TPMS_SIGNATURE_ECSCHNORR_Marshal(TPMS_SIGNATURE_ECSCHNORR *source, BYTE **buffer
     return written;
 }
 
+UINT16
+TPMS_SIGNATURE_DILITHIUM_Marshal(TPMS_SIGNATURE_DILITHIUM *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMI_ALG_HASH_Marshal(&source->hash, buffer, size);
+    written += TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal(&source->sig, buffer, size);
+    written += UINT8_Marshal(&source->mode, buffer, size);
+    return written;
+}
+
 /* Table 2:179 - Definition of TPMU_SIGNATURE Union (StructuresTable()) */
 UINT16
 TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, INT32 *size, UINT32 selector)
@@ -1803,6 +1845,11 @@ TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, INT32 *size, UINT3
     UINT16 written = 0;
 
     switch (selector) {
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+	written += TPMS_SIGNATURE_DILITHIUM_Marshal(&source->dilithium, buffer, size);
+	break;
+#endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
 	written += TPMS_SIGNATURE_RSASSA_Marshal(&source->rsassa, buffer, size);
@@ -1901,6 +1948,11 @@ TPMU_PUBLIC_ID_Marshal(TPMU_PUBLIC_ID *source, BYTE **buffer, INT32 *size, UINT3
 	written += TPM2B_PUBLIC_KEY_RSA_Marshal(&source->rsa, buffer, size);
 	break;
 #endif
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+	written += TPM2B_DILITHIUM_PUBLIC_KEY_Marshal(&source->dilithium, buffer, size);
+	break;
+#endif
 #if ALG_ECC
       case TPM_ALG_ECC:
 	written += TPMS_ECC_POINT_Marshal(&source->ecc, buffer, size);
@@ -1950,6 +2002,17 @@ TPMS_ECC_PARMS_Marshal(TPMS_ECC_PARMS *source, BYTE **buffer, INT32 *size)
     return written;
 }
 
+UINT16
+TPMS_DILITHIUM_PARMS_Marshal(TPMS_DILITHIUM_PARMS *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMT_SYM_DEF_OBJECT_Marshal(&source->symmetric, buffer, size);
+    written += TPMT_DILITHIUM_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += UINT8_Marshal(&source->mode, buffer, size);
+    return written;
+}
+
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union (StructuresTable()) */
 
 UINT16
@@ -1971,6 +2034,11 @@ TPMU_PUBLIC_PARMS_Marshal(TPMU_PUBLIC_PARMS *source, BYTE **buffer, INT32 *size,
 #if ALG_RSA
       case TPM_ALG_RSA:
 	written += TPMS_RSA_PARMS_Marshal(&source->rsaDetail, buffer, size);
+	break;
+#endif
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+	written += TPMS_DILITHIUM_PARMS_Marshal(&source->dilithiumDetail, buffer, size);
 	break;
 #endif
 #if ALG_ECC
@@ -2040,6 +2108,11 @@ TPMU_SENSITIVE_COMPOSITE_Marshal(TPMU_SENSITIVE_COMPOSITE *source, BYTE **buffer
     UINT16 written = 0;
 
     switch (selector) {
+#if ALG_DILITHIUM
+      case TPM_ALG_DILITHIUM:
+	written += TPM2B_DILITHIUM_SECRET_KEY_Marshal(&source->dilithium, buffer, size);
+	break;
+#endif
 #if ALG_RSA
       case TPM_ALG_RSA:
 	written += TPM2B_PRIVATE_KEY_RSA_Marshal(&source->rsa, buffer, size);
@@ -2269,14 +2342,6 @@ TPM2B_DILITHIUM_SECRET_KEY_Marshal(TPM2B_DILITHIUM_SECRET_KEY *source, BYTE **bu
 
 UINT16
 TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size)
-{
-    UINT16 written = 0;
-    written += TPM2B_Marshal(&source->b, buffer, size);
-    return written;
-}
-
-UINT16
-TPM2B_DILITHIUM_MESSAGE_Marshal(TPM2B_DILITHIUM_MESSAGE *source, BYTE **buffer, INT32 *size)
 {
     UINT16 written = 0;
     written += TPM2B_Marshal(&source->b, buffer, size);

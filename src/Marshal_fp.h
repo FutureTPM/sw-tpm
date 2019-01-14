@@ -402,7 +402,15 @@ extern "C" {
     UINT16
     TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size);
     UINT16
-    TPM2B_DILITHIUM_MESSAGE_Marshal(TPM2B_DILITHIUM_MESSAGE *source, BYTE **buffer, INT32 *size);
+    TPMS_SIG_SCHEME_DILITHIUM_Marshal(TPMS_SIG_SCHEME_DILITHIUM *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_SIGNATURE_DILITHIUM_Marshal(TPMS_SIGNATURE_DILITHIUM *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_DILITHIUM_PARMS_Marshal(TPMS_DILITHIUM_PARMS *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMT_DILITHIUM_SCHEME_Marshal(TPMT_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMI_ALG_DILITHIUM_SCHEME_Marshal(TPMI_ALG_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/

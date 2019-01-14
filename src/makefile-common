@@ -90,6 +90,7 @@ HEADERS = 				\
 	CryptHash.h			\
 	CryptHashData.h			\
 	CryptHash_fp.h			\
+	CryptDilithium_fp.h \
 	CryptPrimeSieve_fp.h		\
 	CryptPrime_fp.h			\
 	CryptRand.h			\
@@ -289,6 +290,7 @@ HEADERS = 				\
 	dilithium-sign.h \
 
 OBJFILES = \
+	CryptDilithium.o \
 	dilithium-ntt.o \
 	dilithium-packing.o \
 	dilithium-poly.o \

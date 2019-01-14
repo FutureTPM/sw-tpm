@@ -1007,6 +1007,50 @@ typedef struct {
     TPMI_RH_HIERARCHY       hierarchy;
     TPM2B_DIGEST            digest;
 } TPMT_TK_CREATION;
+
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+#define MAX_DILITHIUM_PUBLIC_KEY_SIZE 1760
+#define MAX_DILITHIUM_SECRET_KEY_SIZE 3856
+#define MAX_DILITHIUM_MESSAGE_SIZE 64 // I think this is a safe digest value even after a SHA3 implementation is added
+#define MAX_DILITHIUM_SIGNED_MESSAGE_SIZE MAX_DILITHIUM_MESSAGE_SIZE+3366
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_DILITHIUM_PUBLIC_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_DILITHIUM_PUBLIC_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_DILITHIUM_SECRET_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_DILITHIUM_SECRET_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_DILITHIUM_SIGNED_MESSAGE_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_DILITHIUM_SIGNED_MESSAGE;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_DILITHIUM_MESSAGE_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_DILITHIUM_MESSAGE;
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
 /* Table 2:90 - Definition of TPMT_TK_VERIFIED Structure  */
 typedef struct {
     TPM_ST                  tag;
@@ -1370,11 +1414,16 @@ typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_ECDSA;
 typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_SM2;
 typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_ECSCHNORR;
 typedef  TPMS_SCHEME_ECDAA    TPMS_SIG_SCHEME_ECDAA;
+
+typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_DILITHIUM;
 /* Table 2:151 - Definition of TPMU_SIG_SCHEME Union  */
 typedef union {
 #if 	ALG_ECC
     TPMS_SIG_SCHEME_ECDAA        ecdaa;
 #endif   // ALG_ECC
+#if 	ALG_DILITHIUM
+    TPMS_SIG_SCHEME_DILITHIUM    dilithium;
+#endif   // ALG_DILITHIUM
 #if 	ALG_RSASSA
     TPMS_SIG_SCHEME_RSASSA       rsassa;
 #endif   // ALG_RSASSA
@@ -1441,6 +1490,9 @@ typedef union {
 #if 	ALG_ECMQV
     TPMS_KEY_SCHEME_ECMQV        ecmqv;
 #endif   // ALG_ECMQV
+#if 	ALG_DILITHIUM
+    TPMS_SIG_SCHEME_DILITHIUM    dilithium;
+#endif   // ALG_DILITHIUM
 #if 	ALG_ECC
     TPMS_SIG_SCHEME_ECDAA        ecdaa;
 #endif   // ALG_ECC
@@ -1472,6 +1524,13 @@ typedef struct {
     TPMI_ALG_ASYM_SCHEME     scheme;
     TPMU_ASYM_SCHEME         details;
 } TPMT_ASYM_SCHEME;
+
+typedef  TPM_ALG_ID         TPMI_ALG_DILITHIUM_SCHEME;
+typedef struct {
+    TPMI_ALG_DILITHIUM_SCHEME scheme;
+    TPMU_ASYM_SCHEME          details;
+} TPMT_DILITHIUM_SCHEME;
+
 /* Table 2:161 - Definition of TPMI_ALG_RSA_SCHEME Type  */
 typedef  TPM_ALG_ID         TPMI_ALG_RSA_SCHEME;
 /* Table 2:162 - Definition of TPMT_RSA_SCHEME Structure  */
@@ -1545,6 +1604,13 @@ typedef struct {
     TPM2B_ECC_PARAMETER     n;
     TPM2B_ECC_PARAMETER     h;
 } TPMS_ALGORITHM_DETAIL_ECC;
+
+typedef struct {
+    TPMI_ALG_HASH                  hash;
+    TPM2B_DILITHIUM_SIGNED_MESSAGE sig;
+    BYTE                           mode;
+} TPMS_SIGNATURE_DILITHIUM;
+
 /* Table 2:175 - Definition of TPMS_SIGNATURE_RSA Structure  */
 typedef struct {
     TPMI_ALG_HASH           hash;
@@ -1566,6 +1632,9 @@ typedef  TPMS_SIGNATURE_ECC    TPMS_SIGNATURE_SM2;
 typedef  TPMS_SIGNATURE_ECC    TPMS_SIGNATURE_ECSCHNORR;
 /* Table 2:179 - Definition of TPMU_SIGNATURE Union  */
 typedef union {
+#if 	ALG_DILITHIUM
+    TPMS_SIGNATURE_DILITHIUM    dilithium;
+#endif   // ALG_DILITHIUM
 #if 	ALG_ECC
     TPMS_SIGNATURE_ECDAA        ecdaa;
 #endif   // ALG_ECC
@@ -1630,6 +1699,9 @@ typedef union {
 #if 	ALG_RSA
     TPM2B_PUBLIC_KEY_RSA    rsa;
 #endif   // ALG_RSA
+#if 	ALG_DILITHIUM
+    TPM2B_DILITHIUM_PUBLIC_KEY dilithium;
+#endif   // ALG_DILITHIUM
 #if 	ALG_ECC
     TPMS_ECC_POINT          ecc;
 #endif   // ALG_ECC
@@ -1658,6 +1730,13 @@ typedef struct {
     TPMI_ECC_CURVE          curveID;
     TPMT_KDF_SCHEME         kdf;
 } TPMS_ECC_PARMS;
+
+typedef struct {
+    TPMT_SYM_DEF_OBJECT   symmetric;
+    TPMT_DILITHIUM_SCHEME scheme;
+    BYTE                  mode;
+} TPMS_DILITHIUM_PARMS;
+
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union  */
 typedef union {
 #if 	ALG_KEYEDHASH
@@ -1672,6 +1751,9 @@ typedef union {
 #if 	ALG_ECC
     TPMS_ECC_PARMS          eccDetail;
 #endif   // ALG_ECC
+#if 	ALG_DILITHIUM
+    TPMS_DILITHIUM_PARMS    dilithiumDetail;
+#endif   // ALG_DILITHIUM
     TPMS_ASYM_PARMS         asymDetail;
 } TPMU_PUBLIC_PARMS;
 /* Table 2:190 - Definition of TPMT_PUBLIC_PARMS Structure  */
@@ -1711,6 +1793,9 @@ typedef union {
 } TPM2B_PRIVATE_VENDOR_SPECIFIC;
 /* Table 2:195 - Definition of TPMU_SENSITIVE_COMPOSITE Union  */
 typedef union {
+#if 	ALG_DILITHIUM
+    TPM2B_DILITHIUM_SECRET_KEY      dilithium;
+#endif   // ALG_DILITHIUM
 #if 	ALG_RSA
     TPM2B_PRIVATE_KEY_RSA            rsa;
 #endif   // ALG_RSA
@@ -2009,46 +2094,4 @@ typedef union {
 /*****************************************************************************/
 
 
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-#define MAX_DILITHIUM_PUBLIC_KEY_SIZE 1760
-#define MAX_DILITHIUM_SECRET_KEY_SIZE 3856
-#define MAX_DILITHIUM_MESSAGE_SIZE 59
-#define MAX_DILITHIUM_SIGNED_MESSAGE_SIZE MAX_DILITHIUM_MESSAGE_SIZE+3366
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_DILITHIUM_PUBLIC_KEY_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_DILITHIUM_PUBLIC_KEY;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_DILITHIUM_SECRET_KEY_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_DILITHIUM_SECRET_KEY;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_DILITHIUM_MESSAGE_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_DILITHIUM_MESSAGE;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_DILITHIUM_SIGNED_MESSAGE_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_DILITHIUM_SIGNED_MESSAGE;
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
 #endif
