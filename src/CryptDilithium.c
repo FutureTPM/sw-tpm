@@ -227,9 +227,7 @@ CryptDilithiumSign(
     dilithium_pack_sig((unsigned char *)&sigOut->signature.dilithium.sig.b.buffer, &z, &h,
             &c, params.k, params.l, params.polz_size_packed, params.omega);
 
-    printf("Digest length is %d\n", hIn->b.size);
     sigOut->signature.dilithium.sig.b.size = hIn->b.size + params.crypto_bytes;
-
 Exit:
     return retVal;
 }
@@ -278,17 +276,19 @@ CryptDilithiumValidateSignature(
     message_tmp.b.size = sig->signature.dilithium.sig.b.size - params.crypto_bytes;
 
     dilithium_unpack_pk(rho, &t1, key->publicArea.unique.dilithium.b.buffer, params.k, params.polt1_size_packed);
-    if(dilithium_unpack_sig(&z, &h, &c, sig->signature.dilithium.sig.b.buffer, params.k, params.l, params.polz_size_packed, params.omega))
+    if(dilithium_unpack_sig(&z, &h, &c, sig->signature.dilithium.sig.b.buffer, params.k, params.l, params.polz_size_packed, params.omega)) {
       goto badsig;
-    if(dilithium_polyvecl_chknorm(&z, DILITHIUM_GAMMA1 - params.beta, params.l))
+    }
+    if(dilithium_polyvecl_chknorm(&z, DILITHIUM_GAMMA1 - params.beta, params.l)) {
       goto badsig;
+    }
 
     /* Compute CRH(CRH(rho, t1), msg) using m as "playground" buffer */
     if(sig->signature.dilithium.sig.b.buffer != message_tmp.b.buffer)
       for(i = 0; i < message_tmp.b.size; ++i)
         message_tmp.b.buffer[params.crypto_bytes + i] = sig->signature.dilithium.sig.b.buffer[params.crypto_bytes + i];
 
-    shake256(message_tmp.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+    shake256(message_tmp.t.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
             DILITHIUM_CRHBYTES,
             key->publicArea.unique.dilithium.b.buffer, params.crypto_publickeybytes);
     shake256(mu, DILITHIUM_CRHBYTES,
@@ -318,9 +318,11 @@ CryptDilithiumValidateSignature(
 
     /* Call random oracle and verify challenge */
     dilithium_challenge(&cp, mu, &w1, params.k, params.polw1_size_packed);
+
     for(i = 0; i < DILITHIUM_N; ++i)
-      if(c.coeffs[i] != cp.coeffs[i])
+      if(c.coeffs[i] != cp.coeffs[i]) {
         goto badsig;
+      }
 
     /* All good, copy msg, return 0 */
     for(i = 0; i < message_tmp.b.size; ++i)
@@ -402,7 +404,8 @@ CryptDilithiumGenerateKey(
     s1hat = s1;
     dilithium_polyvecl_ntt(&s1hat, params.l);
     for(i = 0; i < params.k; ++i) {
-      dilithium_polyvecl_pointwise_acc_invmontgomery(t.vec+i, mat+i, &s1hat, params.l);
+      dilithium_polyvecl_pointwise_acc_invmontgomery(t.vec+i, mat+i, &s1hat,
+              params.l);
       dilithium_poly_reduce(t.vec+i);
       dilithium_poly_invntt_montgomery(t.vec+i);
     }
@@ -413,18 +416,20 @@ CryptDilithiumGenerateKey(
     /* Extract t1 and write public key */
     dilithium_polyveck_freeze(&t, params.k);
     dilithium_polyveck_power2round(&t1, &t0, &t, params.k);
-    dilithium_pack_pk((unsigned char *)&publicArea->unique.dilithium.b.buffer, rho, &t1, params.k,
-            params.polt1_size_packed);
+    dilithium_pack_pk((unsigned char *)&publicArea->unique.dilithium.t.buffer,
+            rho, &t1, params.k, params.polt1_size_packed);
 
     /* Compute CRH(rho, t1) and write secret key */
-    shake256(tr, DILITHIUM_CRHBYTES, (unsigned char *)&publicArea->unique.dilithium.b.buffer,
+    shake256(tr, DILITHIUM_CRHBYTES,
+            (unsigned char *)&publicArea->unique.dilithium.t.buffer,
             params.crypto_publickeybytes);
-    dilithium_pack_sk((unsigned char *)&sensitive->sensitive.dilithium.b.buffer, rho, key, tr, &s1, &s2, &t0,
+    dilithium_pack_sk((unsigned char *)&sensitive->sensitive.dilithium.t.buffer,
+            rho, key, tr, &s1, &s2, &t0,
             params.k, params.l, params.poleta_size_packed,
             params.polt0_size_packed, params.eta);
 
-    publicArea->unique.dilithium.b.size = params.crypto_publickeybytes;
-    sensitive->sensitive.dilithium.b.size = params.crypto_secretkeybytes;
+    publicArea->unique.dilithium.t.size = params.crypto_publickeybytes;
+    sensitive->sensitive.dilithium.t.size = params.crypto_secretkeybytes;
 
     retVal = TPM_RC_SUCCESS;
 
