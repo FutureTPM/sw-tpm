@@ -91,6 +91,7 @@ HEADERS = 				\
 	CryptHashData.h			\
 	CryptHash_fp.h			\
 	CryptDilithium_fp.h \
+	CryptKyber_fp.h \
 	CryptPrimeSieve_fp.h		\
 	CryptPrime_fp.h			\
 	CryptRand.h			\
@@ -142,7 +143,6 @@ HEADERS = 				\
 	IncrementalSelfTest_fp.h	\
 	InternalRoutines.h		\
 	KdfTestData.h			\
-	KYBER_KeyGen_fp.h \
 	LibSupport.h			\
 	LoadExternal_fp.h		\
 	Load_fp.h			\
@@ -291,6 +291,7 @@ HEADERS = 				\
 
 OBJFILES = \
 	CryptDilithium.o \
+	CryptKyber.o \
 	dilithium-ntt.o \
 	dilithium-packing.o \
 	dilithium-poly.o \

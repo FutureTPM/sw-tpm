@@ -2110,37 +2110,37 @@ TPMU_CAPABILITIES_Unmarshal(TPMU_CAPABILITIES *target, BYTE **buffer, INT32 *siz
 
     switch (selector) {
       case TPM_CAP_ALGS:
-	rc = TPML_ALG_PROPERTY_Unmarshal(&target->algorithms, buffer, size);
-	break;
+        rc = TPML_ALG_PROPERTY_Unmarshal(&target->algorithms, buffer, size);
+        break;
       case TPM_CAP_HANDLES:
-	rc = TPML_HANDLE_Unmarshal(&target->handles, buffer, size);
-	break;
+        rc = TPML_HANDLE_Unmarshal(&target->handles, buffer, size);
+        break;
       case TPM_CAP_COMMANDS:
-	rc = TPML_CCA_Unmarshal(&target->command, buffer, size);
-	break;
+        rc = TPML_CCA_Unmarshal(&target->command, buffer, size);
+        break;
       case TPM_CAP_PP_COMMANDS:
-	rc = TPML_CC_Unmarshal(&target->ppCommands, buffer, size);
-	break;
+        rc = TPML_CC_Unmarshal(&target->ppCommands, buffer, size);
+        break;
       case TPM_CAP_AUDIT_COMMANDS:
-	rc = TPML_CC_Unmarshal(&target->auditCommands, buffer, size);
-	break;
+        rc = TPML_CC_Unmarshal(&target->auditCommands, buffer, size);
+        break;
       case TPM_CAP_PCRS:
-	rc = TPML_PCR_SELECTION_Unmarshal(&target->assignedPCR, buffer, size);
-	break;
+        rc = TPML_PCR_SELECTION_Unmarshal(&target->assignedPCR, buffer, size);
+        break;
       case TPM_CAP_TPM_PROPERTIES:
-	rc = TPML_TAGGED_TPM_PROPERTY_Unmarshal(&target->tpmProperties, buffer, size);
-	break;
+        rc = TPML_TAGGED_TPM_PROPERTY_Unmarshal(&target->tpmProperties, buffer, size);
+        break;
       case TPM_CAP_PCR_PROPERTIES:
-	rc = TPML_TAGGED_PCR_PROPERTY_Unmarshal(&target->pcrProperties, buffer, size);
-	break;
+        rc = TPML_TAGGED_PCR_PROPERTY_Unmarshal(&target->pcrProperties, buffer, size);
+        break;
       case TPM_CAP_ECC_CURVES:
-	rc = TPML_ECC_CURVE_Unmarshal(&target->eccCurves, buffer, size);
-	break;
+        rc = TPML_ECC_CURVE_Unmarshal(&target->eccCurves, buffer, size);
+        break;
       case TPM_CAP_AUTH_POLICIES:
-	rc = TPML_TAGGED_POLICY_Unmarshal(&target->authPolicies, buffer, size);
-	break;
+        rc = TPML_TAGGED_POLICY_Unmarshal(&target->authPolicies, buffer, size);
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -2356,28 +2356,28 @@ TPMU_ATTEST_Unmarshal(TPMU_ATTEST *target, BYTE **buffer, INT32 *size, UINT32 se
 
     switch (selector) {
       case TPM_ST_ATTEST_CERTIFY:
-	rc = TPMS_CERTIFY_INFO_Unmarshal(&target->certify, buffer, size);
-	break;
+        rc = TPMS_CERTIFY_INFO_Unmarshal(&target->certify, buffer, size);
+        break;
       case TPM_ST_ATTEST_CREATION:
-	rc = TPMS_CREATION_INFO_Unmarshal(&target->creation, buffer, size);
-	break;
+        rc = TPMS_CREATION_INFO_Unmarshal(&target->creation, buffer, size);
+        break;
       case TPM_ST_ATTEST_QUOTE:
-	rc = TPMS_QUOTE_INFO_Unmarshal(&target->quote, buffer, size);
-	break;
+        rc = TPMS_QUOTE_INFO_Unmarshal(&target->quote, buffer, size);
+        break;
       case TPM_ST_ATTEST_COMMAND_AUDIT:
-	rc = TPMS_COMMAND_AUDIT_INFO_Unmarshal(&target->commandAudit, buffer, size);
-	break;
+        rc = TPMS_COMMAND_AUDIT_INFO_Unmarshal(&target->commandAudit, buffer, size);
+        break;
       case TPM_ST_ATTEST_SESSION_AUDIT:
-	rc = TPMS_SESSION_AUDIT_INFO_Unmarshal(&target->sessionAudit, buffer, size);
-	break;
+        rc = TPMS_SESSION_AUDIT_INFO_Unmarshal(&target->sessionAudit, buffer, size);
+        break;
       case TPM_ST_ATTEST_TIME:
-	rc = TPMS_TIME_ATTEST_INFO_Unmarshal(&target->time, buffer, size);
-	break;
+        rc = TPMS_TIME_ATTEST_INFO_Unmarshal(&target->time, buffer, size);
+        break;
       case TPM_ST_ATTEST_NV:
-	rc = TPMS_NV_CERTIFY_INFO_Unmarshal(&target->nv, buffer, size);
-	break;
+        rc = TPMS_NV_CERTIFY_INFO_Unmarshal(&target->nv, buffer, size);
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
 
     }
     return rc;
@@ -2522,28 +2522,28 @@ TPMU_SYM_KEY_BITS_Unmarshal(TPMU_SYM_KEY_BITS *target, BYTE **buffer, INT32 *siz
     switch (selector) {
 #if ALG_AES
       case TPM_ALG_AES:
-	rc = TPMI_AES_KEY_BITS_Unmarshal(&target->aes, buffer, size);
-	break;
+        rc = TPMI_AES_KEY_BITS_Unmarshal(&target->aes, buffer, size);
+        break;
 #endif
 #if ALG_SM4
       case TPM_ALG_SM4:
-	rc = TPMI_SM4_KEY_BITS_Unmarshal(&target->sm4, buffer, size);
-	break;
+        rc = TPMI_SM4_KEY_BITS_Unmarshal(&target->sm4, buffer, size);
+        break;
 #endif
 #if ALG_CAMELLIA
       case TPM_ALG_CAMELLIA:
-	rc = TPMI_CAMELLIA_KEY_BITS_Unmarshal(&target->camellia, buffer, size);
-	break;
+        rc = TPMI_CAMELLIA_KEY_BITS_Unmarshal(&target->camellia, buffer, size);
+        break;
 #endif
 #if ALG_XOR
       case TPM_ALG_XOR:
-	rc = TPMI_ALG_HASH_Unmarshal(&target->xorr, buffer, size, NO);
-	break;
+        rc = TPMI_ALG_HASH_Unmarshal(&target->xorr, buffer, size, NO);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -2558,24 +2558,24 @@ TPMU_SYM_MODE_Unmarshal(TPMU_SYM_MODE *target, BYTE **buffer, INT32 *size, UINT3
     switch (selector) {
 #if ALG_AES
       case TPM_ALG_AES:
-	rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->aes, buffer, size, YES);
-	break;
+        rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->aes, buffer, size, YES);
+        break;
 #endif
 #if ALG_SM4
       case TPM_ALG_SM4:
-	rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->sm4, buffer, size, YES);
-	break;
+        rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->sm4, buffer, size, YES);
+        break;
 #endif
 #if ALG_CAMELLIA
       case TPM_ALG_CAMELLIA:
-	rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->camellia, buffer, size, YES);
-	break;
+        rc = TPMI_ALG_SYM_MODE_Unmarshal(&target->camellia, buffer, size, YES);
+        break;
 #endif
       case TPM_ALG_XOR:
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -2782,24 +2782,24 @@ TPMI_ALG_KEYEDHASH_SCHEME_Unmarshal(TPMI_ALG_KEYEDHASH_SCHEME *target, BYTE **bu
     TPM_RC rc = TPM_RC_SUCCESS;
 
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
+        rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
     }
     if (rc == TPM_RC_SUCCESS) {
-	switch (*target) {
+        switch (*target) {
 #if ALG_HMAC
-	  case TPM_ALG_HMAC:
+          case TPM_ALG_HMAC:
 #endif
 #if ALG_XOR
-	  case TPM_ALG_XOR:
+          case TPM_ALG_XOR:
 #endif
-	    break;
-	  case TPM_ALG_NULL:
-	    if (allowNull) {
-		break;
-	    }
-	  default:
-	    rc = TPM_RC_VALUE;
-	}
+            break;
+          case TPM_ALG_NULL:
+            if (allowNull) {
+                break;
+            }
+          default:
+            rc = TPM_RC_VALUE;
+        }
     }
     return rc;
 }
@@ -2974,48 +2974,48 @@ TPMU_SIG_SCHEME_Unmarshal(TPMU_SIG_SCHEME *target, BYTE **buffer, INT32 *size, U
     switch (selector) {
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
+        break;
 #endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
-	rc = TPMS_SIG_SCHEME_RSASSA_Unmarshal(&target->rsassa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_RSASSA_Unmarshal(&target->rsassa, buffer, size);
+        break;
 #endif
 #if ALG_RSAPSS
       case TPM_ALG_RSAPSS:
-	rc = TPMS_SIG_SCHEME_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
+        break;
 #endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
-	rc = TPMS_SIG_SCHEME_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
+        break;
 #endif
 #if ALG_ECDAA
       case TPM_ALG_ECDAA:
-	rc = TPMS_SIG_SCHEME_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
+        break;
 #endif
 #if ALG_SM2
       case TPM_ALG_SM2:
-	rc = TPMS_SIG_SCHEME_SM2_Unmarshal(&target->sm2, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_SM2_Unmarshal(&target->sm2, buffer, size);
+        break;
 #endif
 #if ALG_ECSCHNORR
       case TPM_ALG_ECSCHNORR:
-	rc = TPMS_SIG_SCHEME_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
+        break;
 #endif
 #if ALG_HMAC
       case TPM_ALG_HMAC:
-	rc = TPMS_SCHEME_HMAC_Unmarshal(&target->hmac, buffer, size);
-	break;
+        rc = TPMS_SCHEME_HMAC_Unmarshal(&target->hmac, buffer, size);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -3045,6 +3045,17 @@ TPMS_ENC_SCHEME_OAEP_Unmarshal(TPMS_ENC_SCHEME_OAEP *target, BYTE **buffer, INT3
 
     if (rc == TPM_RC_SUCCESS) {
 	rc = TPMS_SCHEME_HASH_Unmarshal(target, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPMS_ENC_SCHEME_KYBER_Unmarshal(TPMS_ENC_SCHEME_KYBER *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMS_SCHEME_HASH_Unmarshal(target, buffer, size);
     }
     return rc;
 }
@@ -3150,28 +3161,28 @@ TPMU_KDF_SCHEME_Unmarshal(TPMU_KDF_SCHEME *target, BYTE **buffer, INT32 *size, U
     switch (selector) {
 #if ALG_MGF1
       case TPM_ALG_MGF1:
-	rc = TPMS_SCHEME_MGF1_Unmarshal(&target->mgf1, buffer, size);
-	break;
+        rc = TPMS_SCHEME_MGF1_Unmarshal(&target->mgf1, buffer, size);
+        break;
 #endif
 #if ALG_KDF1_SP800_56A
       case TPM_ALG_KDF1_SP800_56A:
-	rc = TPMS_SCHEME_KDF1_SP800_56A_Unmarshal(&target->kdf1_sp800_56a, buffer, size);
-	break;
+        rc = TPMS_SCHEME_KDF1_SP800_56A_Unmarshal(&target->kdf1_sp800_56a, buffer, size);
+        break;
 #endif
 #if ALG_KDF2
       case TPM_ALG_KDF2:
-	rc = TPMS_SCHEME_KDF2_Unmarshal(&target->kdf2, buffer, size);
-	break;
+        rc = TPMS_SCHEME_KDF2_Unmarshal(&target->kdf2, buffer, size);
+        break;
 #endif
 #if ALG_KDF1_SP800_108
       case TPM_ALG_KDF1_SP800_108:
-	rc = TPMS_SCHEME_KDF1_SP800_108_Unmarshal(&target->kdf1_sp800_108, buffer, size);
-	break;
+        rc = TPMS_SCHEME_KDF1_SP800_108_Unmarshal(&target->kdf1_sp800_108, buffer, size);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -3258,63 +3269,68 @@ TPMU_ASYM_SCHEME_Unmarshal(TPMU_ASYM_SCHEME *target, BYTE **buffer, INT32 *size,
     switch (selector) {
 #if ALG_ECDH
       case TPM_ALG_ECDH:
-	rc = TPMS_KEY_SCHEME_ECDH_Unmarshal(&target->ecdh, buffer, size);
-	break;
+        rc = TPMS_KEY_SCHEME_ECDH_Unmarshal(&target->ecdh, buffer, size);
+        break;
 #endif
 #if ALG_ECMQV
       case TPM_ALG_ECMQV:
-	rc = TPMS_KEY_SCHEME_ECMQV_Unmarshal(&target->ecmqv, buffer, size);
-	break;
+        rc = TPMS_KEY_SCHEME_ECMQV_Unmarshal(&target->ecmqv, buffer, size);
+        break;
 #endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
-	rc = TPMS_SIG_SCHEME_RSASSA_Unmarshal(&target->rsassa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_RSASSA_Unmarshal(&target->rsassa, buffer, size);
+        break;
 #endif
 #if ALG_RSAPSS
       case TPM_ALG_RSAPSS:
-	rc = TPMS_SIG_SCHEME_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
+        break;
 #endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
-	rc = TPMS_SIG_SCHEME_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
+        break;
 #endif
 #if ALG_ECDAA
       case TPM_ALG_ECDAA:
-	rc = TPMS_SIG_SCHEME_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
+        break;
 #endif
 #if ALG_SM2
       case TPM_ALG_SM2:
-	rc = TPMS_SIG_SCHEME_SM2_Unmarshal(&target->sm2, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_SM2_Unmarshal(&target->sm2, buffer, size);
+        break;
 #endif
 #if ALG_ECSCHNORR
       case TPM_ALG_ECSCHNORR:
-	rc = TPMS_SIG_SCHEME_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
-	break;
+        rc = TPMS_SIG_SCHEME_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
+        break;
 #endif
 #if ALG_RSAES
       case TPM_ALG_RSAES:
-	rc = TPMS_ENC_SCHEME_RSAES_Unmarshal(&target->rsaes, buffer, size);
-	break;
+        rc = TPMS_ENC_SCHEME_RSAES_Unmarshal(&target->rsaes, buffer, size);
+        break;
 #endif
 #if ALG_OAEP
       case TPM_ALG_OAEP:
-	rc = TPMS_ENC_SCHEME_OAEP_Unmarshal(&target->oaep, buffer, size);
-	break;
+        rc = TPMS_ENC_SCHEME_OAEP_Unmarshal(&target->oaep, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        rc = TPMS_ENC_SCHEME_KYBER_Unmarshal(&target->kyber, buffer, size);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -3395,10 +3411,24 @@ TPMT_DILITHIUM_SCHEME_Unmarshal(TPMT_DILITHIUM_SCHEME *target, BYTE **buffer, IN
     TPM_RC rc = TPM_RC_SUCCESS;
 
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(&target->scheme, buffer, size, allowNull);
+        rc = TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(&target->scheme, buffer, size, allowNull);
     }
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPMU_ASYM_SCHEME_Unmarshal(&target->details, buffer, size, target->scheme);
+        rc = TPMU_ASYM_SCHEME_Unmarshal(&target->details, buffer, size, target->scheme);
+    }
+    return rc;
+}
+
+TPM_RC
+TPMT_KYBER_SCHEME_Unmarshal(TPMT_KYBER_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMI_ALG_KYBER_SCHEME_Unmarshal(&target->scheme, buffer, size, allowNull);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMU_ASYM_SCHEME_Unmarshal(&target->details, buffer, size, target->scheme);
     }
     return rc;
 }
@@ -3414,21 +3444,21 @@ TPMI_ALG_RSA_DECRYPT_Unmarshal(TPMI_ALG_RSA_DECRYPT *target, BYTE **buffer, INT3
 	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
     }
     if (rc == TPM_RC_SUCCESS) {
-	switch (*target) {
+        switch (*target) {
 #if ALG_RSAES
-	  case TPM_ALG_RSAES:
+          case TPM_ALG_RSAES:
 #endif
 #if ALG_OAEP
-	  case TPM_ALG_OAEP:
+          case TPM_ALG_OAEP:
 #endif
-	    break;
-	  case TPM_ALG_NULL:
-	    if (allowNull) {
-		break;
-	    }
-	  default:
-	    rc = TPM_RC_VALUE;
-	}
+            break;
+          case TPM_ALG_NULL:
+            if (allowNull) {
+                break;
+            }
+          default:
+            rc = TPM_RC_VALUE;
+        }
     }
     return rc;
 }
@@ -3567,33 +3597,33 @@ TPMI_ALG_ECC_SCHEME_Unmarshal(TPMI_ALG_ECC_SCHEME *target, BYTE **buffer, INT32 
 	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
     }
     if (rc == TPM_RC_SUCCESS) {
-	switch (*target) {
+        switch (*target) {
 #if ALG_ECDSA
-	  case TPM_ALG_ECDSA:
+          case TPM_ALG_ECDSA:
 #endif
 #if ALG_SM2
-	  case TPM_ALG_SM2:
+          case TPM_ALG_SM2:
 #endif
 #if ALG_ECDAA
-	  case TPM_ALG_ECDAA:
+          case TPM_ALG_ECDAA:
 #endif
 #if ALG_ECSCHNORR
-	  case TPM_ALG_ECSCHNORR:
+          case TPM_ALG_ECSCHNORR:
 #endif
 #if ALG_ECDH
-	  case TPM_ALG_ECDH:
+          case TPM_ALG_ECDH:
 #endif
 #if ALG_ECMQV
-	  case TPM_ALG_ECMQV:
+          case TPM_ALG_ECMQV:
 #endif
-	    break;
-	  case TPM_ALG_NULL:
-	    if (allowNull) {
-		break;
-	    }
-	  default:
-	    rc = TPM_RC_SCHEME;
-	}
+            break;
+          case TPM_ALG_NULL:
+            if (allowNull) {
+                break;
+            }
+          default:
+            rc = TPM_RC_SCHEME;
+        }
     }
     return rc;
 }
@@ -3614,7 +3644,32 @@ TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(TPMI_ALG_DILITHIUM_SCHEME *target, BYTE **bu
 	    break;
 	  case TPM_ALG_NULL:
 	    if (allowNull) {
-		break;
+            break;
+	    }
+	  default:
+	    rc = TPM_RC_SCHEME;
+	}
+    }
+    return rc;
+}
+
+TPM_RC
+TPMI_ALG_KYBER_SCHEME_Unmarshal(TPMI_ALG_KYBER_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+	switch (*target) {
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+#endif
+	    break;
+	  case TPM_ALG_NULL:
+	    if (allowNull) {
+            break;
 	    }
 	  default:
 	    rc = TPM_RC_SCHEME;
@@ -3845,48 +3900,48 @@ TPMU_SIGNATURE_Unmarshal(TPMU_SIGNATURE *target, BYTE **buffer, INT32 *size, UIN
     switch (selector) {
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
-	rc = TPMS_SIGNATURE_RSASSA_Unmarshal(&target->rsassa, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_RSASSA_Unmarshal(&target->rsassa, buffer, size);
+        break;
 #endif
 #if ALG_RSAPSS
       case TPM_ALG_RSAPSS:
-	rc = TPMS_SIGNATURE_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_RSAPSS_Unmarshal(&target->rsapss, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPMS_SIGNATURE_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
+        break;
 #endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
-	rc = TPMS_SIGNATURE_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
+        break;
 #endif
 #if ALG_ECDAA
       case TPM_ALG_ECDAA:
-	rc = TPMS_SIGNATURE_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_ECDAA_Unmarshal(&target->ecdaa, buffer, size);
+        break;
 #endif
 #if ALG_SM2
       case TPM_ALG_SM2:
-	rc = TPMS_SIGNATURE_SM2_Unmarshal(&target->sm2, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_SM2_Unmarshal(&target->sm2, buffer, size);
+        break;
 #endif
 #if ALG_ECSCHNORR
       case TPM_ALG_ECSCHNORR:
-	rc = TPMS_SIGNATURE_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
-	break;
+        rc = TPMS_SIGNATURE_ECSCHNORR_Unmarshal(&target->ecschnorr, buffer, size);
+        break;
 #endif
 #if ALG_HMAC
       case TPM_ALG_HMAC:
-	rc = TPMT_HA_Unmarshal(&target->hmac, buffer, size, NO);
-	break;
+        rc = TPMT_HA_Unmarshal(&target->hmac, buffer, size, NO);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -3899,10 +3954,10 @@ TPMT_SIGNATURE_Unmarshal(TPMT_SIGNATURE *target, BYTE **buffer, INT32 *size, BOO
     TPM_RC rc = TPM_RC_SUCCESS;
 
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPMI_ALG_SIG_SCHEME_Unmarshal(&target->sigAlg, buffer, size, allowNull);
+        rc = TPMI_ALG_SIG_SCHEME_Unmarshal(&target->sigAlg, buffer, size, allowNull);
     }
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPMU_SIGNATURE_Unmarshal(&target->signature, buffer, size, target->sigAlg);
+        rc = TPMU_SIGNATURE_Unmarshal(&target->signature, buffer, size, target->sigAlg);
     }
     return rc;
 }
@@ -3915,7 +3970,7 @@ TPM2B_ENCRYPTED_SECRET_Unmarshal(TPM2B_ENCRYPTED_SECRET *target, BYTE **buffer, 
     TPM_RC rc = TPM_RC_SUCCESS;
 
     if (rc == TPM_RC_SUCCESS) {
-	rc = TPM2B_Unmarshal(&target->b, sizeof(TPMU_ENCRYPTED_SECRET), buffer, size);
+        rc = TPM2B_Unmarshal(&target->b, sizeof(TPMU_ENCRYPTED_SECRET), buffer, size);
     }
     return rc;
 }
@@ -3944,12 +3999,14 @@ TPMI_ALG_PUBLIC_Unmarshal(TPMI_ALG_PUBLIC *target, BYTE **buffer, INT32 *size)
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
 #endif
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+#endif
 #if ALG_SYMCIPHER
 	  case TPM_ALG_SYMCIPHER:
 #endif
 	    break;
 	  default:
-        printf("Unrecognized public key algorithm\n");
 	    rc = TPM_RC_TYPE;
 	}
     }
@@ -3966,31 +4023,36 @@ TPMU_PUBLIC_ID_Unmarshal(TPMU_PUBLIC_ID *target, BYTE **buffer, INT32 *size, UIN
     switch (selector) {
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	rc = TPM2B_DIGEST_Unmarshal(&target->keyedHash, buffer, size);
-	break;
+        rc = TPM2B_DIGEST_Unmarshal(&target->keyedHash, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	rc = TPM2B_DIGEST_Unmarshal(&target->sym, buffer, size);
-	break;
+        rc = TPM2B_DIGEST_Unmarshal(&target->sym, buffer, size);
+        break;
 #endif
 #if ALG_RSA
       case TPM_ALG_RSA:
-	rc = TPM2B_PUBLIC_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
-	break;
+        rc = TPM2B_PUBLIC_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(&target->dilithium, buffer, size);
-	break;
+        rc = TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(&target->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        rc = TPM2B_KYBER_PUBLIC_KEY_Unmarshal(&target->kyber, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	rc = TPMS_ECC_POINT_Unmarshal(&target->ecc, buffer, size);
-	break;
+        rc = TPMS_ECC_POINT_Unmarshal(&target->ecc, buffer, size);
+        break;
 #endif
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -4065,6 +4127,23 @@ TPMS_DILITHIUM_PARMS_Unmarshal(TPMS_DILITHIUM_PARMS *target, BYTE **buffer, INT3
     return rc;
 }
 
+TPM_RC
+TPMS_KYBER_PARMS_Unmarshal(TPMS_KYBER_PARMS *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_SYM_DEF_OBJECT_Unmarshal(&target->symmetric, buffer, size, YES);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_KYBER_SCHEME_Unmarshal(&target->scheme, buffer, size, YES);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = UINT8_Unmarshal(&target->security, buffer, size);
+    }
+    return rc;
+}
+
 /* Table 181 - Definition of {ECC} TPMS_ECC_PARMS Structure */
 
 TPM_RC
@@ -4097,31 +4176,36 @@ TPMU_PUBLIC_PARMS_Unmarshal(TPMU_PUBLIC_PARMS *target, BYTE **buffer, INT32 *siz
     switch (selector) {
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	rc = TPMS_KEYEDHASH_PARMS_Unmarshal(&target->keyedHashDetail, buffer, size);
-	break;
+        rc = TPMS_KEYEDHASH_PARMS_Unmarshal(&target->keyedHashDetail, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	rc = TPMS_SYMCIPHER_PARMS_Unmarshal(&target->symDetail, buffer, size);
-	break;
+        rc = TPMS_SYMCIPHER_PARMS_Unmarshal(&target->symDetail, buffer, size);
+        break;
 #endif
 #if ALG_RSA
       case TPM_ALG_RSA:
-	rc = TPMS_RSA_PARMS_Unmarshal(&target->rsaDetail, buffer, size);
-	break;
+        rc = TPMS_RSA_PARMS_Unmarshal(&target->rsaDetail, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPMS_DILITHIUM_PARMS_Unmarshal(&target->dilithiumDetail, buffer, size);
-	break;
+        rc = TPMS_DILITHIUM_PARMS_Unmarshal(&target->dilithiumDetail, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        rc = TPMS_KYBER_PARMS_Unmarshal(&target->kyberDetail, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	rc = TPMS_ECC_PARMS_Unmarshal(&target->eccDetail, buffer, size);
-	break;
+        rc = TPMS_ECC_PARMS_Unmarshal(&target->eccDetail, buffer, size);
+        break;
 #endif
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -4238,31 +4322,36 @@ TPMU_SENSITIVE_COMPOSITE_Unmarshal(TPMU_SENSITIVE_COMPOSITE *target, BYTE **buff
     switch (selector) {
 #if ALG_RSA
       case TPM_ALG_RSA:
-	rc = TPM2B_PRIVATE_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
-	break;
+        rc = TPM2B_PRIVATE_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	rc = TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(&target->dilithium, buffer, size);
-	break;
+        rc = TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(&target->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        rc = TPM2B_KYBER_SECRET_KEY_Unmarshal(&target->kyber, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	rc = TPM2B_ECC_PARAMETER_Unmarshal(&target->ecc, buffer, size);
-	break;
+        rc = TPM2B_ECC_PARAMETER_Unmarshal(&target->ecc, buffer, size);
+        break;
 #endif
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	rc = TPM2B_SENSITIVE_DATA_Unmarshal(&target->bits, buffer, size);
-	break;
+        rc = TPM2B_SENSITIVE_DATA_Unmarshal(&target->bits, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	rc = TPM2B_SYM_KEY_Unmarshal(&target->sym, buffer, size);
-	break;
+        rc = TPM2B_SYM_KEY_Unmarshal(&target->sym, buffer, size);
+        break;
 #endif
       default:
-	rc = TPM_RC_SELECTOR;
+        rc = TPM_RC_SELECTOR;
     }
     return rc;
 }
@@ -4551,12 +4640,12 @@ TPM2B_CREATION_DATA_Unmarshal(TPM2B_CREATION_DATA *target, BYTE **buffer, INT32 
 TPM_RC
 KYBER_Sec_Sel_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
 {
-    TPM_RC rc = TPM_RC_SUCCESS;
+        TPM_RC rc = TPM_RC_SUCCESS;
 
-    if (rc == TPM_RC_SUCCESS) {
-	rc = UINT8_Unmarshal(target, buffer, size);
-    }
-    return rc;
+            if (rc == TPM_RC_SUCCESS) {
+                    rc = UINT8_Unmarshal(target, buffer, size);
+                        }
+                return rc;
 }
 
 TPM_RC
@@ -4604,7 +4693,7 @@ DILITHIUM_Mode_Unmarshal(BYTE *target, BYTE **buffer, INT32 *size)
     TPM_RC rc = TPM_RC_SUCCESS;
 
     if (rc == TPM_RC_SUCCESS) {
-	rc = UINT8_Unmarshal(target, buffer, size);
+        rc = UINT8_Unmarshal(target, buffer, size);
     }
     return rc;
 }

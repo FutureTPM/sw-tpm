@@ -352,51 +352,6 @@ static KyberParams generate_kyber_params(BYTE kyber_k) {
 }
 #endif
 
-#if CC_KYBER_KeyGen  // Conditional expansion of this file
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
-#include "kyber-params.h"
-#include "kyber-indcpa.h"
-#include "fips202.h"
-#if ALG_KYBER
-TPM_RC
-TPM2_KYBER_KeyGen(
-		 KYBER_KeyGen_In      *in,            // In: input parameter list
-		 KYBER_KeyGen_Out     *out            // OUT: output parameter list
-		 )
-{
-    TPM_RC   result = TPM_RC_SUCCESS;
-    KyberParams params;
-
-    // Parameter check
-    if (in->sec_sel >= 2 && in->sec_sel <= 4) {
-        params = generate_kyber_params(in->sec_sel);
-    } else {
-        // TODO: Proper Error codes
-        return result + 2;
-    }
-
-    // Command Output
-    indcpa_keypair((unsigned char *)&out->public_key.b.buffer,
-            (unsigned char *)&out->secret_key.b.buffer,
-            params.k, params.polyveccompressedbytes, params.eta);
-    for (size_t i = 0; i < params.indcpa_publickeybytes; i++) {
-      out->secret_key.b.buffer[i+params.indcpa_secretkeybytes] = out->public_key.b.buffer[i];
-    }
-    sha3_256((unsigned char *)out->secret_key.b.buffer+params.secretkeybytes-2*KYBER_SYMBYTES,
-            out->public_key.b.buffer,
-            params.publickeybytes);
-    /* Value z for pseudo-random output on reject */
-    CryptRandomGenerate(KYBER_SYMBYTES, out->secret_key.b.buffer+params.secretkeybytes-KYBER_SYMBYTES);
-
-    out->public_key.b.size = params.publickeybytes;
-    out->secret_key.b.size = params.secretkeybytes;
-
-    return result;
-}
-#endif // ALG_KYBER
-#endif // CC_KYBER_KeyGen
-
 #if CC_KYBER_Enc  // Conditional expansion of this file
 #include "Tpm.h"
 #include "KYBER_Enc_fp.h"

@@ -4095,37 +4095,6 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if CC_KYBER_KeyGen
-#include "KYBER_KeyGen_fp.h"
-typedef TPM_RC  (KYBER_KeyGen_Entry)(
-				    KYBER_KeyGen_In  *in,
-				    KYBER_KeyGen_Out *out
-				    );
-typedef const struct {
-    KYBER_KeyGen_Entry   *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[1];
-    BYTE                 types[5];
-} KYBER_KeyGen_COMMAND_DESCRIPTOR_t;
-KYBER_KeyGen_COMMAND_DESCRIPTOR_t _KYBER_KeyGenData = {
-    /* entry  */          &TPM2_KYBER_KeyGen,
-    /* inSize */          (UINT16)(sizeof(KYBER_KeyGen_In)),
-    /* outSize */         (UINT16)(sizeof(KYBER_KeyGen_Out)),
-    /* offsetOfTypes */   offsetof(KYBER_KeyGen_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(KYBER_KeyGen_Out, secret_key))},
-    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
-               END_OF_LIST,
-			   TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL,
-			   TPM2B_KYBER_SECRET_KEY_P_MARSHAL,
-               END_OF_LIST}
-};
-#define _KYBER_KeyGenDataAddress (&_KYBER_KeyGenData)
-#else
-#define _KYBER_KeyGenDataAddress 0
-#endif
-
 #if CC_KYBER_Enc
 #include "KYBER_Enc_fp.h"
 typedef TPM_RC  (KYBER_Enc_Entry)(
@@ -4651,23 +4620,11 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_Policy_AC_SendSelect)
     (COMMAND_DESCRIPTOR_t *)_Policy_AC_SendSelectDataAddress,
 #endif // CC_Policy_AC_SendSelect
-#if (PAD_LIST || CC_KYBER_KeyGen)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_KeyGenDataAddress,
-#endif
 #if (PAD_LIST || CC_KYBER_Enc)
     (COMMAND_DESCRIPTOR_t *)_KYBER_EncDataAddress,
 #endif
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
-#endif
-#if (PAD_LIST || CC_DILITHIUM_KeyGen)
-    (COMMAND_DESCRIPTOR_t *)_DILITHIUM_KeyGenDataAddress,
-#endif
-#if (PAD_LIST || CC_DILITHIUM_Sign)
-    (COMMAND_DESCRIPTOR_t *)_DILITHIUM_SignDataAddress,
-#endif
-#if (PAD_LIST || CC_DILITHIUM_Verify)
-    (COMMAND_DESCRIPTOR_t *)_DILITHIUM_VerifyDataAddress,
 #endif
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

@@ -6,6 +6,14 @@
 #include "dilithium-sign.h"
 #include "dilithium-packing.h"
 
+BOOL CryptDilithiumInit(void) {
+    return TRUE;
+}
+
+BOOL CryptDilithiumStartup(void) {
+    return TRUE;
+}
+
 typedef struct {
     uint64_t k;
     uint64_t l;

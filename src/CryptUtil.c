@@ -384,6 +384,12 @@ CryptInit(
 #if ALG_ECC
     ok = ok && CryptEccInit();
 #endif // TPM_ALG_ECC
+#if ALG_DILITHIUM
+    ok = ok && CryptDilithiumInit();
+#endif // TPM_ALG_DILITHIUM
+#if ALG_KYBER
+    ok = ok && CryptKyberInit();
+#endif // TPM_ALG_KYBER
     return ok;
 }
 /* 10.2.6.5.2 CryptStartup() */
@@ -407,6 +413,12 @@ CryptStartup(
 #if ALG_ECC
 	 &&  CryptEccStartup()
 #endif // TPM_ALG_ECC
+#if ALG_DILITHIUM
+    && CryptDilithiumStartup()
+#endif // TPM_ALG_DILITHIUM
+#if ALG_KYBER
+    && CryptKyberStartup()
+#endif // TPM_ALG_KYBER
 	 ;
 #if ALG_ECC
     // Don't directly check for SU_RESET because that is the default
@@ -446,6 +458,12 @@ CryptIsAsymAlgorithm(
 #endif
 #if ALG_ECC
 	  case TPM_ALG_ECC:
+#endif
+#if ALG_DILITHIUM
+	  case TPM_ALG_DILITHIUM:
+#endif
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
 #endif
 	    return TRUE;
 	    break;
@@ -962,11 +980,17 @@ CryptCreateObject(
 	    break;
 #endif // TPM_ALG_ECC
 #if ALG_DILITHIUM
-	    // Create DILITHIUM key
+	    // Create Dilithium key
 	  case TPM_ALG_DILITHIUM:
 	    result = CryptDilithiumGenerateKey(object, rand);
 	    break;
 #endif // TPM_ALG_DILITHIUM
+#if ALG_KYBER
+	    // Create Kyber key
+	  case TPM_ALG_KYBER:
+	    result = CryptKyberGenerateKey(object, rand);
+	    break;
+#endif // TPM_ALG_KYBER
 	  case TPM_ALG_SYMCIPHER:
 	    result = CryptGenerateKeySymmetric(&object->publicArea,
 					       &object->sensitive,
@@ -1061,6 +1085,14 @@ CryptGetSignHashAlg(
 	    break;
 #   endif
 #endif //TPM_ALG_ECC
+#if ALG_DILITHIUM
+	    // If DILITHIUM is supported, both DILITHIUMSSA and DILITHIUMPSS are required
+#   if !defined TPM_ALG_DILITHIUM
+#       error "DILITHIUM is required for DILITHIUM"
+#   endif
+	  case TPM_ALG_DILITHIUM:
+	    return auth->signature.dilithium.hash;
+#endif //TPM_ALG_DILITHIUM
 	  case TPM_ALG_HMAC:
 	    return auth->signature.hmac.hashAlg;
 	  default:
@@ -1194,6 +1226,18 @@ CryptIsAsymDecryptScheme(
 		}
 	    break;
 #endif //TPM_ALG_ECC
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+	    switch(scheme)
+		{
+            case TPM_ALG_KYBER:
+                break;
+            default:
+                isDecryptScheme = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_KYBER
 	  default:
 	    isDecryptScheme = FALSE;
 	    break;

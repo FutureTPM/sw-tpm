@@ -388,6 +388,14 @@ extern "C" {
     TPM2B_KYBER_SHARED_KEY_Marshal(TPM2B_KYBER_SHARED_KEY *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_ENC_SCHEME_KYBER_Marshal(TPMS_ENC_SCHEME_KYBER *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMI_ALG_KYBER_SCHEME_Marshal(TPMI_ALG_KYBER_SCHEME *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                                Kyber Mods                                 */
     /*****************************************************************************/

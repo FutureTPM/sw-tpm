@@ -1,6 +1,9 @@
 #ifndef CRYPTDILITHIUM_FP_H
 #define CRYPTDILITHIUM_FP_H
 
+LIB_EXPORT BOOL CryptDilithiumInit(void);
+LIB_EXPORT BOOL CryptDilithiumStartup(void);
+
 LIB_EXPORT TPM_RC
 CryptDilithiumSign(
 	     TPMT_SIGNATURE      *sigOut,

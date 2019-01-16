@@ -905,35 +905,35 @@ TPMU_CAPABILITIES_Marshal(TPMU_CAPABILITIES *source, BYTE **buffer, INT32 *size,
 
     switch (selector) {
       case TPM_CAP_ALGS:
-	written += TPML_ALG_PROPERTY_Marshal(&source->algorithms, buffer, size);
-	break;
+        written += TPML_ALG_PROPERTY_Marshal(&source->algorithms, buffer, size);
+        break;
       case TPM_CAP_HANDLES:
-	written += TPML_HANDLE_Marshal(&source->handles, buffer, size);
-	break;
+        written += TPML_HANDLE_Marshal(&source->handles, buffer, size);
+        break;
       case TPM_CAP_COMMANDS:
-	written += TPML_CCA_Marshal(&source->command, buffer, size);
-	break;
+        written += TPML_CCA_Marshal(&source->command, buffer, size);
+        break;
       case TPM_CAP_PP_COMMANDS:
-	written += TPML_CC_Marshal(&source->ppCommands, buffer, size);
-	break;
+        written += TPML_CC_Marshal(&source->ppCommands, buffer, size);
+        break;
       case TPM_CAP_AUDIT_COMMANDS:
-	written += TPML_CC_Marshal(&source->auditCommands, buffer, size);
-	break;
+        written += TPML_CC_Marshal(&source->auditCommands, buffer, size);
+        break;
       case TPM_CAP_PCRS:
-	written += TPML_PCR_SELECTION_Marshal(&source->assignedPCR, buffer, size);
-	break;
+        written += TPML_PCR_SELECTION_Marshal(&source->assignedPCR, buffer, size);
+        break;
       case TPM_CAP_TPM_PROPERTIES:
-	written += TPML_TAGGED_TPM_PROPERTY_Marshal(&source->tpmProperties, buffer, size);
-	break;
+        written += TPML_TAGGED_TPM_PROPERTY_Marshal(&source->tpmProperties, buffer, size);
+        break;
       case TPM_CAP_PCR_PROPERTIES:
-	written += TPML_TAGGED_PCR_PROPERTY_Marshal(&source->pcrProperties, buffer, size);
-	break;
+        written += TPML_TAGGED_PCR_PROPERTY_Marshal(&source->pcrProperties, buffer, size);
+        break;
       case TPM_CAP_ECC_CURVES:
-	written += TPML_ECC_CURVE_Marshal(&source->eccCurves, buffer, size);
-	break;
+        written += TPML_ECC_CURVE_Marshal(&source->eccCurves, buffer, size);
+        break;
       case TPM_CAP_AUTH_POLICIES:
-	written += TPML_TAGGED_POLICY_Marshal(&source->authPolicies, buffer, size);
-	break;
+        written += TPML_TAGGED_POLICY_Marshal(&source->authPolicies, buffer, size);
+        break;
       default:
 	pAssert(FALSE);
     }
@@ -1388,6 +1388,14 @@ TPMS_ENC_SCHEME_OAEP_Marshal(TPMS_ENC_SCHEME_OAEP *source, BYTE **buffer, INT32 
     return written;
 }
 
+UINT16
+TPMS_ENC_SCHEME_KYBER_Marshal(TPMS_ENC_SCHEME_KYBER *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPMS_SCHEME_HASH_Marshal(source, buffer, size);
+    return written;
+}
+
 /* Table 146 - Definition of Types for {RSA} Encryption Schemes */
 
 UINT16
@@ -1532,63 +1540,68 @@ TPMU_ASYM_SCHEME_Marshal(TPMU_ASYM_SCHEME  *source, BYTE **buffer, INT32 *size, 
     switch (selector) {
 #if ALG_ECDH
       case TPM_ALG_ECDH:
-	written += TPMS_KEY_SCHEME_ECDH_Marshal(&source->ecdh, buffer, size);
-	break;
+        written += TPMS_KEY_SCHEME_ECDH_Marshal(&source->ecdh, buffer, size);
+        break;
 #endif
 #if ALG_ECMQV
       case TPM_ALG_ECMQV:
-	written += TPMS_KEY_SCHEME_ECMQV_Marshal(&source->ecmqv, buffer, size);
-	break;
+        written += TPMS_KEY_SCHEME_ECMQV_Marshal(&source->ecmqv, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	written += TPMS_SIG_SCHEME_DILITHIUM_Marshal(&source->dilithium, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_DILITHIUM_Marshal(&source->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        written += TPMS_ENC_SCHEME_KYBER_Marshal(&source->kyber, buffer, size);
+        break;
 #endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
-	written += TPMS_SIG_SCHEME_RSASSA_Marshal(&source->rsassa, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_RSASSA_Marshal(&source->rsassa, buffer, size);
+        break;
 #endif
 #if ALG_RSAPSS
       case TPM_ALG_RSAPSS:
-	written += TPMS_SIG_SCHEME_RSAPSS_Marshal(&source->rsapss, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_RSAPSS_Marshal(&source->rsapss, buffer, size);
+        break;
 #endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
-	written += TPMS_SIG_SCHEME_ECDSA_Marshal(&source->ecdsa, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_ECDSA_Marshal(&source->ecdsa, buffer, size);
+        break;
 #endif
 #if ALG_ECDAA
       case TPM_ALG_ECDAA:
-	written += TPMS_SIG_SCHEME_ECDAA_Marshal(&source->ecdaa, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_ECDAA_Marshal(&source->ecdaa, buffer, size);
+        break;
 #endif
 #if ALG_SM2
       case TPM_ALG_SM2:
-	written += TPMS_SIG_SCHEME_SM2_Marshal(&source->sm2, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_SM2_Marshal(&source->sm2, buffer, size);
+        break;
 #endif
 #if ALG_ECSCHNORR
       case TPM_ALG_ECSCHNORR:
-	written += TPMS_SIG_SCHEME_ECSCHNORR_Marshal(&source->ecschnorr, buffer, size);
-	break;
+        written += TPMS_SIG_SCHEME_ECSCHNORR_Marshal(&source->ecschnorr, buffer, size);
+        break;
 #endif
 #if ALG_RSAES
       case TPM_ALG_RSAES:
-	written += TPMS_ENC_SCHEME_RSAES_Marshal(&source->rsaes, buffer, size);
-	break;
+        written += TPMS_ENC_SCHEME_RSAES_Marshal(&source->rsaes, buffer, size);
+        break;
 #endif
 #if ALG_OAEP
       case TPM_ALG_OAEP:
-	written += TPMS_ENC_SCHEME_OAEP_Marshal(&source->oaep, buffer, size);
-	break;
+        written += TPMS_ENC_SCHEME_OAEP_Marshal(&source->oaep, buffer, size);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	pAssert(FALSE);
+        pAssert(FALSE);
     }
     return written;
 }
@@ -1605,6 +1618,14 @@ TPMI_ALG_RSA_SCHEME_Marshal(TPMI_ALG_RSA_SCHEME *source, BYTE **buffer, INT32 *s
 
 UINT16
 TPMI_ALG_DILITHIUM_SCHEME_Marshal(TPMI_ALG_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM_ALG_ID_Marshal(source, buffer, size);
+    return written;
+}
+
+UINT16
+TPMI_ALG_KYBER_SCHEME_Marshal(TPMI_ALG_KYBER_SCHEME *source, BYTE **buffer, INT32 *size)
 {
     UINT16 written = 0;
     written += TPM_ALG_ID_Marshal(source, buffer, size);
@@ -1629,6 +1650,16 @@ TPMT_DILITHIUM_SCHEME_Marshal(TPMT_DILITHIUM_SCHEME *source, BYTE **buffer, INT3
     UINT16 written = 0;
 
     written += TPMI_ALG_DILITHIUM_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
+    return written;
+}
+
+UINT16
+TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMI_ALG_KYBER_SCHEME_Marshal(&source->scheme, buffer, size);
     written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
     return written;
 }
@@ -1847,48 +1878,48 @@ TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, INT32 *size, UINT3
     switch (selector) {
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	written += TPMS_SIGNATURE_DILITHIUM_Marshal(&source->dilithium, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_DILITHIUM_Marshal(&source->dilithium, buffer, size);
+        break;
 #endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
-	written += TPMS_SIGNATURE_RSASSA_Marshal(&source->rsassa, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_RSASSA_Marshal(&source->rsassa, buffer, size);
+        break;
 #endif
 #if ALG_RSAPSS
       case TPM_ALG_RSAPSS:
-	written += TPMS_SIGNATURE_RSAPSS_Marshal(&source->rsapss, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_RSAPSS_Marshal(&source->rsapss, buffer, size);
+        break;
 #endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
-	written += TPMS_SIGNATURE_ECDSA_Marshal(&source->ecdsa, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_ECDSA_Marshal(&source->ecdsa, buffer, size);
+        break;
 #endif
 #if ALG_ECDAA
       case TPM_ALG_ECDAA:
-	written += TPMS_SIGNATURE_ECDAA_Marshal(&source->ecdaa, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_ECDAA_Marshal(&source->ecdaa, buffer, size);
+        break;
 #endif
 #if ALG_SM2
       case TPM_ALG_SM2:
-	written += TPMS_SIGNATURE_SM2_Marshal(&source->sm2, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_SM2_Marshal(&source->sm2, buffer, size);
+        break;
 #endif
 #if ALG_ECSCHNORR
       case TPM_ALG_ECSCHNORR:
-	written += TPMS_SIGNATURE_ECSCHNORR_Marshal(&source->ecschnorr, buffer, size);
-	break;
+        written += TPMS_SIGNATURE_ECSCHNORR_Marshal(&source->ecschnorr, buffer, size);
+        break;
 #endif
 #if ALG_HMAC
       case TPM_ALG_HMAC:
-	written += TPMT_HA_Marshal(&source->hmac, buffer, size);
-	break;
+        written += TPMT_HA_Marshal(&source->hmac, buffer, size);
+        break;
 #endif
       case TPM_ALG_NULL:
-	break;
+        break;
       default:
-	pAssert(FALSE);
+        pAssert(FALSE);
     }
     return written;
 }
@@ -1935,31 +1966,36 @@ TPMU_PUBLIC_ID_Marshal(TPMU_PUBLIC_ID *source, BYTE **buffer, INT32 *size, UINT3
     switch (selector) {
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	written += TPM2B_DIGEST_Marshal(&source->keyedHash, buffer, size);
-	break;
+        written += TPM2B_DIGEST_Marshal(&source->keyedHash, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	written += TPM2B_DIGEST_Marshal(&source->sym, buffer, size);
-	break;
+        written += TPM2B_DIGEST_Marshal(&source->sym, buffer, size);
+        break;
 #endif
 #if ALG_RSA
       case TPM_ALG_RSA:
-	written += TPM2B_PUBLIC_KEY_RSA_Marshal(&source->rsa, buffer, size);
-	break;
+        written += TPM2B_PUBLIC_KEY_RSA_Marshal(&source->rsa, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	written += TPM2B_DILITHIUM_PUBLIC_KEY_Marshal(&source->dilithium, buffer, size);
-	break;
+        written += TPM2B_DILITHIUM_PUBLIC_KEY_Marshal(&source->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        written += TPM2B_KYBER_PUBLIC_KEY_Marshal(&source->kyber, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	written += TPMS_ECC_POINT_Marshal(&source->ecc, buffer, size);
-	break;
+        written += TPMS_ECC_POINT_Marshal(&source->ecc, buffer, size);
+        break;
 #endif
       default:
-	pAssert(FALSE);
+        pAssert(FALSE);
     }
     return written;
 }
@@ -2013,6 +2049,17 @@ TPMS_DILITHIUM_PARMS_Marshal(TPMS_DILITHIUM_PARMS *source, BYTE **buffer, INT32 
     return written;
 }
 
+UINT16
+TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMT_SYM_DEF_OBJECT_Marshal(&source->symmetric, buffer, size);
+    written += TPMT_KYBER_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += UINT8_Marshal(&source->security, buffer, size);
+    return written;
+}
+
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union (StructuresTable()) */
 
 UINT16
@@ -2023,31 +2070,36 @@ TPMU_PUBLIC_PARMS_Marshal(TPMU_PUBLIC_PARMS *source, BYTE **buffer, INT32 *size,
     switch (selector) {
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	written += TPMS_KEYEDHASH_PARMS_Marshal(&source->keyedHashDetail, buffer, size);
-	break;
+        written += TPMS_KEYEDHASH_PARMS_Marshal(&source->keyedHashDetail, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	written += TPMS_SYMCIPHER_PARMS_Marshal(&source->symDetail, buffer, size);
-	break;
+        written += TPMS_SYMCIPHER_PARMS_Marshal(&source->symDetail, buffer, size);
+        break;
 #endif
 #if ALG_RSA
       case TPM_ALG_RSA:
-	written += TPMS_RSA_PARMS_Marshal(&source->rsaDetail, buffer, size);
-	break;
+        written += TPMS_RSA_PARMS_Marshal(&source->rsaDetail, buffer, size);
+        break;
 #endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	written += TPMS_DILITHIUM_PARMS_Marshal(&source->dilithiumDetail, buffer, size);
-	break;
+        written += TPMS_DILITHIUM_PARMS_Marshal(&source->dilithiumDetail, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        written += TPMS_KYBER_PARMS_Marshal(&source->kyberDetail, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	written += TPMS_ECC_PARMS_Marshal(&source->eccDetail, buffer, size);
-	break;
+        written += TPMS_ECC_PARMS_Marshal(&source->eccDetail, buffer, size);
+        break;
 #endif
       default:
-	pAssert(FALSE);
+        pAssert(FALSE);
     }
     return written;
 }
@@ -2110,31 +2162,36 @@ TPMU_SENSITIVE_COMPOSITE_Marshal(TPMU_SENSITIVE_COMPOSITE *source, BYTE **buffer
     switch (selector) {
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
-	written += TPM2B_DILITHIUM_SECRET_KEY_Marshal(&source->dilithium, buffer, size);
-	break;
+        written += TPM2B_DILITHIUM_SECRET_KEY_Marshal(&source->dilithium, buffer, size);
+        break;
 #endif
 #if ALG_RSA
       case TPM_ALG_RSA:
-	written += TPM2B_PRIVATE_KEY_RSA_Marshal(&source->rsa, buffer, size);
-	break;
+        written += TPM2B_PRIVATE_KEY_RSA_Marshal(&source->rsa, buffer, size);
+        break;
 #endif
 #if ALG_ECC
       case TPM_ALG_ECC:
-	written += TPM2B_ECC_PARAMETER_Marshal(&source->ecc, buffer, size);
-	break;
+        written += TPM2B_ECC_PARAMETER_Marshal(&source->ecc, buffer, size);
+        break;
 #endif
 #if ALG_KEYEDHASH
       case TPM_ALG_KEYEDHASH:
-	written += TPM2B_SENSITIVE_DATA_Marshal(&source->bits, buffer, size);
-	break;
+        written += TPM2B_SENSITIVE_DATA_Marshal(&source->bits, buffer, size);
+        break;
 #endif
 #if ALG_SYMCIPHER
       case TPM_ALG_SYMCIPHER:
-	written += TPM2B_SYM_KEY_Marshal(&source->sym, buffer, size);
-	break;
+        written += TPM2B_SYM_KEY_Marshal(&source->sym, buffer, size);
+        break;
+#endif
+#if ALG_KYBER
+      case TPM_ALG_KYBER:
+        written += TPM2B_KYBER_SECRET_KEY_Marshal(&source->kyber, buffer, size);
+        break;
 #endif
       default:
-	pAssert(FALSE);
+        pAssert(FALSE);
     }
     return written;
 }

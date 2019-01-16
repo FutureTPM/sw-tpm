@@ -1052,6 +1052,49 @@ typedef union {
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+#define MAX_KYBER_PUBLIC_KEY_SIZE 1440
+#define MAX_KYBER_SECRET_KEY_SIZE 3168
+#define MAX_KYBER_CIPHER_TEXT_SIZE 1504
+#define MAX_KYBER_SHARED_KEY_SIZE 32
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_KYBER_CIPHER_TEXT_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_CIPHER_TEXT;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_KYBER_PUBLIC_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_PUBLIC_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_KYBER_SECRET_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_SECRET_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_KYBER_SHARED_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_SHARED_KEY;
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
 /* Table 2:90 - Definition of TPMT_TK_VERIFIED Structure  */
 typedef struct {
     TPM_ST                  tag;
@@ -1453,6 +1496,7 @@ typedef struct {
 /* Table 2:153 - Definition of Types for Encryption Schemes */
 typedef  TPMS_SCHEME_HASH    TPMS_ENC_SCHEME_OAEP;
 typedef  TPMS_EMPTY          TPMS_ENC_SCHEME_RSAES;
+typedef  TPMS_SCHEME_HASH    TPMS_ENC_SCHEME_KYBER;
 /* Table 2:154 - Definition of Types for ECC Key Exchange */
 typedef  TPMS_SCHEME_HASH    TPMS_KEY_SCHEME_ECDH;
 typedef  TPMS_SCHEME_HASH    TPMS_KEY_SCHEME_ECMQV;
@@ -1518,6 +1562,9 @@ typedef union {
 #if 	ALG_OAEP
     TPMS_ENC_SCHEME_OAEP         oaep;
 #endif   // ALG_OAEP
+#if 	ALG_KYBER
+    TPMS_ENC_SCHEME_KYBER        kyber;
+#endif   // ALG_KYBER
     TPMS_SCHEME_HASH             anySig;
 } TPMU_ASYM_SCHEME;
 /* Table 2:160 - Definition of TPMT_ASYM_SCHEME Structure  */
@@ -1531,6 +1578,12 @@ typedef struct {
     TPMI_ALG_DILITHIUM_SCHEME scheme;
     TPMU_ASYM_SCHEME          details;
 } TPMT_DILITHIUM_SCHEME;
+
+typedef  TPM_ALG_ID         TPMI_ALG_KYBER_SCHEME;
+typedef struct {
+    TPMI_ALG_KYBER_SCHEME scheme;
+    TPMU_ASYM_SCHEME      details;
+} TPMT_KYBER_SCHEME;
 
 /* Table 2:161 - Definition of TPMI_ALG_RSA_SCHEME Type  */
 typedef  TPM_ALG_ID         TPMI_ALG_RSA_SCHEME;
@@ -1678,6 +1731,9 @@ typedef union {
 #if 	ALG_KEYEDHASH
     BYTE                    keyedHash[sizeof(TPM2B_DIGEST)];
 #endif   // ALG_KEYEDHASH
+#if 	ALG_KYBER
+    BYTE                    kyber[MAX_KYBER_SHARED_KEY_SIZE];
+#endif   // ALG_KYBER
 } TPMU_ENCRYPTED_SECRET;
 /* Table 2:182 - Definition of TPM2B_ENCRYPTED_SECRET Structure  */
 typedef union {
@@ -1703,6 +1759,9 @@ typedef union {
 #if 	ALG_DILITHIUM
     TPM2B_DILITHIUM_PUBLIC_KEY dilithium;
 #endif   // ALG_DILITHIUM
+#if 	ALG_KYBER
+    TPM2B_KYBER_PUBLIC_KEY  kyber;
+#endif   // ALG_KYBER
 #if 	ALG_ECC
     TPMS_ECC_POINT          ecc;
 #endif   // ALG_ECC
@@ -1738,6 +1797,12 @@ typedef struct {
     BYTE                  mode;
 } TPMS_DILITHIUM_PARMS;
 
+typedef struct {
+    TPMT_SYM_DEF_OBJECT symmetric;
+    TPMT_KYBER_SCHEME   scheme;
+    BYTE                security;
+} TPMS_KYBER_PARMS;
+
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union  */
 typedef union {
 #if 	ALG_KEYEDHASH
@@ -1755,6 +1820,9 @@ typedef union {
 #if 	ALG_DILITHIUM
     TPMS_DILITHIUM_PARMS    dilithiumDetail;
 #endif   // ALG_DILITHIUM
+#if 	ALG_KYBER
+    TPMS_KYBER_PARMS        kyberDetail;
+#endif   // ALG_KYBER
     TPMS_ASYM_PARMS         asymDetail;
 } TPMU_PUBLIC_PARMS;
 /* Table 2:190 - Definition of TPMT_PUBLIC_PARMS Structure  */
@@ -1797,6 +1865,9 @@ typedef union {
 #if 	ALG_DILITHIUM
     TPM2B_DILITHIUM_SECRET_KEY      dilithium;
 #endif   // ALG_DILITHIUM
+#if 	ALG_KYBER
+    TPM2B_KYBER_SECRET_KEY           kyber;
+#endif   // ALG_KYBER
 #if 	ALG_RSA
     TPM2B_PRIVATE_KEY_RSA            rsa;
 #endif   // ALG_RSA
@@ -2052,47 +2123,6 @@ typedef struct {
 } TPML_AC_CAPABILITIES;
 #endif
 
-/*****************************************************************************/
-/*                                Kyber Mods                                 */
-/*****************************************************************************/
-#define MAX_KYBER_PUBLIC_KEY_SIZE 1440
-#define MAX_KYBER_SECRET_KEY_SIZE 3168
-#define MAX_KYBER_CIPHER_TEXT_SIZE 1504
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_KYBER_CIPHER_TEXT_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_KYBER_CIPHER_TEXT;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_KYBER_PUBLIC_KEY_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_KYBER_PUBLIC_KEY;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[MAX_KYBER_SECRET_KEY_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_KYBER_SECRET_KEY;
-
-typedef union {
-    struct {
-	UINT16                  size;
-	BYTE                    buffer[32];
-    }            t;
-    TPM2B        b;
-} TPM2B_KYBER_SHARED_KEY;
-/*****************************************************************************/
-/*                                Kyber Mods                                 */
-/*****************************************************************************/
 
 
 #endif
