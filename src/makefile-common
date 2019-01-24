@@ -269,6 +269,9 @@ HEADERS = 				\
 	_TPM_Hash_Start_fp.h		\
 	_TPM_Init_fp.h			\
 	swap.h				\
+	Kyber_2Phase_KEX_fp.h \
+	Kyber_3Phase_KEX_fp.h \
+	Kyber_Ephemeral_fp.h \
 					\
 	ntc2lib.h			\
 	ntc2_fp.h \

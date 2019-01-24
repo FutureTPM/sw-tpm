@@ -1,8 +1,5 @@
 #include "kyber-cbd.h"
 
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
-
 /*************************************************
 * Name:        load_littleendian
 *

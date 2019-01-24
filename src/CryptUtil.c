@@ -493,14 +493,14 @@ CryptSecretEncrypt(
     TPM_RC                   result = TPM_RC_SUCCESS;
     //
     if(data == NULL || secret == NULL)
-	return TPM_RC_FAILURE;
+        return TPM_RC_FAILURE;
     // The output secret value has the size of the digest produced by the nameAlg.
     data->t.size = CryptHashGetDigestSize(encryptKey->publicArea.nameAlg);
     // The encryption scheme is OAEP using the nameAlg of the encrypt key.
     scheme.scheme = TPM_ALG_OAEP;
     scheme.details.anySig.hashAlg = encryptKey->publicArea.nameAlg;
     if(!IS_ATTRIBUTE(encryptKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
-	return TPM_RC_ATTRIBUTES;
+        return TPM_RC_ATTRIBUTES;
     switch(encryptKey->publicArea.type)
 	{
 #if ALG_RSA
@@ -530,7 +530,7 @@ CryptSecretEncrypt(
 		  else
 		      {
 			  // Call crypto engine to create an auxiliary ECC key
-			  // We assume crypt engine initialization should always success.
+			  // We assume crypt engine initialization should always succeed.
 			  // Otherwise, TPM should go to failure mode.
 			  CryptEccNewKeyPair(&eccPublic, &eccPrivate,
 					     encryptKey->publicArea.parameters.eccDetail.curveID);
@@ -571,6 +571,17 @@ CryptSecretEncrypt(
 	      }
 	      break;
 #endif //TPM_ALG_ECC
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+	      {
+              // Kyber will only work if and only if data->t.size is 32 bytes,
+              // i.e., hash must be SHA256.
+              result = CryptKyberEncapsulate(&encryptKey->publicArea,
+                      (TPM2B_KYBER_SHARED_KEY *)data,
+                      (TPM2B_KYBER_CIPHER_TEXT *)secret);
+	      }
+	      break;
+#endif //TPM_ALG_KYBER
 	  default:
 	    FAIL(FATAL_ERROR_INTERNAL);
 	    break;
@@ -594,7 +605,7 @@ CryptSecretEncrypt(
 /* TPM_RC_FAILURE internal error */
 TPM_RC
 CryptSecretDecrypt(
-		   OBJECT                 *decryptKey,    // IN: decrypt key
+		   OBJECT                  *decryptKey,    // IN: decrypt key
 		   TPM2B_NONCE             *nonceCaller,   // IN: nonceCaller.  It is needed for
 		   //     symmetric decryption.  For
 		   //     asymmetric decryption, this
@@ -688,6 +699,18 @@ CryptSecretDecrypt(
 	      }
 	      break;
 #endif //TPM_ALG_ECC
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+	      {
+              // Kyber will only work if and only if data->t.size is 32 bytes,
+              // i.e., hash must be SHA256.
+              result = CryptKyberDecapsulate(&decryptKey->sensitive,
+                      decryptKey->publicArea.parameters.kyberDetail.security,
+                      (TPM2B_KYBER_CIPHER_TEXT *)secret,
+                      (TPM2B_KYBER_SHARED_KEY *)data);
+	      }
+	      break;
+#endif //TPM_ALG_KYBER
 #if !ALG_KEYEDHASH
 #   error   "KEYEDHASH support is required"
 #endif
@@ -1494,6 +1517,45 @@ CryptIsUniqueSizeValid(
 	      }
 	      break;
 #endif //TPM_ALG_ECC
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+        switch(publicArea->parameters.kyberDetail.security) {
+            case TPM_KYBER_SECURITY_2:
+                consistent = publicArea->unique.kyber.t.size == 736; /* Kyber512 */
+                break;
+            case TPM_KYBER_SECURITY_3:
+                consistent = publicArea->unique.kyber.t.size == 1088; /* Kyber768 */
+                break;
+            case TPM_KYBER_SECURITY_4:
+                consistent = publicArea->unique.kyber.t.size == 1440; /* Kyber1024 */
+                break;
+            default:
+                consistent = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_KYBER
+#if ALG_DILITHIUM
+	  case TPM_ALG_DILITHIUM:
+        switch(publicArea->parameters.dilithiumDetail.mode) {
+            case TPM_DILITHIUM_MODE_0:
+                consistent = publicArea->unique.dilithium.t.size == 896;
+                break;
+            case TPM_DILITHIUM_MODE_1:
+                consistent = publicArea->unique.dilithium.t.size == 1184;
+                break;
+            case TPM_DILITHIUM_MODE_2:
+                consistent = publicArea->unique.dilithium.t.size == 1472;
+                break;
+            case TPM_DILITHIUM_MODE_3:
+                consistent = publicArea->unique.dilithium.t.size == 1760;
+                break;
+            default:
+                consistent = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_DILITHIUM
 	  default:
 	    // For SYMCIPHER and KEYDEDHASH objects, the unique field is the size
 	    // of the nameAlg digest.
@@ -1532,6 +1594,45 @@ CryptIsSensitiveSizeValid(
 			 && (sensitiveArea->sensitive.ecc.t.size == keySizeInBytes);
 	    break;
 #endif
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+        switch(publicArea->parameters.kyberDetail.security) {
+            case TPM_KYBER_SECURITY_2:
+                consistent = sensitiveArea->sensitive.kyber.t.size == 1632; /* Kyber512 */
+                break;
+            case TPM_KYBER_SECURITY_3:
+                consistent = sensitiveArea->sensitive.kyber.t.size == 2400; /* Kyber768 */
+                break;
+            case TPM_KYBER_SECURITY_4:
+                consistent = sensitiveArea->sensitive.kyber.t.size == 3168; /* Kyber1024 */
+                break;
+            default:
+                consistent = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_KYBER
+#if ALG_DILITHIUM
+	  case TPM_ALG_DILITHIUM:
+        switch(publicArea->parameters.dilithiumDetail.mode) {
+            case TPM_DILITHIUM_MODE_0:
+                consistent = sensitiveArea->sensitive.dilithium.t.size == 2096;
+                break;
+            case TPM_DILITHIUM_MODE_1:
+                consistent = sensitiveArea->sensitive.dilithium.t.size == 2800;
+                break;
+            case TPM_DILITHIUM_MODE_2:
+                consistent = sensitiveArea->sensitive.dilithium.t.size == 3504;
+                break;
+            case TPM_DILITHIUM_MODE_3:
+                consistent = sensitiveArea->sensitive.dilithium.t.size == 3856;
+                break;
+            default:
+                consistent = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_DILITHIUM
 	  case TPM_ALG_SYMCIPHER:
 	    keySizeInBytes = BITS_TO_BYTES(
 					   publicArea->parameters.symDetail.sym.keyBits.sym);
@@ -1605,19 +1706,18 @@ CryptValidateKeys(
 	    // NOTE: This implementation only supports key sizes that are multiples
 	    // of 1024 bits which means that the MSb of the 0th byte will always be
 	    // SET in either a prime or the public modulus.
-	    if((unique->rsa.t.size != keySizeInBytes)
-	       || (unique->rsa.t.buffer[0] < 0x80))
-		return TPM_RCS_KEY + blamePublic;
-	    if(params->rsaDetail.exponent != 0
-	       && params->rsaDetail.exponent < 7)
-		return TPM_RCS_VALUE + blamePublic;
+	    if((unique->rsa.t.size != keySizeInBytes) ||
+                (unique->rsa.t.buffer[0] < 0x80))
+            return TPM_RCS_KEY + blamePublic;
+	    if(params->rsaDetail.exponent != 0 && params->rsaDetail.exponent < 7)
+            return TPM_RCS_VALUE + blamePublic;
 	    if(sensitive != NULL)
 		{
 		    // If there is a sensitive area, it has to be the correct size
 		    // including having the correct high order bit SET.
 		    if(((sensitive->sensitive.rsa.t.size * 2) != keySizeInBytes)
 		       || (sensitive->sensitive.rsa.t.buffer[0] < 0x80))
-			return TPM_RCS_KEY_SIZE + blameSensitive;
+                return TPM_RCS_KEY_SIZE + blameSensitive;
 		}
 	    break;
 #endif
@@ -1673,6 +1773,92 @@ CryptValidateKeys(
 		      }
 		  break;
 	      }
+#endif
+#if ALG_KYBER
+	  case TPM_ALG_KYBER:
+          switch(publicArea->parameters.kyberDetail.security) {
+              case TPM_KYBER_SECURITY_2:
+                  if(publicArea->unique.kyber.t.size != 736)
+                      return TPM_RC_KEY + blamePublic; /* Kyber512 */
+                  break;
+              case TPM_KYBER_SECURITY_3:
+                  if(publicArea->unique.kyber.t.size != 1088)
+                      return TPM_RC_KEY + blamePublic; /* Kyber768 */
+                  break;
+              case TPM_KYBER_SECURITY_4:
+                  if(publicArea->unique.kyber.t.size != 1440)
+                      return TPM_RC_KEY + blamePublic; /* Kyber1024 */
+                  break;
+              default:
+                return TPM_RCS_VALUE + blamePublic;
+          }
+
+          if (sensitive != NULL) {
+            switch(publicArea->parameters.kyberDetail.security) {
+                case TPM_KYBER_SECURITY_2:
+                    if (sensitive->sensitive.kyber.t.size != 1632)
+                        return TPM_RCS_SIZE + blameSensitive; /* Kyber512 */
+                    break;
+                case TPM_KYBER_SECURITY_3:
+                    if (sensitive->sensitive.kyber.t.size != 2400)
+                        return TPM_RCS_SIZE + blameSensitive; /* Kyber768 */
+                    break;
+                case TPM_KYBER_SECURITY_4:
+                    if (sensitive->sensitive.kyber.t.size == 3168)
+                        return TPM_RCS_SIZE + blameSensitive; /* Kyber1024 */
+                    break;
+                default:
+                    return TPM_RCS_VALUE + blamePublic;
+            }
+          }
+	    break;
+#endif
+#if ALG_DILITHIUM
+	  case TPM_ALG_DILITHIUM:
+          switch(publicArea->parameters.dilithiumDetail.mode) {
+              case TPM_DILITHIUM_MODE_0:
+                  if(publicArea->unique.dilithium.t.size != 896)
+                      return TPM_RC_KEY + blamePublic;
+                  break;
+              case TPM_DILITHIUM_MODE_1:
+                  if(publicArea->unique.dilithium.t.size != 1184)
+                      return TPM_RC_KEY + blamePublic;
+                  break;
+              case TPM_DILITHIUM_MODE_2:
+                  if(publicArea->unique.dilithium.t.size != 1472)
+                      return TPM_RC_KEY + blamePublic;
+                  break;
+              case TPM_DILITHIUM_MODE_3:
+                  if(publicArea->unique.dilithium.t.size != 1760)
+                      return TPM_RC_KEY + blamePublic;
+                  break;
+              default:
+                return TPM_RCS_VALUE + blamePublic;
+          }
+
+          if (sensitive != NULL) {
+            switch(publicArea->parameters.dilithiumDetail.mode) {
+                case TPM_DILITHIUM_MODE_0:
+                    if (sensitive->sensitive.dilithium.t.size != 2096)
+                        return TPM_RCS_SIZE + blameSensitive;
+                    break;
+                case TPM_DILITHIUM_MODE_1:
+                    if (sensitive->sensitive.dilithium.t.size != 2800)
+                        return TPM_RCS_SIZE + blameSensitive;
+                    break;
+                case TPM_DILITHIUM_MODE_2:
+                    if (sensitive->sensitive.dilithium.t.size != 3504)
+                        return TPM_RCS_SIZE + blameSensitive;
+                    break;
+                case TPM_DILITHIUM_MODE_3:
+                    if (sensitive->sensitive.dilithium.t.size == 3856)
+                        return TPM_RCS_SIZE + blameSensitive;
+                    break;
+                default:
+                    return TPM_RCS_VALUE + blamePublic;
+            }
+          }
+	    break;
 #endif
 	  default:
 	    // Checks for SYMCIPHER and KEYEDHASH are largely the same

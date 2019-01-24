@@ -451,14 +451,20 @@
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if CC_KYBER_KeyGen
-#include "KYBER_KeyGen_fp.h"
-#endif
 #if CC_KYBER_Enc
-#include "KYBER_Enc_fp.h"
+#include "Kyber_Enc_fp.h"
 #endif
 #if CC_KYBER_Dec
-#include "KYBER_Dec_fp.h"
+#include "Kyber_Dec_fp.h"
+#endif
+#if CC_KYBER_2Phase_KEX
+#include "Kyber_2Phase_KEX_fp.h"
+#endif
+#if CC_KYBER_3Phase_KEX
+#include "Kyber_3Phase_KEX_fp.h"
+#endif
+#if CC_KYBER_Ephemeral
+#include "Kyber_Ephemeral_fp.h"
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */

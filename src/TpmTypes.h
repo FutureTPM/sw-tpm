@@ -1732,7 +1732,7 @@ typedef union {
     BYTE                    keyedHash[sizeof(TPM2B_DIGEST)];
 #endif   // ALG_KEYEDHASH
 #if 	ALG_KYBER
-    BYTE                    kyber[MAX_KYBER_SHARED_KEY_SIZE];
+    BYTE                    kyber[MAX_KYBER_CIPHER_TEXT_SIZE];
 #endif   // ALG_KYBER
 } TPMU_ENCRYPTED_SECRET;
 /* Table 2:182 - Definition of TPM2B_ENCRYPTED_SECRET Structure  */

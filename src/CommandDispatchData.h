@@ -230,29 +230,22 @@ const UNMARSHAL_t UnmarshalArray[] = {
 
 #define NTC2_CFG_STRUCT_P_UNMARSHAL	(TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)NTC2_CFG_STRUCT_Unmarshal,
-#define KYBER_Sec_Sel_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
-#define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
-#define TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_KYBER_SECRET_KEY_Unmarshal,
-#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL + 1)
+#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (NTC2_CFG_STRUCT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
+#define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL)
 
 #else
-#define KYBER_Sec_Sel_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)KYBER_Sec_Sel_Unmarshal,
-#define TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL (KYBER_Sec_Sel_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Unmarshal,
-#define TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_KYBER_SECRET_KEY_Unmarshal,
-#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL + 1)
+#define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
 
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL)
+#define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
+
+#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -344,28 +337,24 @@ const MARSHAL_t MarshalArray[] = {
 
 #define NTC2_CFG_STRUCT_P_MARSHAL	(UINT16_P_MARSHAL + 1)
     (MARSHAL_t)NTC2_CFG_STRUCT_Marshal,
-#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
-#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (TPM2B_KYBER_SECRET_KEY_P_MARSHAL + 1)
+#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (NTC2_CFG_STRUCT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_SHARED_KEY_Marshal,
 #define TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL (TPM2B_KYBER_SHARED_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL)
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL)
 
 #else
 
-#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define TPM2B_KYBER_SECRET_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_KYBER_SECRET_KEY_Marshal,
-#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (TPM2B_KYBER_SECRET_KEY_P_MARSHAL + 1)
+#define TPM2B_KYBER_SHARED_KEY_P_MARSHAL (UINT16_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_SHARED_KEY_Marshal,
 #define TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL (TPM2B_KYBER_SHARED_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
     // RESPONSE_PARAMETER_LAST_TYPE is the end of the response parameter list.
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL)
+#define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4096,69 +4085,170 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 #if CC_KYBER_Enc
-#include "KYBER_Enc_fp.h"
-typedef TPM_RC  (KYBER_Enc_Entry)(
-				    KYBER_Enc_In  *in,
-				    KYBER_Enc_Out *out
+#include "Kyber_Enc_fp.h"
+typedef TPM_RC  (Kyber_Enc_Entry)(
+				    Kyber_Encapsulate_In  *in,
+				    Kyber_Encapsulate_Out *out
 				    );
 typedef const struct {
-    KYBER_Enc_Entry      *entry;
+    Kyber_Enc_Entry      *entry;
     UINT16               inSize;
     UINT16               outSize;
     UINT16               offsetOfTypes;
-    UINT16               paramOffsets[2];
-    BYTE                 types[6];
-} KYBER_Enc_COMMAND_DESCRIPTOR_t;
-KYBER_Enc_COMMAND_DESCRIPTOR_t _KYBER_EncData = {
-    /* entry  */          &TPM2_KYBER_Enc,
-    /* inSize */          (UINT16)(sizeof(KYBER_Enc_In)),
-    /* outSize */         (UINT16)(sizeof(KYBER_Enc_Out)),
-    /* offsetOfTypes */   offsetof(KYBER_Enc_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(KYBER_Enc_In, public_key)),
-        (UINT16)(offsetof(KYBER_Enc_Out, cipher_text))},
-    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
-                           TPM2B_KYBER_PUBLIC_KEY_P_UNMARSHAL,
+    UINT16               paramOffsets[1];
+    BYTE                 types[5];
+} Kyber_Enc_COMMAND_DESCRIPTOR_t;
+Kyber_Enc_COMMAND_DESCRIPTOR_t _Kyber_EncData = {
+    /* entry  */          &TPM2_Kyber_Enc,
+    /* inSize */          (UINT16)(sizeof(Kyber_Encapsulate_In)),
+    /* outSize */         (UINT16)(sizeof(Kyber_Encapsulate_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_Enc_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(Kyber_Encapsulate_Out, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                END_OF_LIST,
 			   TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
 			   TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
                END_OF_LIST}
 };
-#define _KYBER_EncDataAddress (&_KYBER_EncData)
+#define _KYBER_EncDataAddress (&_Kyber_EncData)
 #else
 #define _KYBER_EncDataAddress 0
 #endif
 
 #if CC_KYBER_Dec
-#include "KYBER_Dec_fp.h"
-typedef TPM_RC  (KYBER_Dec_Entry)(
-				    KYBER_Dec_In  *in,
-				    KYBER_Dec_Out *out
+#include "Kyber_Dec_fp.h"
+typedef TPM_RC  (Kyber_Dec_Entry)(
+				    Kyber_Decapsulate_In  *in,
+				    Kyber_Decapsulate_Out *out
 				    );
 typedef const struct {
-    KYBER_Dec_Entry      *entry;
+    Kyber_Dec_Entry      *entry;
     UINT16               inSize;
     UINT16               outSize;
     UINT16               offsetOfTypes;
-    UINT16               paramOffsets[2];
-    BYTE                 types[6];
-} KYBER_Dec_COMMAND_DESCRIPTOR_t;
-KYBER_Dec_COMMAND_DESCRIPTOR_t _KYBER_DecData = {
-    /* entry  */          &TPM2_KYBER_Dec,
-    /* inSize */          (UINT16)(sizeof(KYBER_Dec_In)),
-    /* outSize */         (UINT16)(sizeof(KYBER_Dec_Out)),
-    /* offsetOfTypes */   offsetof(KYBER_Dec_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(KYBER_Dec_In, secret_key)),
-        (UINT16)(offsetof(KYBER_Dec_In, cipher_text))},
-    /* types */           {KYBER_Sec_Sel_P_UNMARSHAL,
-                           TPM2B_KYBER_SECRET_KEY_P_UNMARSHAL,
+    UINT16               paramOffsets[1];
+    BYTE                 types[5];
+} Kyber_Dec_COMMAND_DESCRIPTOR_t;
+Kyber_Dec_COMMAND_DESCRIPTOR_t _Kyber_DecData = {
+    /* entry  */          &TPM2_Kyber_Dec,
+    /* inSize */          (UINT16)(sizeof(Kyber_Decapsulate_In)),
+    /* outSize */         (UINT16)(sizeof(Kyber_Decapsulate_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_Dec_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(Kyber_Decapsulate_In, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
                            END_OF_LIST,
                            TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
                            END_OF_LIST}
 };
-#define _KYBER_DecDataAddress (&_KYBER_DecData)
+#define _KYBER_DecDataAddress (&_Kyber_DecData)
 #else
 #define _KYBER_DecDataAddress 0
+#endif
+
+#if CC_KYBER_Ephemeral
+#include "Kyber_Ephemeral_fp.h"
+typedef TPM_RC  (Kyber_Ephemeral_Entry)(
+				    Kyber_Ephemeral_In  *in,
+				    Kyber_Ephemeral_Out *out
+				    );
+typedef const struct {
+    Kyber_Ephemeral_Entry  *entry;
+    UINT16                 inSize;
+    UINT16                 outSize;
+    UINT16                 offsetOfTypes;
+    UINT16                 paramOffsets[1];
+    BYTE                   types[5];
+} Kyber_Ephemeral_COMMAND_DESCRIPTOR_t;
+Kyber_Ephemeral_COMMAND_DESCRIPTOR_t _Kyber_EphemeralData = {
+    /* entry  */          &TPM2_Kyber_Ephemeral,
+    /* inSize */          (UINT16)(sizeof(Kyber_Ephemeral_In)),
+    /* outSize */         (UINT16)(sizeof(Kyber_Ephemeral_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_Ephemeral_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(Kyber_Ephemeral_Out, k))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL,
+                           UINT8_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _KYBER_EphemeralDataAddress (&_Kyber_EphemeralData)
+#else
+#define _KYBER_EphemeralDataAddress 0
+#endif
+
+#if CC_KYBER_2Phase_KEX
+#include "Kyber_2Phase_KEX_fp.h"
+typedef TPM_RC  (Kyber_2Phase_KEX_Entry)(
+				    Kyber_2Phase_KEX_In  *in,
+				    Kyber_2Phase_KEX_Out *out
+				    );
+typedef const struct {
+    Kyber_2Phase_KEX_Entry  *entry;
+    UINT16                  inSize;
+    UINT16                  outSize;
+    UINT16                  offsetOfTypes;
+    UINT16                  paramOffsets[4];
+    BYTE                    types[8];
+} Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t;
+Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_2Phase_KEXData = {
+    /* entry  */          &TPM2_Kyber_2Phase_KEX,
+    /* inSize */          (UINT16)(sizeof(Kyber_2Phase_KEX_In)),
+    /* outSize */         (UINT16)(sizeof(Kyber_2Phase_KEX_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(Kyber_2Phase_KEX_In, ephemeral_key)),
+                           (UINT16)(offsetof(Kyber_2Phase_KEX_In, cipher_text_static)),
+                           (UINT16)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_1)),
+                           (UINT16)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_2))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _KYBER_2Phase_KEXDataAddress (&_Kyber_2Phase_KEXData)
+#else
+#define _KYBER_2Phase_KEXDataAddress 0
+#endif
+
+#if CC_KYBER_3Phase_KEX
+#include "Kyber_3Phase_KEX_fp.h"
+typedef TPM_RC  (Kyber_3Phase_KEX_Entry)(
+				    Kyber_3Phase_KEX_In  *in,
+				    Kyber_3Phase_KEX_Out *out
+				    );
+typedef const struct {
+    Kyber_3Phase_KEX_Entry *entry;
+    UINT16                 inSize;
+    UINT16                 outSize;
+    UINT16                 offsetOfTypes;
+    UINT16                 paramOffsets[4];
+    BYTE                   types[8];
+} Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t;
+Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_3Phase_KEXData = {
+    /* entry  */          &TPM2_Kyber_3Phase_KEX,
+    /* inSize */          (UINT16)(sizeof(Kyber_3Phase_KEX_In)),
+    /* outSize */         (UINT16)(sizeof(Kyber_3Phase_KEX_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(Kyber_3Phase_KEX_In, ephemeral_key)),
+                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, cipher_text_1)),
+                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, cipher_text_2)),
+                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, shared_key_3))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
+                           TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _KYBER_3Phase_KEXDataAddress (&_Kyber_3Phase_KEXData)
+#else
+#define _KYBER_3Phase_KEXDataAddress 0
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
@@ -4620,12 +4710,29 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_Policy_AC_SendSelect)
     (COMMAND_DESCRIPTOR_t *)_Policy_AC_SendSelectDataAddress,
 #endif // CC_Policy_AC_SendSelect
+
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 #if (PAD_LIST || CC_KYBER_Enc)
     (COMMAND_DESCRIPTOR_t *)_KYBER_EncDataAddress,
 #endif
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
 #endif
+#if (PAD_LIST || CC_KYBER_Ephemeral)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_EphemeralDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_2Phase_KEX)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_2Phase_KEXDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_3Phase_KEX)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_3Phase_KEXDataAddress,
+#endif
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,
 #endif

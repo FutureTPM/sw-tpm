@@ -6,9 +6,6 @@
 #include "kyber-cbd.h"
 #include "fips202.h"
 
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
-
 /*************************************************
 * Name:        poly_compress
 *

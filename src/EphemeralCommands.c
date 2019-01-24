@@ -192,3 +192,35 @@ TPM2_EC_Ephemeral(
 }
 #endif
 #endif // CC_EC_Ephemeral
+#include "Tpm.h"
+#include "Kyber_Ephemeral_fp.h"
+#if CC_KYBER_Ephemeral  // Conditional expansion of this file
+#if ALG_KYBER
+TPM_RC
+TPM2_Kyber_Ephemeral(
+		  Kyber_Ephemeral_In     *in,            // IN: input parameter list
+		  Kyber_Ephemeral_Out    *out            // OUT: output parameter list
+		  )
+{
+    TPM_RC result = TPM_RC_SUCCESS;
+    OBJECT *kyberKey;
+
+    kyberKey = HandleToObject(in->key_handle);
+
+    // Key must be a Kyber key
+    if(kyberKey->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Ephemeral_key_handle;
+
+    if (!CryptKyberIsModeValid(kyberKey->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Ephemeral_key_handle;
+
+    result = CryptKyberGenerateKey(kyberKey, NULL);
+
+    MemoryCopy2B(&out->public_key.b, &kyberKey->publicArea.unique.kyber.b,
+            kyberKey->publicArea.unique.kyber.t.size);
+    out->k = kyberKey->publicArea.parameters.kyberDetail.security;
+
+    return result;
+}
+#endif
+#endif // CC_KYBER_Ephemeral

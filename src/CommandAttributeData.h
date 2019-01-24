@@ -438,33 +438,23 @@ const TPMA_CC    s_ccAttr [] = {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if (PAD_LIST  || CC_KYBER_KeyGen)
-    TPMA_CC_INITIALIZER(0x0197, 0, 0, 0, 0, 1, 0, 0, 0),
-#endif
 #if (PAD_LIST  || CC_KYBER_Enc)
     TPMA_CC_INITIALIZER(0x0198, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
 #if (PAD_LIST  || CC_KYBER_Dec)
     TPMA_CC_INITIALIZER(0x0199, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
-/*****************************************************************************/
-/*                                Kyber Mods                                 */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-#if (PAD_LIST  || CC_DILITHIUM_KeyGen)
+#if (PAD_LIST  || CC_KYBER_Ephemeral)
     TPMA_CC_INITIALIZER(0x019A, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
-#if (PAD_LIST  || CC_DILITHIUM_Sign)
+#if (PAD_LIST  || CC_KYBER_2Phase_KEX)
     TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
-#if (PAD_LIST  || CC_DILITHIUM_Verify)
+#if (PAD_LIST  || CC_KYBER_3Phase_KEX)
     TPMA_CC_INITIALIZER(0x019C, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
 /*****************************************************************************/
-/*                             Dilithium Mods                                */
+/*                                Kyber Mods                                 */
 /*****************************************************************************/
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
@@ -970,39 +960,28 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if (PAD_LIST  || CC_KYBER_KeyGen)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_KeyGen                *  // 0x0197
-			 (IS_IMPLEMENTED)),
-#endif
 #if (PAD_LIST  || CC_KYBER_Enc)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Enc                   *  // 0x0198
-			 (IS_IMPLEMENTED)),
+			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
 #endif
 #if (PAD_LIST  || CC_KYBER_Dec)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x0199
-			 (IS_IMPLEMENTED)),
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_KYBER_Ephemeral)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Ephemeral             *  // 0x019A
+			 (IS_IMPLEMENTED+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_KYBER_2Phase_KEX)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_2Phase_KEX            *  // 0x019B
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_KYBER_3Phase_KEX)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_3Phase_KEX            *  // 0x019C
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
-/*****************************************************************************/
-#if (PAD_LIST  || CC_DILITHIUM_KeyGen)
-    (COMMAND_ATTRIBUTES)(CC_DILITHIUM_KeyGen            *  // 0x019A
-			 (IS_IMPLEMENTED)),
-#endif
-#if (PAD_LIST  || CC_DILITHIUM_Sign)
-    (COMMAND_ATTRIBUTES)(CC_DILITHIUM_Sign              *  // 0x019B
-			 (IS_IMPLEMENTED)),
-#endif
-#if (PAD_LIST  || CC_DILITHIUM_Verify)
-    (COMMAND_ATTRIBUTES)(CC_DILITHIUM_Verify            *  // 0x019C
-			 (IS_IMPLEMENTED)),
-#endif
-/*****************************************************************************/
-/*                             Dilithium Mods                                */
 /*****************************************************************************/
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)

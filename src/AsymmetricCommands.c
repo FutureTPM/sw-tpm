@@ -175,14 +175,14 @@ TPM2_ECDH_KeyGen(
 	                                           &keyPublic->unique.ecc,
 	                                           &sensitive,
 	                                           NULL, NULL);
-		    // The point in the key is not on the curve. Indicate
-		    // that the key is bad.
+                // The point in the key is not on the curve. Indicate
+                // that the key is bad.
 	            if(result == TPM_RC_ECC_POINT)
 	                return TPM_RCS_KEY + RC_ECDH_KeyGen_keyHandle;
-		    // The other possible error from CryptEccPointMultiply is
-		    // TPM_RC_NO_RESULT indicating that the multiplication resulted in
-		    // the point at infinity, so get a new random key and start over
-		    // BTW, this never happens.
+                // The other possible error from CryptEccPointMultiply is
+                // TPM_RC_NO_RESULT indicating that the multiplication resulted in
+                // the point at infinity, so get a new random key and start over
+                // BTW, this never happens.
 	        }
 	} while(result == TPM_RC_NO_RESULT);
     return result;
@@ -311,171 +311,287 @@ TPM2_ZGen_2Phase(
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if ALG_KYBER
-#include "kyber-params.h"
-
-typedef struct {
-    uint64_t k;
-    uint64_t eta;
-    uint64_t publickeybytes;
-    uint64_t secretkeybytes;
-    uint64_t polyveccompressedbytes;
-    uint64_t indcpa_secretkeybytes;
-    uint64_t indcpa_publickeybytes;
-    uint64_t ciphertextbytes;
-} KyberParams;
-
-static KyberParams generate_kyber_params(BYTE kyber_k) {
-    KyberParams params;
-    uint64_t kyber_polyvecbytes           = 0;
-
-    params.k = kyber_k;
-    kyber_polyvecbytes           = kyber_k * KYBER_POLYBYTES;
-    params.polyveccompressedbytes = kyber_k * 352;
-
-    params.indcpa_publickeybytes = params.polyveccompressedbytes + KYBER_SYMBYTES;
-    params.indcpa_secretkeybytes = kyber_polyvecbytes;
-
-    params.publickeybytes =  params.indcpa_publickeybytes;
-    params.secretkeybytes =  params.indcpa_secretkeybytes + params.indcpa_publickeybytes + 2*KYBER_SYMBYTES;
-    params.ciphertextbytes = params.polyveccompressedbytes + KYBER_POLYCOMPRESSEDBYTES;
-
-    if (kyber_k == 2) {
-        params.eta = 5; /* Kyber512 */
-    } else if (kyber_k == 3) {
-        params.eta = 4; /* Kyber768 */
-    } else {
-        params.eta = 3; /* Kyber1024 */
-    }
-
-    return params;
-}
-#endif
-
 #if CC_KYBER_Enc  // Conditional expansion of this file
 #include "Tpm.h"
-#include "KYBER_Enc_fp.h"
-#include "kyber-params.h"
-#include "kyber-indcpa.h"
-#include "fips202.h"
+#include "Kyber_Enc_fp.h"
 #if ALG_KYBER
 TPM_RC
-TPM2_KYBER_Enc(
-		 KYBER_Enc_In      *in,            // In: input parameter list
-		 KYBER_Enc_Out     *out            // OUT: output parameter list
+TPM2_Kyber_Enc(
+		 Kyber_Encapsulate_In      *in, // In: input parameter list
+		 Kyber_Encapsulate_Out     *out // OUT: output parameter list
 		 )
 {
-    TPM_RC   result = TPM_RC_SUCCESS;
-    KyberParams params;
+    TPM_RC retVal = TPM_RC_SUCCESS;
+    OBJECT *kyberKey;
 
-    // Input check
-    if (in->sec_sel >= 2 && in->sec_sel <= 4) {
-        // TODO: Check if public key belongs to the security level stated
-        params = generate_kyber_params(in->sec_sel);
-    } else {
-        // TODO: Proper Error codes
-        return result + 2;
-    }
+    // Input Validation
+    kyberKey = HandleToObject(in->key_handle);
+    // selected key must be a Kyber key
+    if(kyberKey->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
+    // selected key must have the decryption attribute
+    if(!IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_Kyber_Encapsulate_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyberKey->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
 
-    /* Will contain key, coins */
-    unsigned char  kr[2*KYBER_SYMBYTES];
-    unsigned char buf[2*KYBER_SYMBYTES];
+    // Check key validity
+    if (CryptValidateKeys(&kyberKey->publicArea,
+                &kyberKey->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
 
-    CryptRandomGenerate(KYBER_SYMBYTES, buf);
-    /* Don't release system RNG output */
-    sha3_256(buf,buf,KYBER_SYMBYTES);
+    retVal = CryptKyberEncapsulate(&kyberKey->publicArea, &out->shared_key,
+            &out->cipher_text);
 
-    /* Multitarget countermeasure for coins + contributory KEM */
-    sha3_256(buf+KYBER_SYMBYTES, (unsigned char *)&in->public_key.b.buffer,
-            params.publickeybytes);
-    sha3_512(kr, buf, 2*KYBER_SYMBYTES);
-
-    /* coins are in kr+KYBER_SYMBYTES */
-    indcpa_enc((unsigned char *)&out->cipher_text.b.buffer, buf,
-            (unsigned char *)&in->public_key.b.buffer, kr+KYBER_SYMBYTES,
-            params.k,
-            params.polyveccompressedbytes,
-            params.eta);
-
-    /* overwrite coins in kr with H(c) */
-    sha3_256(kr+KYBER_SYMBYTES, (unsigned char *)&out->cipher_text.b.buffer, params.ciphertextbytes);
-    /* hash concatenation of pre-k and H(c) to k */
-    sha3_256((unsigned char *)&out->shared_key.b.buffer, kr, 2*KYBER_SYMBYTES);
-
-    out->shared_key.b.size = 32;
-    out->cipher_text.b.size = params.ciphertextbytes;
-
-    return result;
+    return retVal;
 }
 #endif // ALG_KYBER
 #endif // CC_KYBER_Enc
 
 #if CC_KYBER_Dec  // Conditional expansion of this file
 #include "Tpm.h"
-#include "KYBER_Dec_fp.h"
-#include "kyber-verify.h"
-#include "kyber-params.h"
-#include "kyber-indcpa.h"
-#include "fips202.h"
+#include "Kyber_Dec_fp.h"
 #if ALG_KYBER
 TPM_RC
-TPM2_KYBER_Dec(
-		 KYBER_Dec_In      *in,            // In: input parameter list
-		 KYBER_Dec_Out     *out            // OUT: output parameter list
+TPM2_Kyber_Dec(
+		 Kyber_Decapsulate_In      *in,            // In: input parameter list
+		 Kyber_Decapsulate_Out     *out            // OUT: output parameter list
 		 )
 {
-    TPM_RC   result = TPM_RC_SUCCESS;
-    KyberParams params;
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *kyberKey;
 
-    // Input check
-    if (in->sec_sel >= 2 && in->sec_sel <= 4) {
-        // TODO: Check if public key belongs to the security level stated
-        params = generate_kyber_params(in->sec_sel);
-    } else {
-        printf("Bad Parameter: %d\n", in->sec_sel);
-        // TODO: Proper Error codes
-        return result + 2;
-    }
+    // Input Validation
+    kyberKey = HandleToObject(in->key_handle);
+    // selected key must be a Kyber key
+    if(kyberKey->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
+    // selected key must have the decryption attribute
+    if(!IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_Kyber_Decapsulate_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyberKey->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
+    // Check key validity
+    if (CryptValidateKeys(&kyberKey->publicArea,
+                &kyberKey->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
+    // Validate Cipher Text size for static key
+    if (CryptKyberValidateCipherTextSize(
+                &in->cipher_text,
+                kyberKey->publicArea.parameters.kyberDetail.security
+                ) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_Kyber_Decapsulate_cipher_text;
 
-    size_t i;
-    int fail;
-    unsigned char cmp[params.ciphertextbytes];
-    unsigned char buf[2*KYBER_SYMBYTES];
-    /* Will contain key, coins, qrom-hash */
-    unsigned char kr[2*KYBER_SYMBYTES];
-    const unsigned char *pk = in->secret_key.b.buffer+params.indcpa_secretkeybytes;
+    retVal = CryptKyberDecapsulate(&kyberKey->sensitive,
+            kyberKey->publicArea.parameters.kyberDetail.security,
+            &in->cipher_text, &out->shared_key);
 
-    indcpa_dec(buf, in->cipher_text.b.buffer, in->secret_key.b.buffer, params.k,
-            params.polyveccompressedbytes, params.eta);
-
-    /* Multitarget countermeasure for coins + contributory KEM */
-    for(i=0;i<KYBER_SYMBYTES;i++) {
-      /* Save hash by storing H(pk) in sk */
-      buf[KYBER_SYMBYTES+i] = in->secret_key.b.buffer[params.secretkeybytes-2*KYBER_SYMBYTES+i];
-    }
-    sha3_512(kr, buf, 2*KYBER_SYMBYTES);
-
-    /* coins are in kr+KYBER_SYMBYTES */
-    indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES, params.k,
-            params.polyveccompressedbytes, params.eta);
-
-    fail = kyber_verify(in->cipher_text.b.buffer, cmp, params.ciphertextbytes);
-
-    /* overwrite coins in kr with H(c)  */
-    sha3_256(kr+KYBER_SYMBYTES, in->cipher_text.b.buffer, params.ciphertextbytes);
-
-    /* Overwrite pre-k with z on re-encryption failure */
-    kyber_cmov(kr, in->secret_key.b.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);
-
-    /* hash concatenation of pre-k and H(c) to k */
-    sha3_256(out->shared_key.b.buffer, kr, 2*KYBER_SYMBYTES);
-
-    out->shared_key.b.size = 32;
-
-    return result;
+    return retVal;
 }
 #endif // ALG_KYBER
 #endif // CC_KYBER_Dec
+
+#if CC_KYBER_2Phase_KEX  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_2Phase_KEX_fp.h"
+#include "kyber-params.h"
+#include "fips202.h"
+#if ALG_KYBER
+// Perform 2nd step of mutually authenticated key Exchange with forward secrecy
+TPM_RC
+TPM2_Kyber_2Phase_KEX(
+		 Kyber_2Phase_KEX_In      *in,            // In: input parameter list
+		 Kyber_2Phase_KEX_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *kyber_key_static;
+    OBJECT *kyber_key_ephemeral;
+
+    // Input Validation
+    kyber_key_static = HandleToObject(in->static_key);
+    kyber_key_ephemeral = HandleToObject(in->ephemeral_key);
+
+    // selected key must be a Kyber key
+    if(kyber_key_static->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_static_key;
+    if(kyber_key_ephemeral->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_ephemeral_key;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_static_key;
+    if(IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_ephemeral_key;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    if (IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyber_key_static->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_static_key;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyber_key_ephemeral->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_ephemeral_key;
+    // Static and ephemeral key must have coherent security modes
+    if (kyber_key_static->publicArea.parameters.kyberDetail.security !=
+            kyber_key_ephemeral->publicArea.parameters.kyberDetail.security)
+        return TPM_RC_VALUE;
+    // Check key validity
+    if (CryptValidateKeys(&kyber_key_static->publicArea,
+                &kyber_key_static->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+    // Check key validity
+    if (CryptValidateKeys(&kyber_key_ephemeral->publicArea,
+                &kyber_key_ephemeral->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+    // Validate Cipher Text size for static key
+    if (CryptKyberValidateCipherTextSize(
+                &in->cipher_text_static,
+                kyber_key_static->publicArea.parameters.kyberDetail.security
+                ) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_Kyber_2Phase_KEX_cipher_text_static;
+
+    {
+      // buf contains all shared keys concatenated
+      unsigned char buf[3*KYBER_SYMBYTES];
+      TPM2B_KYBER_SHARED_KEY tmp_ss;
+
+      // Encapsulate first shared secret using the ephemeral key
+      CryptKyberEncapsulate(&kyber_key_ephemeral->publicArea, &tmp_ss,
+              &out->cipher_text_1);
+      MemoryCopy(buf, &tmp_ss.t.buffer, 32);
+
+      // Encapsulate the second secret using the static key
+      CryptKyberEncapsulate(&kyber_key_static->publicArea, &tmp_ss,
+              &out->cipher_text_2);
+      MemoryCopy(buf+KYBER_SYMBYTES, &tmp_ss.t.buffer, 32);
+
+      // Get final shared secret
+      CryptKyberDecapsulate(&kyber_key_static->sensitive,
+              kyber_key_static->publicArea.parameters.kyberDetail.security,
+              &in->cipher_text_static,
+              &tmp_ss);
+      MemoryCopy(buf+2*KYBER_SYMBYTES, &tmp_ss.t.buffer, 32);
+
+      // Hash the concatenation of all shared keys generated to obtain the
+      // final shared key.
+      shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
+              buf, 3*KYBER_SYMBYTES);
+    }
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_2Phase_KEX
+
+#if CC_KYBER_3Phase_KEX  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_3Phase_KEX_fp.h"
+#include "kyber-params.h"
+#include "fips202.h"
+#if ALG_KYBER
+// Perform 3rd (and final) step of mutually authenticated key Exchange with
+// forward secrecy
+TPM_RC
+TPM2_Kyber_3Phase_KEX(
+		 Kyber_3Phase_KEX_In      *in,            // In: input parameter list
+		 Kyber_3Phase_KEX_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *kyber_key_static;
+    OBJECT *kyber_key_ephemeral;
+
+    // Input Validation
+    kyber_key_static = HandleToObject(in->static_key);
+    kyber_key_ephemeral = HandleToObject(in->ephemeral_key);
+
+    // selected key must be a Kyber key
+    if(kyber_key_static->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_static_key;
+    if(kyber_key_ephemeral->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_ephemeral_key;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_static_key;
+    if(IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_ephemeral_key;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(kyber_key_static->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    if (IS_ATTRIBUTE(kyber_key_ephemeral->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyber_key_static->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_static_key;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(kyber_key_ephemeral->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_3Phase_KEX_ephemeral_key;
+    // Check static key validity
+    if (CryptValidateKeys(&kyber_key_static->publicArea,
+                &kyber_key_static->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+    // Check ephemeral key validity
+    if (CryptValidateKeys(&kyber_key_ephemeral->publicArea,
+                &kyber_key_ephemeral->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+    // Validate Cipher Text size for static key
+    if (CryptKyberValidateCipherTextSize(
+                &in->cipher_text_1,
+                kyber_key_ephemeral->publicArea.parameters.kyberDetail.security
+                ) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_Kyber_3Phase_KEX_cipher_text_1;
+    // Validate Cipher Text size for ephemeral key
+    if (CryptKyberValidateCipherTextSize(
+                &in->cipher_text_2,
+                kyber_key_static->publicArea.parameters.kyberDetail.security
+                ) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_Kyber_3Phase_KEX_cipher_text_2;
+
+    {
+      // buf contains all shared secrets concatenated
+      unsigned char buf[3*KYBER_SYMBYTES];
+      TPM2B_KYBER_SHARED_KEY tmp_ss;
+
+      // Get first shared secret using the ephemeral key
+      CryptKyberDecapsulate(&kyber_key_ephemeral->sensitive,
+              kyber_key_ephemeral->publicArea.parameters.kyberDetail.security,
+              &in->cipher_text_1, &tmp_ss);
+      MemoryCopy(buf, &tmp_ss.t.buffer, 32);
+
+      // Get second shared secret using static key
+      CryptKyberDecapsulate(&kyber_key_static->sensitive,
+              kyber_key_static->publicArea.parameters.kyberDetail.security,
+              &in->cipher_text_2,
+              &tmp_ss);
+      MemoryCopy(buf+KYBER_SYMBYTES, &tmp_ss.t.buffer, 32);
+
+      MemoryCopy(buf+2*KYBER_SYMBYTES,
+              in->shared_key_3.t.buffer, in->shared_key_3.t.size);
+
+      // Hash the concatenation of all shared keys generated to obtain the
+      // final shared key.
+      shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
+              buf, 3*KYBER_SYMBYTES);
+    }
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_3Phase_KEX
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/

@@ -6,9 +6,6 @@
 #include "kyber-ntt.h"
 
 #include "kyber-params.h"
-// Random functions from TPM
-#include "Tpm.h"
-#include "CryptRand_fp.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -183,14 +180,14 @@ static void kyber_gen_matrix(kyber_polyvec *a, const unsigned char *seed, int tr
 void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk, const uint64_t kyber_k,
                    const uint64_t kyber_polyveccompressedbytes,
-                   const uint64_t kyber_eta) {
+                   const uint64_t kyber_eta, RAND_STATE *rand) {
   kyber_polyvec a[kyber_k], e, pkpv, skpv;
   unsigned char buf[KYBER_SYMBYTES+KYBER_SYMBYTES];
   unsigned char *publicseed = buf;
   unsigned char *noiseseed = buf+KYBER_SYMBYTES;
   unsigned char nonce=0;
 
-  CryptRandomGenerate(KYBER_SYMBYTES, buf);
+  DRBG_Generate(rand, buf, KYBER_SYMBYTES);
   sha3_512(buf, buf, KYBER_SYMBYTES);
 
   gen_a(a, publicseed, kyber_k);

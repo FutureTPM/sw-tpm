@@ -1,8 +1,6 @@
 #ifndef POLYVEC_H
 #define POLYVEC_H
 
-#include "Tpm.h"
-#include "KYBER_KeyGen_fp.h"
 #include "kyber-poly.h"
 
 typedef struct{

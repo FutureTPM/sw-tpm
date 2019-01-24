@@ -141,7 +141,7 @@ union tpmCryptKeySchedule_t {
 	{								\
 	    direction##_CASE_AES					\
 	    direction##_CASE_SM4					\
-            direction##_CASE_CAMELLIA					\
+        direction##_CASE_CAMELLIA				\
 	    direction##_CASE_TDES					\
 	  default:							\
 		FAIL(FATAL_ERROR_INTERNAL);				\

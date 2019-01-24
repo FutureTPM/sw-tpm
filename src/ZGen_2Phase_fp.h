@@ -65,14 +65,14 @@
 #define ZGEN_2PHASE_FP_H
 
 typedef struct {
-    TPMI_DH_OBJECT		keyA;
-    TPM2B_ECC_POINT		inQsB;
-    TPM2B_ECC_POINT		inQeB;
-    TPMI_ECC_KEY_EXCHANGE	inScheme;
-    UINT16			counter;
+    TPMI_DH_OBJECT		   keyA;
+    TPM2B_ECC_POINT		   inQsB;
+    TPM2B_ECC_POINT		   inQeB;
+    TPMI_ECC_KEY_EXCHANGE  inScheme;
+    UINT16			       counter;
 } ZGen_2Phase_In;
 
-#define RC_ZGen_2Phase_keyA	(TPM_RC_H + TPM_RC_1)
+#define RC_ZGen_2Phase_keyA	    (TPM_RC_H + TPM_RC_1)
 #define RC_ZGen_2Phase_inQsB	(TPM_RC_P + TPM_RC_1)
 #define RC_ZGen_2Phase_inQeB	(TPM_RC_P + TPM_RC_2)
 #define RC_ZGen_2Phase_inScheme	(TPM_RC_P + TPM_RC_3)

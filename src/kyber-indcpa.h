@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 
+// Random functions from TPM
+#include "Tpm.h"
+#include "CryptRand_fp.h"
+
 void indcpa_keypair(unsigned char *pk,
                    unsigned char *sk, const uint64_t kyber_k,
                    const uint64_t kyber_polyveccompressedbytes,
-                   const uint64_t kyber_eta);
+                   const uint64_t kyber_eta, RAND_STATE *rand);
 
 void indcpa_enc(unsigned char *c,
                const unsigned char *m,
