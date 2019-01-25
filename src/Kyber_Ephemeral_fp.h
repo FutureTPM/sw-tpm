@@ -9,6 +9,7 @@ typedef struct {
 
 typedef struct {
     TPM2B_KYBER_PUBLIC_KEY public_key;
+    TPM2B_KYBER_PUBLIC_KEY secret_key;
     TPM_KYBER_SECURITY     k;
 } Kyber_Ephemeral_Out;
 

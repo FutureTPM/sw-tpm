@@ -450,11 +450,10 @@ TPM2_Kyber_2Phase_KEX(
     // Check key validity
     if (CryptValidateKeys(&kyber_key_static->publicArea,
                 &kyber_key_static->sensitive, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY;
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_static_key;
     // Check key validity
-    if (CryptValidateKeys(&kyber_key_ephemeral->publicArea,
-                &kyber_key_ephemeral->sensitive, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY;
+    if (!CryptIsUniqueSizeValid(&kyber_key_ephemeral->publicArea))
+        return TPM_RCS_KEY + RC_Kyber_2Phase_KEX_ephemeral_key;
     // Validate Cipher Text size for static key
     if (CryptKyberValidateCipherTextSize(
                 &in->cipher_text_static,
