@@ -463,9 +463,6 @@
 #if CC_KYBER_3Phase_KEX
 #include "Kyber_3Phase_KEX_fp.h"
 #endif
-#if CC_KYBER_Ephemeral
-#include "Kyber_Ephemeral_fp.h"
-#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/

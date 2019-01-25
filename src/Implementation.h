@@ -694,7 +694,6 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 #define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
-#define CC_KYBER_Ephemeral                (CC_YES && ALG_KYBER)
 #define CC_KYBER_2Phase_KEX               (CC_YES && ALG_KYBER)
 #define CC_KYBER_3Phase_KEX               (CC_YES && ALG_KYBER)
 /*****************************************************************************/
@@ -1070,9 +1069,6 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_Dec
 #define TPM_CC_KYBER_Dec                    (TPM_CC)(0x00000199)
 #endif
-#if         CC_KYBER_Ephemeral
-#define TPM_CC_KYBER_Ephemeral              (TPM_CC)(0x0000019A)
-#endif
 #if         CC_KYBER_2Phase_KEX
 #define TPM_CC_KYBER_2Phase_KEX             (TPM_CC)(0x0000019B)
 #endif
@@ -1243,7 +1239,6 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
-                      + (ADD_FILL || CC_KYBER_Ephemeral)                      \
                       + (ADD_FILL || CC_KYBER_2Phase_KEX)                     \
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
 					  )

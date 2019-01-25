@@ -4146,37 +4146,6 @@ Kyber_Dec_COMMAND_DESCRIPTOR_t _Kyber_DecData = {
 #define _KYBER_DecDataAddress 0
 #endif
 
-#if CC_KYBER_Ephemeral
-#include "Kyber_Ephemeral_fp.h"
-typedef TPM_RC  (Kyber_Ephemeral_Entry)(
-				    Kyber_Ephemeral_In  *in,
-				    Kyber_Ephemeral_Out *out
-				    );
-typedef const struct {
-    Kyber_Ephemeral_Entry  *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[1];
-    BYTE                   types[5];
-} Kyber_Ephemeral_COMMAND_DESCRIPTOR_t;
-Kyber_Ephemeral_COMMAND_DESCRIPTOR_t _Kyber_EphemeralData = {
-    /* entry  */          &TPM2_Kyber_Ephemeral,
-    /* inSize */          (UINT16)(sizeof(Kyber_Ephemeral_In)),
-    /* outSize */         (UINT16)(sizeof(Kyber_Ephemeral_Out)),
-    /* offsetOfTypes */   offsetof(Kyber_Ephemeral_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Kyber_Ephemeral_Out, k))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-                           END_OF_LIST,
-                           TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL,
-                           UINT8_P_MARSHAL,
-                           END_OF_LIST}
-};
-#define _KYBER_EphemeralDataAddress (&_Kyber_EphemeralData)
-#else
-#define _KYBER_EphemeralDataAddress 0
-#endif
-
 #if CC_KYBER_2Phase_KEX
 #include "Kyber_2Phase_KEX_fp.h"
 typedef TPM_RC  (Kyber_2Phase_KEX_Entry)(
@@ -4719,9 +4688,6 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_Ephemeral)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_EphemeralDataAddress,
 #endif
 #if (PAD_LIST || CC_KYBER_2Phase_KEX)
     (COMMAND_DESCRIPTOR_t *)_KYBER_2Phase_KEXDataAddress,

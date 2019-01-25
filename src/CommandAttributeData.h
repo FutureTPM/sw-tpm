@@ -444,9 +444,6 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_KYBER_Dec)
     TPMA_CC_INITIALIZER(0x0199, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
-#if (PAD_LIST  || CC_KYBER_Ephemeral)
-    TPMA_CC_INITIALIZER(0x019A, 0, 0, 0, 0, 1, 0, 0, 0),
-#endif
 #if (PAD_LIST  || CC_KYBER_2Phase_KEX)
     TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 2, 0, 0, 0),
 #endif
@@ -967,10 +964,6 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #if (PAD_LIST  || CC_KYBER_Dec)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x0199
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
-#endif
-#if (PAD_LIST  || CC_KYBER_Ephemeral)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_Ephemeral             *  // 0x019A
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
 #endif
 #if (PAD_LIST  || CC_KYBER_2Phase_KEX)
     (COMMAND_ATTRIBUTES)(CC_KYBER_2Phase_KEX            *  // 0x019B
