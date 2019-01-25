@@ -1064,16 +1064,16 @@ typedef UINT32                              TPM_CC;
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 #if         CC_KYBER_Enc
-#define TPM_CC_KYBER_Enc                    (TPM_CC)(0x00000198)
+#define TPM_CC_KYBER_Enc                    (TPM_CC)(0x0000019A)
 #endif
 #if         CC_KYBER_Dec
-#define TPM_CC_KYBER_Dec                    (TPM_CC)(0x00000199)
+#define TPM_CC_KYBER_Dec                    (TPM_CC)(0x0000019B)
 #endif
 #if         CC_KYBER_2Phase_KEX
-#define TPM_CC_KYBER_2Phase_KEX             (TPM_CC)(0x0000019B)
+#define TPM_CC_KYBER_2Phase_KEX             (TPM_CC)(0x0000019C)
 #endif
 #if         CC_KYBER_3Phase_KEX
-#define TPM_CC_KYBER_3Phase_KEX             (TPM_CC)(0x0000019C)
+#define TPM_CC_KYBER_3Phase_KEX             (TPM_CC)(0x0000019D)
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
@@ -1107,7 +1107,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x0000019C
+#define TPM_CC_LAST                         0x0000019D
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else

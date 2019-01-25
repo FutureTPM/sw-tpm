@@ -439,16 +439,16 @@ const TPMA_CC    s_ccAttr [] = {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 #if (PAD_LIST  || CC_KYBER_Enc)
-    TPMA_CC_INITIALIZER(0x0198, 0, 0, 0, 0, 1, 0, 0, 0),
+    TPMA_CC_INITIALIZER(0x019A, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
 #if (PAD_LIST  || CC_KYBER_Dec)
-    TPMA_CC_INITIALIZER(0x0199, 0, 0, 0, 0, 1, 0, 0, 0),
+    TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
 #if (PAD_LIST  || CC_KYBER_2Phase_KEX)
-    TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 2, 0, 0, 0),
+    TPMA_CC_INITIALIZER(0x019C, 0, 0, 0, 0, 2, 0, 0, 0),
 #endif
 #if (PAD_LIST  || CC_KYBER_3Phase_KEX)
-    TPMA_CC_INITIALIZER(0x019C, 0, 0, 0, 0, 2, 0, 0, 0),
+    TPMA_CC_INITIALIZER(0x019D, 0, 0, 0, 0, 2, 0, 0, 0),
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
@@ -958,19 +958,19 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 #if (PAD_LIST  || CC_KYBER_Enc)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_Enc                   *  // 0x0198
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Enc                   *  // 0x019A
 			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
 #endif
 #if (PAD_LIST  || CC_KYBER_Dec)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x0199
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x019B
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
 #endif
 #if (PAD_LIST  || CC_KYBER_2Phase_KEX)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_2Phase_KEX            *  // 0x019B
+    (COMMAND_ATTRIBUTES)(CC_KYBER_2Phase_KEX            *  // 0x019C
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
 #endif
 #if (PAD_LIST  || CC_KYBER_3Phase_KEX)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_3Phase_KEX            *  // 0x019C
+    (COMMAND_ATTRIBUTES)(CC_KYBER_3Phase_KEX            *  // 0x019D
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
 #endif
 /*****************************************************************************/
