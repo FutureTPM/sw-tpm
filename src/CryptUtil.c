@@ -191,14 +191,15 @@ CryptGenerateKeyedHash(
     return TPM_RC_SUCCESS;
 }
 /* 10.2.6.3.4 CryptIsSchemeAnonymous() */
-/* This function is used to test a scheme to see if it is an anonymous scheme The only anonymous
-   scheme is ECDAA. ECDAA can be used to do things like U-Prove. */
+/* This function is used to test a scheme to see if it is an anonymous scheme.
+ * The anonymous schemes are ECDAA and LDAA. ECDAA can be used to do things
+ * like U-Prove. */
 BOOL
 CryptIsSchemeAnonymous(
 		       TPM_ALG_ID       scheme         // IN: the scheme algorithm to test
 		       )
 {
-    return scheme == ALG_ECDAA_VALUE;
+    return scheme == ALG_ECDAA_VALUE || scheme == ALG_LDAA_VALUE;
 }
 /* 10.2.6.4 Symmetric Functions */
 /* 10.2.6.4.1 ParmDecryptSym() */
@@ -390,6 +391,9 @@ CryptInit(
 #if ALG_KYBER
     ok = ok && CryptKyberInit();
 #endif // TPM_ALG_KYBER
+#if ALG_LDAA
+    ok = ok && CryptLDaaInit();
+#endif // TPM_ALG_LDAA
     return ok;
 }
 /* 10.2.6.5.2 CryptStartup() */
@@ -419,6 +423,9 @@ CryptStartup(
 #if ALG_KYBER
     && CryptKyberStartup()
 #endif // TPM_ALG_KYBER
+#if ALG_LDAA
+    && CryptLDaaStartup()
+#endif // TPM_ALG_LDAA
 	 ;
 #if ALG_ECC
     // Don't directly check for SU_RESET because that is the default
@@ -464,6 +471,9 @@ CryptIsAsymAlgorithm(
 #endif
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
+#endif
+#if ALG_LDAA
+	  case TPM_ALG_LDAA:
 #endif
 	    return TRUE;
 	    break;
@@ -1008,6 +1018,12 @@ CryptCreateObject(
 	    result = CryptDilithiumGenerateKey(object, rand);
 	    break;
 #endif // TPM_ALG_DILITHIUM
+#if ALG_LDAA
+	    // Create LDAA key
+	  case TPM_ALG_LDAA:
+	    result = CryptLDaaGenerateKey(object, rand);
+	    break;
+#endif // TPM_ALG_LDAA
 #if ALG_KYBER
 	    // Create Kyber key
 	  case TPM_ALG_KYBER:
@@ -1109,13 +1125,21 @@ CryptGetSignHashAlg(
 #   endif
 #endif //TPM_ALG_ECC
 #if ALG_DILITHIUM
-	    // If DILITHIUM is supported, both DILITHIUMSSA and DILITHIUMPSS are required
+	    // If DILITHIUM is supported
 #   if !defined TPM_ALG_DILITHIUM
 #       error "DILITHIUM is required for DILITHIUM"
 #   endif
 	  case TPM_ALG_DILITHIUM:
 	    return auth->signature.dilithium.hash;
 #endif //TPM_ALG_DILITHIUM
+#if ALG_LDAA
+	    // If LDAA is supported
+#   if !defined TPM_ALG_LDAA
+#       error "LDAA is required for LDAA"
+#   endif
+	  case TPM_ALG_LDAA:
+	    return auth->signature.ldaa.hash;
+#endif //TPM_ALG_LDAA
 	  case TPM_ALG_HMAC:
 	    return auth->signature.hmac.hashAlg;
 	  default:
@@ -1124,8 +1148,8 @@ CryptGetSignHashAlg(
     return TPM_ALG_NULL;
 }
 /* 10.2.6.6.10 CryptIsSplitSign() */
-/* This function us used to determine if the signing operation is a split signing operation that
-   required a TPM2_Commit(). */
+/* This function us used to determine if the signing operation is a split
+ * signing operation that required a TPM2_Commit(). */
 BOOL
 CryptIsSplitSign(
 		 TPM_ALG_ID       scheme         // IN: the algorithm selector
@@ -1138,6 +1162,10 @@ CryptIsSplitSign(
 	    return TRUE;
 	    break;
 #   endif   // TPM_ALG_ECDAA
+#   if ALG_LDAA
+	  case TPM_ALG_LDAA:
+	    return TRUE;
+#   endif   // TPM_ALG_LDAA
 	  default:
 	    return FALSE;
 	    break;
@@ -1197,6 +1225,10 @@ CryptIsAsymSignScheme(
       case TPM_ALG_DILITHIUM:
         break;
 #endif // TPM_ALG_DILITHIUM
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        break;
+#endif // TPM_ALG_LDAA
 	  default:
 	    isSignScheme = FALSE;
 	    break;

@@ -92,6 +92,7 @@ HEADERS = 				\
 	CryptHash_fp.h			\
 	CryptDilithium_fp.h \
 	CryptKyber_fp.h \
+	CryptLDaa_fp.h \
 	CryptPrimeSieve_fp.h		\
 	CryptPrime_fp.h			\
 	CryptRand.h			\
@@ -290,10 +291,18 @@ HEADERS = 				\
 	dilithium-reduce.h \
 	dilithium-rounding.h \
 	dilithium-sign.h \
+	ldaa-polynomial-matrix.h \
+	ldaa-polynomial.h \
+	ldaa-sample-z.h \
+	ldaa-sample.h \
 
 OBJFILES = \
+	CryptLDaa.o \
+	ldaa-polynomial-matrix.o \
+	ldaa-polynomial.o \
+	ldaa-sample-z.o \
+	ldaa-sample.o \
 	CryptDilithium.o \
-	CryptKyber.o \
 	dilithium-ntt.o \
 	dilithium-packing.o \
 	dilithium-poly.o \
@@ -301,6 +310,7 @@ OBJFILES = \
 	dilithium-reduce.o \
 	dilithium-rounding.o \
 	dilithium-sign.o \
+	CryptKyber.o \
 	kyber-poly.o \
 	kyber-polyvec.o \
 	fips202.o \

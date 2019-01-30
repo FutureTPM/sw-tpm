@@ -52,6 +52,7 @@ CCFLAGS = -Wall  			\
 	-I.
 
 LNFLAGS = -ggdb 			\
+    -lm \
 	-DTPM_POSIX			\
 	-DTPM_NUVOTON			\
 	-lcrypto			\

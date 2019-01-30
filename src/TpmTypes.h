@@ -1009,6 +1009,41 @@ typedef struct {
 } TPMT_TK_CREATION;
 
 /*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+#include "ldaa-params.h"
+#define MAX_LDAA_PUBLIC_KEY_SIZE (LDAA_PUBLIC_KEY_LENGTH*4)
+#define MAX_LDAA_SECRET_KEY_SIZE (LDAA_SECRET_KEY_LENGTH*4)
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_PUBLIC_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_PUBLIC_KEY;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_SECRET_KEY_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_SECRET_KEY;
+
+typedef TPM2B_LDAA_SECRET_KEY TPM2B_LDAA_ISSUER_AT;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[1024]; // TODO: Real Value
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_SIGNED_MESSAGE;
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+
+/*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 #define MAX_DILITHIUM_PUBLIC_KEY_SIZE 1760
@@ -1573,17 +1608,41 @@ typedef struct {
     TPMU_ASYM_SCHEME         details;
 } TPMT_ASYM_SCHEME;
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 typedef  TPM_ALG_ID         TPMI_ALG_DILITHIUM_SCHEME;
 typedef struct {
     TPMI_ALG_DILITHIUM_SCHEME scheme;
     TPMU_ASYM_SCHEME          details;
 } TPMT_DILITHIUM_SCHEME;
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                               Kyber Mods                                  */
+/*****************************************************************************/
 typedef  TPM_ALG_ID         TPMI_ALG_KYBER_SCHEME;
 typedef struct {
     TPMI_ALG_KYBER_SCHEME scheme;
     TPMU_ASYM_SCHEME      details;
 } TPMT_KYBER_SCHEME;
+/*****************************************************************************/
+/*                               Kyber Mods                                  */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+typedef  TPM_ALG_ID         TPMI_ALG_LDAA_SCHEME;
+typedef struct {
+    TPMI_ALG_LDAA_SCHEME scheme;
+    TPMU_ASYM_SCHEME      details;
+} TPMT_LDAA_SCHEME;
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 
 /* Table 2:161 - Definition of TPMI_ALG_RSA_SCHEME Type  */
 typedef  TPM_ALG_ID         TPMI_ALG_RSA_SCHEME;
@@ -1659,11 +1718,28 @@ typedef struct {
     TPM2B_ECC_PARAMETER     h;
 } TPMS_ALGORITHM_DETAIL_ECC;
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 typedef struct {
     TPMI_ALG_HASH                  hash;
     TPM2B_DILITHIUM_SIGNED_MESSAGE sig;
     BYTE                           mode;
 } TPMS_SIGNATURE_DILITHIUM;
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+typedef struct {
+    TPMI_ALG_HASH                  hash;
+    TPM2B_LDAA_SIGNED_MESSAGE      sig;
+} TPMS_SIGNATURE_LDAA;
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 
 /* Table 2:175 - Definition of TPMS_SIGNATURE_RSA Structure  */
 typedef struct {
@@ -1686,6 +1762,9 @@ typedef  TPMS_SIGNATURE_ECC    TPMS_SIGNATURE_SM2;
 typedef  TPMS_SIGNATURE_ECC    TPMS_SIGNATURE_ECSCHNORR;
 /* Table 2:179 - Definition of TPMU_SIGNATURE Union  */
 typedef union {
+#if 	ALG_LDAA
+    TPMS_SIGNATURE_LDAA         ldaa;
+#endif   // ALG_LDAA
 #if 	ALG_DILITHIUM
     TPMS_SIGNATURE_DILITHIUM    dilithium;
 #endif   // ALG_DILITHIUM
@@ -1759,6 +1838,9 @@ typedef union {
 #if 	ALG_DILITHIUM
     TPM2B_DILITHIUM_PUBLIC_KEY dilithium;
 #endif   // ALG_DILITHIUM
+#if 	ALG_LDAA
+    TPM2B_LDAA_PUBLIC_KEY   ldaa;
+#endif   // ALG_LDAA
 #if 	ALG_KYBER
     TPM2B_KYBER_PUBLIC_KEY  kyber;
 #endif   // ALG_KYBER
@@ -1791,20 +1873,47 @@ typedef struct {
     TPMT_KDF_SCHEME         kdf;
 } TPMS_ECC_PARMS;
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 typedef struct {
     TPMT_SYM_DEF_OBJECT   symmetric;
     TPMT_DILITHIUM_SCHEME scheme;
     BYTE                  mode;
 } TPMS_DILITHIUM_PARMS;
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 typedef struct {
     TPMT_SYM_DEF_OBJECT symmetric;
     TPMT_KYBER_SCHEME   scheme;
     BYTE                security;
 } TPMS_KYBER_PARMS;
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+typedef struct {
+    TPMT_SYM_DEF_OBJECT  symmetric;
+    TPMT_LDAA_SCHEME     scheme;
+    TPM2B_LDAA_ISSUER_AT issuer_at;
+} TPMS_LDAA_PARMS;
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union  */
 typedef union {
+#if 	ALG_LDAA
+    TPMS_LDAA_PARMS         ldaaDetail;
+#endif   // ALG_KEYEDHASH
 #if 	ALG_KEYEDHASH
     TPMS_KEYEDHASH_PARMS    keyedHashDetail;
 #endif   // ALG_KEYEDHASH
@@ -1862,6 +1971,9 @@ typedef union {
 } TPM2B_PRIVATE_VENDOR_SPECIFIC;
 /* Table 2:195 - Definition of TPMU_SENSITIVE_COMPOSITE Union  */
 typedef union {
+#if     ALG_LDAA
+    TPM2B_LDAA_SECRET_KEY           ldaa;
+#endif
 #if 	ALG_DILITHIUM
     TPM2B_DILITHIUM_SECRET_KEY      dilithium;
 #endif   // ALG_DILITHIUM
