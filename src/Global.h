@@ -822,6 +822,39 @@ typedef struct state_reset_data
     // power of 2 (8, 16, 32, 64, etc.) and no greater than 64K.
     BYTE                 commitArray[16];   // The default reset value is {0}.
 #endif // ALG_ECC
+#if ALG_LDAA
+    //*****************************************************************************
+    //         LDAA
+    //*****************************************************************************
+    // This entire section uses in total 1 + 1 + 32 = 34B of memory.
+    //
+    // This is a very simple first implementation of the commit mechanism.
+    // There can only be one LDAA session active in the TPM, which is
+    // identified by its SID (a future implementation must support multiple
+    // active LDAA sessions and check more than the SID for a valid entry).
+    UINT8               ldaa_sid;
+    // This counter represents the current stage of the LDAA in the TPM.
+    // 0 => No LDAA session active
+    // 1 => Join session activated. Passing to the next stage requires
+    // permission by the host. In this scenario the TPM expects the host to
+    // call TPM2_LDAA_Commit with the correct SID. In the case where the SID
+    // isn't valid the TPM resets the counter and clears the SID, forcing the
+    // host to restart the LDAA protocol. If everything is OK the TPM
+    // increments the counter.
+    // 2 => Sign Proceed activated. The host has authorization to call the sign
+    // command which generates theta_t: TPM2_LDAA_SignCommit. After the success
+    // of the signature commitment of the TPM the counter is incremented once
+    // again.
+    // 3 => Sign Proceed: Generate Signature Based Proof. The final stage of
+    // the TPM LDAA protocol can be executed by calling the final command:
+    // TPM2_LDAA_SignProof. After completing the SignProof command successfully
+    // the counter is reset and the SID is cleared.
+    UINT8               ldaa_commitCounter;
+    // Variable used to tie the private key of the LDAA session to the SID of
+    // the current session. A hash is used but it may not be the best solution
+    // because it requires a lot of memory, in this case 32B.
+    BYTE                ldaa_hash_private_key[SHA256_BLOCK_SIZE];
+#endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;
 /* 5.10.12 NV Layout */

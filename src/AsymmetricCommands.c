@@ -595,3 +595,72 @@ TPM2_Kyber_3Phase_KEX(
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if CC_LDAA_Join  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_Join_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_Join(
+		 LDAA_Join_In      *in,            // In: input parameter list
+		 LDAA_Join_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+
+    // The specification requires the TPM to be able to take part in more than
+    // one LDAA session simultaneously. The current implementation
+    // _doesn't_do_that_. In this implementation only the SID is checked as a
+    // means to differentiate between sessions, and only one session is
+    // supported at a time. Furthermore, the implementation doesn't
+    // diferentiate between different users in the same machine, or different
+    // hosts.
+    //
+    // Check if the received entry exists in storage, if not then proceed
+    // and create entry (set SID and tie private key to the session). If there
+    // is an entry present reset the protocol status and fail.
+    if (gr.ldaa_commitCounter != 0) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_FAILURE;
+    } else {
+        // Store protocol SID
+        gr.ldaa_sid = in->sid;
+        // Hash private key to tie it to the current LDAA session
+        CryptHashBlock(ALG_SHA256_VALUE,
+                ldaa_key->sensitive.sensitive.ldaa.t.size,
+                ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+                SHA256_BLOCK_SIZE,
+                gr.ldaa_hash_private_key);
+    }
+
+    // Perform Join operation
+    retVal = CryptLDaaJoin(
+            // Outputs
+            &out->public_key, &out->nym,
+            // Inputs
+            &ldaa_key->publicArea, &in->bsn_I, &ldaa_key->sensitive);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_Join
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/

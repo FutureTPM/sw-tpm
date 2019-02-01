@@ -406,3 +406,46 @@ void ldaa_poly_invntt(UINT32 *xs)
         xs[i] = ldaa_reduce((UINT64)xs[i] * LDAA_PSISINV[i]);
     }
 }
+
+static UINT32 ceillog2(UINT32 q)
+{
+  size_t i = 0;
+
+  while ((1ULL << i) < q) i++;
+
+  return i;
+}
+
+void ldaa_poly_from_hash(
+        // OUT: Resulting polynomial from the Hash
+        ldaa_poly_t *out,
+        // IN: Hash digest to convert
+        BYTE *digest
+        ) {
+    size_t bits_consumed = 0;
+    size_t i, j, k;
+    UINT32 pi;
+    UINT32 logq = ceillog2(LDAA_Q);
+    UINT32 mask = (1ULL << logq)-1;
+
+    for (i = 0; i < LDAA_N; i++) {
+        do {
+            if (bits_consumed + logq >= (SHA256_BLOCK_SIZE * 8)) return;
+
+            pi = digest[bits_consumed / 8] >> (bits_consumed % 8);
+            k = 8 - (bits_consumed % 8);
+            j = 1;
+            while (k < logq) {
+                pi += digest[bits_consumed / 8 + j] << k;
+                k += 8;
+                j++;
+            }
+
+            if (k > logq) pi &= mask;
+
+            bits_consumed += logq;
+        } while (pi >= LDAA_Q);
+
+        out->coeffs[i] = pi;
+    }
+}

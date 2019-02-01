@@ -423,6 +423,32 @@ extern "C" {
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
 
+    /*****************************************************************************/
+    /*                               LDAA Mods                                   */
+    /*****************************************************************************/
+    UINT16
+    TPM2B_LDAA_BASENAME_ISSUER_Marshal(TPM2B_LDAA_BASENAME_ISSUER *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_SECRET_KEY_Marshal(TPM2B_LDAA_SECRET_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_PUBLIC_KEY_Marshal(TPM2B_LDAA_PUBLIC_KEY *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_SIGNATURE_LDAA_Marshal(TPMS_SIGNATURE_LDAA *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_SIG_SCHEME_LDAA_Marshal(TPMS_SIG_SCHEME_LDAA *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMI_ALG_LDAA_SCHEME_Marshal(TPMI_ALG_LDAA_SCHEME *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMT_LDAA_SCHEME_Marshal(TPMT_LDAA_SCHEME *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPMS_LDAA_PARMS_Marshal(TPMS_LDAA_PARMS *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_SIGNED_MESSAGE_Marshal(TPM2B_LDAA_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, INT32 *size);
+    /*****************************************************************************/
+    /*                               LDAA Mods                                   */
+    /*****************************************************************************/
 #ifdef __cplusplus
 }
 #endif

@@ -1328,6 +1328,9 @@ TPMT_KEYEDHASH_SCHEME_Marshal(TPMT_KEYEDHASH_SCHEME *source, BYTE **buffer, INT3
     return written;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 UINT16
 TPMS_SIG_SCHEME_DILITHIUM_Marshal(TPMS_SIG_SCHEME_DILITHIUM *source, BYTE **buffer, INT32 *size)
 {
@@ -1335,6 +1338,23 @@ TPMS_SIG_SCHEME_DILITHIUM_Marshal(TPMS_SIG_SCHEME_DILITHIUM *source, BYTE **buff
     written += TPMS_SCHEME_HASH_Marshal(source, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+UINT16
+TPMS_SIG_SCHEME_LDAA_Marshal(TPMS_SIG_SCHEME_LDAA *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPMS_SCHEME_HASH_Marshal(source, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 2:149 - Definition of Types for RSA Signature Schemes (TypedefTable()) */
 
@@ -1558,6 +1578,11 @@ TPMU_ASYM_SCHEME_Marshal(TPMU_ASYM_SCHEME  *source, BYTE **buffer, INT32 *size, 
         written += TPMS_ENC_SCHEME_KYBER_Marshal(&source->kyber, buffer, size);
         break;
 #endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        written += TPMS_SIG_SCHEME_LDAA_Marshal(&source->ldaa, buffer, size);
+        break;
+#endif
 #if ALG_RSASSA
       case TPM_ALG_RSASSA:
         written += TPMS_SIG_SCHEME_RSASSA_Marshal(&source->rsassa, buffer, size);
@@ -1616,6 +1641,9 @@ TPMI_ALG_RSA_SCHEME_Marshal(TPMI_ALG_RSA_SCHEME *source, BYTE **buffer, INT32 *s
     return written;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 UINT16
 TPMI_ALG_DILITHIUM_SCHEME_Marshal(TPMI_ALG_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size)
 {
@@ -1623,7 +1651,13 @@ TPMI_ALG_DILITHIUM_SCHEME_Marshal(TPMI_ALG_DILITHIUM_SCHEME *source, BYTE **buff
     written += TPM_ALG_ID_Marshal(source, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 UINT16
 TPMI_ALG_KYBER_SCHEME_Marshal(TPMI_ALG_KYBER_SCHEME *source, BYTE **buffer, INT32 *size)
 {
@@ -1631,6 +1665,23 @@ TPMI_ALG_KYBER_SCHEME_Marshal(TPMI_ALG_KYBER_SCHEME *source, BYTE **buffer, INT3
     written += TPM_ALG_ID_Marshal(source, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+UINT16
+TPMI_ALG_LDAA_SCHEME_Marshal(TPMI_ALG_LDAA_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM_ALG_ID_Marshal(source, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 2:162 - Definition of TPMT_RSA_SCHEME Structure (StructuresTable()) */
 
@@ -1644,6 +1695,9 @@ TPMT_RSA_SCHEME_Marshal(TPMT_RSA_SCHEME *source, BYTE **buffer, INT32 *size)
     return written;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 UINT16
 TPMT_DILITHIUM_SCHEME_Marshal(TPMT_DILITHIUM_SCHEME *source, BYTE **buffer, INT32 *size)
 {
@@ -1653,7 +1707,13 @@ TPMT_DILITHIUM_SCHEME_Marshal(TPMT_DILITHIUM_SCHEME *source, BYTE **buffer, INT3
     written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
     return written;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 UINT16
 TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, INT32 *size)
 {
@@ -1663,6 +1723,25 @@ TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, INT32 *size)
     written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
     return written;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+UINT16
+TPMT_LDAA_SCHEME_Marshal(TPMT_LDAA_SCHEME *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMI_ALG_LDAA_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
+    return written;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 2:165 - Definition of TPM2B_PUBLIC_KEY_RSA Structure (StructuresTable()) */
 
@@ -1858,6 +1937,9 @@ TPMS_SIGNATURE_ECSCHNORR_Marshal(TPMS_SIGNATURE_ECSCHNORR *source, BYTE **buffer
     return written;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 UINT16
 TPMS_SIGNATURE_DILITHIUM_Marshal(TPMS_SIGNATURE_DILITHIUM *source, BYTE **buffer, INT32 *size)
 {
@@ -1868,6 +1950,25 @@ TPMS_SIGNATURE_DILITHIUM_Marshal(TPMS_SIGNATURE_DILITHIUM *source, BYTE **buffer
     written += UINT8_Marshal(&source->mode, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+UINT16
+TPMS_SIGNATURE_LDAA_Marshal(TPMS_SIGNATURE_LDAA *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMI_ALG_HASH_Marshal(&source->hash, buffer, size);
+    written += TPM2B_LDAA_SIGNED_MESSAGE_Marshal(&source->sig, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 
 /* Table 2:179 - Definition of TPMU_SIGNATURE Union (StructuresTable()) */
 UINT16
@@ -1876,6 +1977,11 @@ TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, INT32 *size, UINT3
     UINT16 written = 0;
 
     switch (selector) {
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        written += TPMS_SIGNATURE_LDAA_Marshal(&source->ldaa, buffer, size);
+        break;
+#endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         written += TPMS_SIGNATURE_DILITHIUM_Marshal(&source->dilithium, buffer, size);
@@ -1989,6 +2095,11 @@ TPMU_PUBLIC_ID_Marshal(TPMU_PUBLIC_ID *source, BYTE **buffer, INT32 *size, UINT3
         written += TPM2B_KYBER_PUBLIC_KEY_Marshal(&source->kyber, buffer, size);
         break;
 #endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        written += TPM2B_LDAA_PUBLIC_KEY_Marshal(&source->ldaa, buffer, size);
+        break;
+#endif
 #if ALG_ECC
       case TPM_ALG_ECC:
         written += TPMS_ECC_POINT_Marshal(&source->ecc, buffer, size);
@@ -2038,6 +2149,9 @@ TPMS_ECC_PARMS_Marshal(TPMS_ECC_PARMS *source, BYTE **buffer, INT32 *size)
     return written;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 UINT16
 TPMS_DILITHIUM_PARMS_Marshal(TPMS_DILITHIUM_PARMS *source, BYTE **buffer, INT32 *size)
 {
@@ -2048,7 +2162,13 @@ TPMS_DILITHIUM_PARMS_Marshal(TPMS_DILITHIUM_PARMS *source, BYTE **buffer, INT32 
     written += UINT8_Marshal(&source->mode, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 UINT16
 TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, INT32 *size)
 {
@@ -2059,6 +2179,26 @@ TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, INT32 *size)
     written += UINT8_Marshal(&source->security, buffer, size);
     return written;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+UINT16
+TPMS_LDAA_PARMS_Marshal(TPMS_LDAA_PARMS *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+
+    written += TPMT_SYM_DEF_OBJECT_Marshal(&source->symmetric, buffer, size);
+    written += TPMT_LDAA_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += TPM2B_LDAA_ISSUER_AT_Marshal(&source->issuer_at, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 2:189 - Definition of TPMU_PUBLIC_PARMS Union (StructuresTable()) */
 
@@ -2091,6 +2231,11 @@ TPMU_PUBLIC_PARMS_Marshal(TPMU_PUBLIC_PARMS *source, BYTE **buffer, INT32 *size,
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         written += TPMS_KYBER_PARMS_Marshal(&source->kyberDetail, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        written += TPMS_LDAA_PARMS_Marshal(&source->ldaaDetail, buffer, size);
         break;
 #endif
 #if ALG_ECC
@@ -2163,6 +2308,11 @@ TPMU_SENSITIVE_COMPOSITE_Marshal(TPMU_SENSITIVE_COMPOSITE *source, BYTE **buffer
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         written += TPM2B_DILITHIUM_SECRET_KEY_Marshal(&source->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        written += TPM2B_LDAA_SECRET_KEY_Marshal(&source->ldaa, buffer, size);
         break;
 #endif
 #if ALG_RSA
@@ -2406,4 +2556,50 @@ TPM2B_DILITHIUM_SIGNED_MESSAGE_Marshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *source, B
 }
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+UINT16
+TPM2B_LDAA_PUBLIC_KEY_Marshal(TPM2B_LDAA_PUBLIC_KEY *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_LDAA_SECRET_KEY_Marshal(TPM2B_LDAA_SECRET_KEY *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_LDAA_SIGNED_MESSAGE_Marshal(TPM2B_LDAA_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_LDAA_BASENAME_ISSUER_Marshal(TPM2B_LDAA_BASENAME_ISSUER *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT16
+TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, INT32 *size)
+{
+    UINT16 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
 /*****************************************************************************/

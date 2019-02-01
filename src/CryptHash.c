@@ -401,14 +401,16 @@ HashEnd(
     return (UINT16)dOutSize;
 }
 /* 10.2.14.6.2 CryptHashStart() */
-/* Functions starts a hash stack Start a hash stack and returns the digest size. As a side effect,
-   the value of stateSize in hashState is updated to indicate the number of bytes of state that were
-   saved. This function calls GetHashServer() and that function will put the TPM into failure mode
-   if the hash algorithm is not supported. */
-/* This function does not use the sequence parameter. If it is necessary to import or export
-   context, this will start the sequence in a local state and export the state to the input
-   buffer. Will need to add a flag to the state structure to indicate that it needs to be imported
-   before it can be used. (BLEH). */
+/* Functions starts a hash stack Start a hash stack and returns the digest size.
+ * As a side effect, the value of stateSize in hashState is updated to indicate
+ * the number of bytes of state that were saved. This function calls
+ * GetHashServer() and that function will put the TPM into failure mode if the
+ * hash algorithm is not supported. */
+/* This function does not use the sequence parameter. If it is necessary to
+ * import or export context, this will start the sequence in a local state and
+ * export the state to the input buffer. Will need to add a flag to the state
+ * structure to indicate that it needs to be imported before it can be used.
+ * (BLEH). */
 /* Return Values Meaning */
 /* 0 hash is TPM_ALG_NULL */
 /* >0 digest size */
@@ -462,9 +464,10 @@ CryptDigestUpdate(
 }
 
 /* 10.2.14.6.4 CryptHashEnd() */
-/* Complete a hash or HMAC computation. This function will place the smaller of digestSize or the
-   size of the digest in dOut. The number of bytes in the placed in the buffer is returned. If there
-   is a failure, the returned value is <= 0. */
+/* Complete a hash or HMAC computation. This function will place the smaller of
+ * digestSize or the size of the digest in dOut. The number of bytes in the
+ * placed in the buffer is returned. If there is a failure, the returned
+ * value is <= 0. */
 /* Return Values Meaning */
 /* 0 no data returned */
 /* > 0 the number of bytes in the digest or dOutSize, whichever is smaller */

@@ -523,6 +523,34 @@ extern "C" {
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
 
+    /*****************************************************************************/
+    /*                               LDAA Mods                                   */
+    /*****************************************************************************/
+    TPM_RC
+    TPM2B_LDAA_PUBLIC_KEY_Unmarshal(TPM2B_LDAA_PUBLIC_KEY *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_SECRET_KEY_Unmarshal(TPM2B_LDAA_SECRET_KEY *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_BASENAME_ISSUER_Unmarshal(TPM2B_LDAA_BASENAME_ISSUER *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_ISSUER_AT_Unmarshal(TPM2B_LDAA_ISSUER_AT *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(TPM2B_LDAA_SIGNED_MESSAGE *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMS_SIG_SCHEME_LDAA_Unmarshal(TPMS_SIG_SCHEME_LDAA *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMI_ALG_LDAA_SCHEME_Unmarshal(TPMI_ALG_LDAA_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull);
+    TPM_RC
+    TPMS_SIGNATURE_LDAA_Unmarshal(TPMS_SIGNATURE_LDAA *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPMT_LDAA_SCHEME_Unmarshal(TPMT_LDAA_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull);
+    /*****************************************************************************/
+    /*                               LDAA Mods                                   */
+    /*****************************************************************************/
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -1014,6 +1014,7 @@ typedef struct {
 #include "ldaa-params.h"
 #define MAX_LDAA_PUBLIC_KEY_SIZE (LDAA_PUBLIC_KEY_LENGTH*4)
 #define MAX_LDAA_SECRET_KEY_SIZE (LDAA_SECRET_KEY_LENGTH*4)
+
 typedef union {
     struct {
 	UINT16                  size;
@@ -1021,6 +1022,8 @@ typedef union {
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_PUBLIC_KEY;
+
+typedef TPM2B_LDAA_PUBLIC_KEY TPM2B_LDAA_NYM;
 
 typedef union {
     struct {
@@ -1039,6 +1042,14 @@ typedef union {
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_SIGNED_MESSAGE;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[32];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_BASENAME_ISSUER;
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
@@ -1494,9 +1505,27 @@ typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_SM2;
 typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_ECSCHNORR;
 typedef  TPMS_SCHEME_ECDAA    TPMS_SIG_SCHEME_ECDAA;
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_DILITHIUM;
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+typedef  TPMS_SCHEME_HASH     TPMS_SIG_SCHEME_LDAA;
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+
 /* Table 2:151 - Definition of TPMU_SIG_SCHEME Union  */
 typedef union {
+#if 	ALG_LDAA
+    TPMS_SIG_SCHEME_LDAA         ldaa;
+#endif   // ALG_LDAA
 #if 	ALG_ECC
     TPMS_SIG_SCHEME_ECDAA        ecdaa;
 #endif   // ALG_ECC
@@ -1572,6 +1601,9 @@ typedef union {
 #endif   // ALG_ECMQV
 #if 	ALG_DILITHIUM
     TPMS_SIG_SCHEME_DILITHIUM    dilithium;
+#endif   // ALG_DILITHIUM
+#if 	ALG_LDAA
+    TPMS_SIG_SCHEME_LDAA         ldaa;
 #endif   // ALG_DILITHIUM
 #if 	ALG_ECC
     TPMS_SIG_SCHEME_ECDAA        ecdaa;

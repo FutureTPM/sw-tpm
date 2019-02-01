@@ -78,6 +78,33 @@ static void CryptLDaaSerializeSecretKey(
     xt->t.size = MAX_LDAA_SECRET_KEY_SIZE;
 }
 
+static void CryptLDaaDeserializePublicKey(
+        // OUT: The public key in polynomial form
+        ldaa_poly_t *public_key,
+        // IN: serialized secret key
+        TPM2B_LDAA_PUBLIC_KEY *ut
+        ) {
+    for (size_t i = 0; i < LDAA_N; i++) {
+        public_key->coeffs[i] = Bytes2Coeff((BYTE *)&ut->t.buffer+(i*4));
+    }
+}
+
+static void CryptLDaaDeserializeSecretKey(
+        // OUT: The secret key in matrix polynomial form
+        ldaa_poly_matrix_xt_t *secret_key,
+        // IN: serialized secret key
+        TPM2B_LDAA_SECRET_KEY *xt
+        ) {
+    // Loop polynomial matrix (Mx1)
+    for (size_t i = 0; i < LDAA_M; i++) {
+        // Loop coefficients of each polynomial
+        for (size_t j = 0; j < LDAA_N; j++) {
+            secret_key->coeffs[i].coeffs[j] =
+                Bytes2Coeff((BYTE*)&xt->t.buffer+((i*LDAA_N+j)*4));
+        }
+    }
+}
+
 LIB_EXPORT TPM_RC
 CryptLDaaGenerateKey(
             // IN/OUT: The object structure in which the key is created.
@@ -125,3 +152,68 @@ Exit:
     return retVal;
 }
 
+LIB_EXPORT TPM_RC
+CryptLDaaJoin(
+        // OUT: returned public Key
+        TPM2B_LDAA_PUBLIC_KEY *public_key_serial,
+        // OUT: return link token
+        TPM2B_LDAA_NYM *nym_serial,
+        // IN: public area to fetch the public key
+        TPMT_PUBLIC *publicArea,
+        // IN: Issuer basename
+        TPM2B_LDAA_BASENAME_ISSUER   *bsn_I,
+        // IN: secret area to fetch the secret key
+        TPMT_SENSITIVE *sensitive
+        ) {
+    ldaa_poly_t            ut;
+    ldaa_poly_t            pe;
+    ldaa_poly_t            nym;
+    ldaa_poly_matrix_xt_t  xt;
+    ldaa_poly_t            pbsn;
+    HASH_STATE             hash_state;
+    BYTE                   digest[SHA256_BLOCK_SIZE];
+
+    /* Deserialize keys */
+    CryptLDaaDeserializePublicKey(&ut, &publicArea->unique.ldaa);
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
+
+    /* ********************************************************************* */
+    /* Token Link Calculation                                                */
+    /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+    CryptHashStart(&hash_state, ALG_SHA256_VALUE);
+    CryptDigestUpdate(&hash_state, bsn_I->t.size, bsn_I->t.buffer);
+    CryptHashEnd(&hash_state, SHA256_BLOCK_SIZE, digest);
+    ldaa_poly_from_hash(&pbsn, digest);
+
+    ldaa_poly_sample_z(&pe);
+
+    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
+    ldaa_poly_add(&nym, &nym, &pe);
+    /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+    /* Token Link Calculation                                                */
+    /* ********************************************************************* */
+
+    /* TODO: Need to implement proof of signature of the nonce to */
+    /* send to the issuer (pi)                                    */
+
+    // Return already serialized Public Key
+    MemoryCopy2B(&public_key_serial->b,
+            &publicArea->unique.ldaa.b, publicArea->unique.ldaa.t.size);
+    // Serialize Token link
+    CryptLDaaSerializePublicKey(nym_serial, &nym);
+
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaClearProtocolState(void) {
+    gr.ldaa_sid = 0;
+    gr.ldaa_commitCounter = 0;
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaCommit(void) {
+    gr.ldaa_commitCounter++;
+    return TPM_RC_SUCCESS;
+}

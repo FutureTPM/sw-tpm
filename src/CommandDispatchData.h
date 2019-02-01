@@ -234,8 +234,10 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
 #define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
+#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL)
 
 #else
 #define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
@@ -244,8 +246,10 @@ const UNMARSHAL_t UnmarshalArray[] = {
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
 #define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
+#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -343,7 +347,11 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL)
+#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
+#define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_NYM_P_MARSHAL)
 
 #else
 
@@ -354,7 +362,11 @@ const MARSHAL_t MarshalArray[] = {
     // RESPONSE_PARAMETER_LAST_TYPE is the end of the response parameter list.
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL)
+#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
+#define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_NYM_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4223,6 +4235,51 @@ Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_3Phase_KEXData = {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if CC_LDAA_Join
+#include "LDaa_Join_fp.h"
+typedef TPM_RC  (LDAA_Join_Entry)(
+				    LDAA_Join_In  *in,
+				    LDAA_Join_Out *out
+				    );
+typedef const struct {
+    LDAA_Join_Entry *entry;
+    UINT16          inSize;
+    UINT16          outSize;
+    UINT16          offsetOfTypes;
+    UINT16          paramOffsets[5];
+    BYTE            types[9];
+} LDAA_Join_COMMAND_DESCRIPTOR_t;
+LDAA_Join_COMMAND_DESCRIPTOR_t _LDAA_JoinData = {
+    /* entry  */          &TPM2_LDAA_Join,
+    /* inSize */          (UINT16)(sizeof(LDAA_Join_In)),
+    /* outSize */         (UINT16)(sizeof(LDAA_Join_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_Join_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(LDAA_Join_In, sid)),
+                           (UINT16)(offsetof(LDAA_Join_In, jsid)),
+                           (UINT16)(offsetof(LDAA_Join_In, nonce)),
+                           (UINT16)(offsetof(LDAA_Join_In, bsn_I)),
+                           (UINT16)(offsetof(LDAA_Join_Out, public_key))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_NONCE_P_UNMARSHAL,
+                           TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_LDAA_NYM_P_MARSHAL,
+                           TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_JoinDataAddress (&_LDAA_JoinData)
+#else
+#define _LDAA_JoinDataAddress 0
+#endif
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+
 #ifdef TPM_NUVOTON
 
 typedef TPM_RC (NTC2_PreConfig_Entry) (
@@ -4697,6 +4754,16 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if (PAD_LIST || CC_LDAA_Join)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_JoinDataAddress,
+#endif
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
 #if (PAD_LIST || CC_Vendor_TCG_Test)

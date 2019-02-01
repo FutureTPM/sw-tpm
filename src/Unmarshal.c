@@ -2877,6 +2877,9 @@ TPMT_KEYEDHASH_SCHEME_Unmarshal(TPMT_KEYEDHASH_SCHEME *target, BYTE **buffer, IN
 
 /* Table 142 - Definition of {RSA} Types for RSA Signature Schemes */
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 TPM_RC
 TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(TPMS_SIG_SCHEME_DILITHIUM *target, BYTE **buffer, INT32 *size)
 {
@@ -2887,6 +2890,26 @@ TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(TPMS_SIG_SCHEME_DILITHIUM *target, BYTE **bu
     }
     return rc;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPMS_SIG_SCHEME_LDAA_Unmarshal(TPMS_SIG_SCHEME_LDAA *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPMS_SCHEME_HASH_Unmarshal(target, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 TPM_RC
 TPMS_SIG_SCHEME_RSAPSS_Unmarshal(TPMS_SIG_SCHEME_RSAPSS *target, BYTE **buffer, INT32 *size)
@@ -2972,6 +2995,11 @@ TPMU_SIG_SCHEME_Unmarshal(TPMU_SIG_SCHEME *target, BYTE **buffer, INT32 *size, U
     TPM_RC rc = TPM_RC_SUCCESS;
 
     switch (selector) {
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPMS_SIG_SCHEME_LDAA_Unmarshal(&target->ldaa, buffer, size);
+        break;
+#endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
@@ -3292,6 +3320,11 @@ TPMU_ASYM_SCHEME_Unmarshal(TPMU_ASYM_SCHEME *target, BYTE **buffer, INT32 *size,
         rc = TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
         break;
 #endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPMS_SIG_SCHEME_LDAA_Unmarshal(&target->ldaa, buffer, size);
+        break;
+#endif
 #if ALG_ECDSA
       case TPM_ALG_ECDSA:
         rc = TPMS_SIG_SCHEME_ECDSA_Unmarshal(&target->ecdsa, buffer, size);
@@ -3405,6 +3438,9 @@ TPMT_RSA_SCHEME_Unmarshal(TPMT_RSA_SCHEME *target, BYTE **buffer, INT32 *size, B
     return rc;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 TPM_RC
 TPMT_DILITHIUM_SCHEME_Unmarshal(TPMT_DILITHIUM_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
 {
@@ -3418,7 +3454,13 @@ TPMT_DILITHIUM_SCHEME_Unmarshal(TPMT_DILITHIUM_SCHEME *target, BYTE **buffer, IN
     }
     return rc;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 TPM_RC
 TPMT_KYBER_SCHEME_Unmarshal(TPMT_KYBER_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
 {
@@ -3432,6 +3474,29 @@ TPMT_KYBER_SCHEME_Unmarshal(TPMT_KYBER_SCHEME *target, BYTE **buffer, INT32 *siz
     }
     return rc;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPMT_LDAA_SCHEME_Unmarshal(TPMT_LDAA_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMI_ALG_LDAA_SCHEME_Unmarshal(&target->scheme, buffer, size, allowNull);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMU_ASYM_SCHEME_Unmarshal(&target->details, buffer, size, target->scheme);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 156 - Definition of (TPM_ALG_ID) {RSA} TPMI_ALG_RSA_DECRYPT Type */
 
@@ -3628,6 +3693,9 @@ TPMI_ALG_ECC_SCHEME_Unmarshal(TPMI_ALG_ECC_SCHEME *target, BYTE **buffer, INT32 
     return rc;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 TPM_RC
 TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(TPMI_ALG_DILITHIUM_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
 {
@@ -3652,7 +3720,13 @@ TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(TPMI_ALG_DILITHIUM_SCHEME *target, BYTE **bu
     }
     return rc;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 TPM_RC
 TPMI_ALG_KYBER_SCHEME_Unmarshal(TPMI_ALG_KYBER_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
 {
@@ -3677,6 +3751,40 @@ TPMI_ALG_KYBER_SCHEME_Unmarshal(TPMI_ALG_KYBER_SCHEME *target, BYTE **buffer, IN
     }
     return rc;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPMI_ALG_LDAA_SCHEME_Unmarshal(TPMI_ALG_LDAA_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+	switch (*target) {
+#if ALG_LDAA
+	  case TPM_ALG_LDAA:
+#endif
+	    break;
+	  case TPM_ALG_NULL:
+	    if (allowNull) {
+            break;
+	    }
+	  default:
+	    rc = TPM_RC_SCHEME;
+	}
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 165 - Definition of {ECC} (TPM_ECC_CURVE) TPMI_ECC_CURVE Type */
 
@@ -3827,6 +3935,9 @@ TPMS_SIGNATURE_ECC_Unmarshal(TPMS_SIGNATURE_ECC *target, BYTE **buffer, INT32 *s
     return rc;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 TPM_RC
 TPMS_SIGNATURE_DILITHIUM_Unmarshal(TPMS_SIGNATURE_DILITHIUM *target, BYTE **buffer, INT32 *size)
 {
@@ -3843,6 +3954,29 @@ TPMS_SIGNATURE_DILITHIUM_Unmarshal(TPMS_SIGNATURE_DILITHIUM *target, BYTE **buff
     }
     return rc;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPMS_SIGNATURE_LDAA_Unmarshal(TPMS_SIGNATURE_LDAA *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPMI_ALG_HASH_Unmarshal(&target->hash, buffer, size, NO);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(&target->sig, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 171 - Definition of Types for {ECC} TPMS_SIGNATURE_ECC */
 
@@ -3911,6 +4045,11 @@ TPMU_SIGNATURE_Unmarshal(TPMU_SIGNATURE *target, BYTE **buffer, INT32 *size, UIN
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         rc = TPMS_SIGNATURE_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPMS_SIGNATURE_LDAA_Unmarshal(&target->ldaa, buffer, size);
         break;
 #endif
 #if ALG_ECDSA
@@ -3999,6 +4138,9 @@ TPMI_ALG_PUBLIC_Unmarshal(TPMI_ALG_PUBLIC *target, BYTE **buffer, INT32 *size)
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
 #endif
+#if ALG_LDAA
+	  case TPM_ALG_LDAA:
+#endif
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 #endif
@@ -4034,6 +4176,11 @@ TPMU_PUBLIC_ID_Unmarshal(TPMU_PUBLIC_ID *target, BYTE **buffer, INT32 *size, UIN
 #if ALG_RSA
       case TPM_ALG_RSA:
         rc = TPM2B_PUBLIC_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPM2B_LDAA_PUBLIC_KEY_Unmarshal(&target->ldaa, buffer, size);
         break;
 #endif
 #if ALG_DILITHIUM
@@ -4110,6 +4257,9 @@ TPMS_RSA_PARMS_Unmarshal(TPMS_RSA_PARMS *target, BYTE **buffer, INT32 *size)
     return rc;
 }
 
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 TPM_RC
 TPMS_DILITHIUM_PARMS_Unmarshal(TPMS_DILITHIUM_PARMS *target, BYTE **buffer, INT32 *size)
 {
@@ -4126,7 +4276,13 @@ TPMS_DILITHIUM_PARMS_Unmarshal(TPMS_DILITHIUM_PARMS *target, BYTE **buffer, INT3
     }
     return rc;
 }
+/*****************************************************************************/
+/*                             Dilithium Mods                                */
+/*****************************************************************************/
 
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
 TPM_RC
 TPMS_KYBER_PARMS_Unmarshal(TPMS_KYBER_PARMS *target, BYTE **buffer, INT32 *size)
 {
@@ -4143,6 +4299,32 @@ TPMS_KYBER_PARMS_Unmarshal(TPMS_KYBER_PARMS *target, BYTE **buffer, INT32 *size)
     }
     return rc;
 }
+/*****************************************************************************/
+/*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_SYM_DEF_OBJECT_Unmarshal(&target->symmetric, buffer, size, YES);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_LDAA_SCHEME_Unmarshal(&target->scheme, buffer, size, YES);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_LDAA_ISSUER_AT_Unmarshal(&target->issuer_at, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
 
 /* Table 181 - Definition of {ECC} TPMS_ECC_PARMS Structure */
 
@@ -4192,6 +4374,11 @@ TPMU_PUBLIC_PARMS_Unmarshal(TPMU_PUBLIC_PARMS *target, BYTE **buffer, INT32 *siz
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         rc = TPMS_DILITHIUM_PARMS_Unmarshal(&target->dilithiumDetail, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPMS_LDAA_PARMS_Unmarshal(&target->ldaaDetail, buffer, size);
         break;
 #endif
 #if ALG_KYBER
@@ -4323,6 +4510,11 @@ TPMU_SENSITIVE_COMPOSITE_Unmarshal(TPMU_SENSITIVE_COMPOSITE *target, BYTE **buff
 #if ALG_RSA
       case TPM_ALG_RSA:
         rc = TPM2B_PRIVATE_KEY_RSA_Unmarshal(&target->rsa, buffer, size);
+        break;
+#endif
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        rc = TPM2B_LDAA_SECRET_KEY_Unmarshal(&target->ldaa, buffer, size);
         break;
 #endif
 #if ALG_DILITHIUM
@@ -4732,4 +4924,65 @@ TPM2B_DILITHIUM_SIGNED_MESSAGE_Unmarshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *target,
 }
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+TPM_RC
+TPM2B_LDAA_PUBLIC_KEY_Unmarshal(TPM2B_LDAA_PUBLIC_KEY *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_LDAA_SECRET_KEY_Unmarshal(TPM2B_LDAA_SECRET_KEY *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_LDAA_ISSUER_AT_Unmarshal(TPM2B_LDAA_ISSUER_AT *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_LDAA_BASENAME_ISSUER_Unmarshal(TPM2B_LDAA_BASENAME_ISSUER *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(TPM2B_LDAA_SIGNED_MESSAGE *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
 /*****************************************************************************/
