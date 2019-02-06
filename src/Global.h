@@ -842,9 +842,9 @@ typedef struct state_reset_data
     // host to restart the LDAA protocol. If everything is OK the TPM
     // increments the counter.
     // 2 => Sign Proceed activated. The host has authorization to call the sign
-    // command which generates theta_t: TPM2_LDAA_SignCommit. After the success
-    // of the signature commitment of the TPM the counter is incremented once
-    // again.
+    // commit command which generates theta_t: TPM2_LDAA_SignCommit. After the
+    // success of the signature commitment of the TPM the counter is
+    // incremented once again.
     // 3 => Sign Proceed: Generate Signature Based Proof. The final stage of
     // the TPM LDAA protocol can be executed by calling the final command:
     // TPM2_LDAA_SignProof. After completing the SignProof command successfully

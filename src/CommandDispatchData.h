@@ -236,8 +236,12 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
 #define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
+#define TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
+#define TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL (TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL)
 
 #else
 #define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
@@ -248,8 +252,13 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
 #define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
+#define TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
+#define TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL (TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL)
+
 
 #endif	/* TPM_NUVOTON */
 
@@ -351,7 +360,9 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_NYM_P_MARSHAL)
+#define TPM2B_LDAA_THETA_T_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_THETA_T_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_THETA_T_P_MARSHAL)
 
 #else
 
@@ -366,7 +377,9 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_NYM_P_MARSHAL)
+#define TPM2B_LDAA_THETA_T_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_THETA_T_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_THETA_T_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4276,6 +4289,49 @@ LDAA_Join_COMMAND_DESCRIPTOR_t _LDAA_JoinData = {
 #else
 #define _LDAA_JoinDataAddress 0
 #endif
+
+#if CC_LDAA_SignCommit
+#include "LDaa_SignCommit_fp.h"
+typedef TPM_RC  (LDAA_SignCommit_Entry)(
+				    LDAA_SignCommit_In  *in,
+				    LDAA_SignCommit_Out *out
+				    );
+typedef const struct {
+    LDAA_SignCommit_Entry *entry;
+    UINT16          inSize;
+    UINT16          outSize;
+    UINT16          offsetOfTypes;
+    UINT16          paramOffsets[8];
+    BYTE            types[11];
+} LDAA_SignCommit_COMMAND_DESCRIPTOR_t;
+LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
+    /* entry  */          &TPM2_LDAA_SignCommit,
+    /* inSize */          (UINT16)(sizeof(LDAA_SignCommit_In)),
+    /* outSize */         (UINT16)(sizeof(LDAA_SignCommit_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_SignCommit_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT16)(offsetof(LDAA_SignCommit_In, sid)),
+                           (UINT16)(offsetof(LDAA_SignCommit_In, ssid)),
+                           (UINT16)(offsetof(LDAA_SignCommit_In, bsn)),
+                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_at_ntt)),
+                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt)),
+                           (UINT16)(offsetof(LDAA_SignCommit_Out, ssid)),
+                           (UINT16)(offsetof(LDAA_SignCommit_Out, theta_t))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
+                           TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL,
+                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           UINT8_P_MARSHAL,
+                           UINT8_P_MARSHAL,
+                           TPM2B_LDAA_THETA_T_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_SignCommitDataAddress (&_LDAA_SignCommitData)
+#else
+#define _LDAA_SignCommitDataAddress 0
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -4761,6 +4817,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 /*****************************************************************************/
 #if (PAD_LIST || CC_LDAA_Join)
     (COMMAND_DESCRIPTOR_t *)_LDAA_JoinDataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_SignCommit)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommitDataAddress,
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */

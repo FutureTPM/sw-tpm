@@ -295,13 +295,35 @@ HEADERS = 				\
 	ldaa-polynomial.h \
 	ldaa-sample-z.h \
 	ldaa-sample.h \
+	ldaa-conversions.h \
+	ldaa-integer-matrix.h \
+	ldaa-permutation.h \
+	ldaa-params.h \
+	ldaa-sign-state.h \
+	ldaa-uniform-int.h \
+	ldaa-polynomial-matrix-ntt.h \
+	ldaa-polynomial-ntt.h \
+	ldaa-commitment.h \
+	ldaa-commitment-scheme.h \
+	ldaa-polynomial-matrix-mix.h \
+	ldaa-polynomial-mix.h \
 
 OBJFILES = \
-	CryptLDaa.o \
+	ldaa-polynomial-mix.o \
+	ldaa-polynomial-matrix-mix.o \
+	ldaa-polynomial-matrix-ntt.o \
+	ldaa-polynomial-ntt.o \
+	ldaa-commitment-scheme.o \
 	ldaa-polynomial-matrix.o \
 	ldaa-polynomial.o \
 	ldaa-sample-z.o \
 	ldaa-sample.o \
+	ldaa-conversions.o \
+	ldaa-integer-matrix.o \
+	ldaa-permutation.o \
+	ldaa-sign-state.o \
+	ldaa-uniform-int.o \
+	CryptLDaa.o \
 	CryptDilithium.o \
 	dilithium-ntt.o \
 	dilithium-packing.o \

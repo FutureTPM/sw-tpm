@@ -473,6 +473,9 @@
 #if CC_LDAA_Join
 #include "LDaa_Join_fp.h"
 #endif
+#if CC_LDAA_SignCommit
+#include "LDaa_SignCommit_fp.h"
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/

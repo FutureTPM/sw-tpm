@@ -2,7 +2,10 @@
 #include "CryptLDaa_fp.h"
 #include "ldaa-params.h"
 #include "ldaa-polynomial-matrix.h"
+#include "ldaa-polynomial-matrix-ntt.h"
 #include "ldaa-polynomial.h"
+#include "ldaa-sign-state.h"
+#include "ldaa-commitment.h"
 
 BOOL CryptLDaaInit(void) {
     return TRUE;
@@ -43,6 +46,44 @@ static void CryptLDaaDeserializeIssuerAT(
         for (size_t j = 0; j < LDAA_N; j++) {
            at->coeffs[i].coeffs[j] =
                Bytes2Coeff((BYTE*) &issuer_at->t.buffer+((i*LDAA_N+j)*4));
+        }
+    }
+}
+
+static void CryptLDaaDeserializeIssuerATNTT(
+        // OUT: Issuer NTT A matrix
+        ldaa_poly_matrix_ntt_issuer_at_t *at_ntt,
+        // IN: The public area parameter which contains the serialized
+        // NTT matrix of A from the issuer
+        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt) {
+    // Loop polynomial matrix (1xM)
+    for (size_t i = 0; i < LDAA_M; i++) {
+        // Loop coefficients of each polynomial
+        for (size_t j = 0; j < LDAA_N; j++) {
+           at_ntt->coeffs[i].coeffs[j] =
+               Bytes2Coeff((BYTE*) &issuer_atntt->t.buffer+((i*LDAA_N+j)*4));
+        }
+    }
+}
+
+
+static void CryptLDaaDeserializeIssuerBNTT(
+        // OUT: Issuer NTT B matrix
+        ldaa_poly_matrix_ntt_B_t *b_ntt,
+        // IN: The public area parameter which contains the serialized
+        // NTT matrix of B from the issuer
+        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt) {
+    // Loop polynomial matrix
+    // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
+    // Loop rows
+    for (size_t i = 0; i < (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA); i++) {
+        // Loop columns
+        for (size_t j = 0; j < LDAA_K_COMM; j++) {
+            // Loop coefficients of each polynomial
+            for (size_t k = 0; k < LDAA_N; k++) {
+               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
+                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+(((i*LDAA_K_COMM+j*LDAA_N)+k)*4));
+            }
         }
     }
 }
@@ -215,5 +256,83 @@ CryptLDaaClearProtocolState(void) {
 LIB_EXPORT TPM_RC
 CryptLDaaCommit(void) {
     gr.ldaa_commitCounter++;
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaSignCommit(
+        // OUT: Result of each commit
+        TPM2B_LDAA_THETA_T *theta_t,
+        // IN: Serialized private key
+        TPMT_SENSITIVE *sensitive,
+        // IN: Serialized  key
+        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
+        // IN: Serialized  key
+        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt_serial,
+        // IN: Basename to be used in the commit
+        TPM2B_LDAA_BASENAME *bsn
+        ) {
+    size_t i, j, k;
+    ldaa_poly_t                      pe;
+    ldaa_poly_t                      nym;
+    ldaa_poly_matrix_xt_t            xt;
+    ldaa_poly_t                      pbsn;
+    HASH_STATE                       hash_state;
+    BYTE                             digest[SHA256_BLOCK_SIZE];
+    ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;
+    ldaa_poly_matrix_ntt_B_t         issuer_b_ntt;
+    /* TODO: sign state needs to be stored in the TPM. Find some way to do so
+    without blowing up the memory */
+    ldaa_sign_state_i_t              sign_states_tpm[LDAA_C];
+    ldaa_poly_matrix_commit1_t       C1[LDAA_C];
+
+    /* Deserialize keys */
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
+    CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
+    CryptLDaaDeserializeIssuerBNTT(&issuer_b_ntt, issuer_bntt_serial);
+
+    /* ********************************************************************* */
+    /* Token Link Calculation                                                */
+    /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+    CryptHashStart(&hash_state, ALG_SHA256_VALUE);
+    CryptDigestUpdate(&hash_state, bsn->t.size, bsn->t.buffer);
+    CryptHashEnd(&hash_state, SHA256_BLOCK_SIZE, digest);
+    ldaa_poly_from_hash(&pbsn, digest);
+
+    ldaa_poly_sample_z(&pe);
+
+    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
+    ldaa_poly_add(&nym, &nym, &pe);
+    /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+    /* Token Link Calculation                                                */
+    /* ********************************************************************* */
+
+    /* ********************************************************************* */
+    /*                            Pi calculations                            */
+    /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+    for (i = 0; i < LDAA_C; i++) {
+        ldaa_sign_state_i_t *ssi = &sign_states_tpm[i];
+        ldaa_commitment1_t commited1;
+
+        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+        ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt);
+        /* TODO: Implement functions
+        tpm_comm_2(ssi);
+        tpm_comm_3(ssi);
+        */
+
+        ldaa_poly_matrix_commit1_t *c1 = &C1[i];
+        for (j = 0; j < (4 + 4*(2*(1<<LDAA_LOG_W)-1)*LDAA_LOG_BETA); j++) {
+            for (k = 0; k < LDAA_N; k++) {
+                c1->coeffs[j].coeffs[k] = commited1.C.coeffs[j].coeffs[k];
+                /* C2[i].coeffs[j].coeffs[k] = commited2.C.coeffs[j].coeffs[k]; */
+                /* C3[i].coeffs[j].coeffs[k] = commited3.C.coeffs[j].coeffs[k]; */
+            }
+        }
+    }
+    /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+    /*                            Pi calculations                            */
+    /* ********************************************************************* */
+
     return TPM_RC_SUCCESS;
 }

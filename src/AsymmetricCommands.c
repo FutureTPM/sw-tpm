@@ -661,6 +661,65 @@ TPM2_LDAA_Join(
 }
 #endif // ALG_LDAA
 #endif // CC_LDAA_Join
+
+#if CC_LDAA_SignCommit  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignCommit_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignCommit(
+		 LDAA_SignCommit_In      *in,            // In: input parameter list
+		 LDAA_SignCommit_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_BLOCK_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_BLOCK_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter != 2 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_FAILURE;
+    }
+
+    retVal = CryptLDaaSignCommit(
+            // Outputs
+            &out->theta_t,
+            // Inputs
+            &ldaa_key->sensitive,
+            &in->issuer_at_ntt,
+            &in->issuer_bntt,
+            &in->bsn);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignCommit
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/

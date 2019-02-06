@@ -446,6 +446,8 @@ extern "C" {
     TPM2B_LDAA_SIGNED_MESSAGE_Marshal(TPM2B_LDAA_SIGNED_MESSAGE *source, BYTE **buffer, INT32 *size);
     UINT16
     TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_THETA_T_Marshal(TPM2B_LDAA_THETA_T *source, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

@@ -32,4 +32,18 @@ CryptLDaaClearProtocolState(void);
 LIB_EXPORT TPM_RC
 CryptLDaaCommit(void);
 
+LIB_EXPORT TPM_RC
+CryptLDaaSignCommit(
+        // OUT: Result of each commit
+        TPM2B_LDAA_THETA_T *theta_t,
+        // IN: Serialized private key
+        TPMT_SENSITIVE *sensitive,
+        // IN: Serialized  key
+        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
+        // IN: Serialized  key
+        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt_serial,
+        // IN: Basename to be used in the commit
+        TPM2B_LDAA_BASENAME *bsn
+        );
+
 #endif

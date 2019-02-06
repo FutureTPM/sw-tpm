@@ -6,8 +6,19 @@
 #define LDAA_N 256
 #define LDAA_S 6
 #define LDAA_L 32
+#define LDAA_C 8
+#define LDAA_LOG_BETA 8
+#define LDAA_LOG_W 1
+#define LDAA_K_COMM 64
+#define LDAA_ALPHA2 10
 
-#define LDAA_SECRET_KEY_LENGTH (LDAA_M*LDAA_N) // Column of DAA_N polynomials
+#define LDAA_COMMIT1_LENGTH (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA)
+#define LDAA_COMMIT2_LENGTH 0
+#define LDAA_COMMIT3_LENGTH 0
+
+#define LDAA_SECRET_KEY_LENGTH (LDAA_M*LDAA_N) // Column of LDAA_N polynomials
 #define LDAA_PUBLIC_KEY_LENGTH LDAA_N // polynomial
+#define LDAA_ISSUER_BNTT_LENGTH (LDAA_COMMIT1_LENGTH * LDAA_K_COMM)
+#define LDAA_THETA_T_LENGTH (LDAA_COMMIT1_LENGTH+LDAA_COMMIT2_LENGTH+LDAA_COMMIT3_LENGTH)
 
 #endif

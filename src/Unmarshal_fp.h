@@ -546,6 +546,10 @@ extern "C" {
     TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, INT32 *size);
     TPM_RC
     TPMT_LDAA_SCHEME_Unmarshal(TPMT_LDAA_SCHEME *target, BYTE **buffer, INT32 *size, BOOL allowNull);
+    TPM_RC
+    TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

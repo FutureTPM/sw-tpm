@@ -1012,8 +1012,10 @@ typedef struct {
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 #include "ldaa-params.h"
-#define MAX_LDAA_PUBLIC_KEY_SIZE (LDAA_PUBLIC_KEY_LENGTH*4)
-#define MAX_LDAA_SECRET_KEY_SIZE (LDAA_SECRET_KEY_LENGTH*4)
+#define MAX_LDAA_PUBLIC_KEY_SIZE  (LDAA_PUBLIC_KEY_LENGTH*4)
+#define MAX_LDAA_SECRET_KEY_SIZE  (LDAA_SECRET_KEY_LENGTH*4)
+#define MAX_LDAA_ISSUER_BNTT_SIZE (LDAA_ISSUER_BNTT_LENGTH*4)
+#define MAX_LDAA_THETA_T_SIZE     (LDAA_THETA_T_LENGTH*4)
 
 typedef union {
     struct {
@@ -1034,6 +1036,23 @@ typedef union {
 } TPM2B_LDAA_SECRET_KEY;
 
 typedef TPM2B_LDAA_SECRET_KEY TPM2B_LDAA_ISSUER_AT;
+typedef TPM2B_LDAA_SECRET_KEY TPM2B_LDAA_ISSUER_ATNTT;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_THETA_T_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_THETA_T;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_ISSUER_BNTT_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_ISSUER_BNTT;
 
 typedef union {
     struct {
@@ -1050,6 +1069,9 @@ typedef union {
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_BASENAME_ISSUER;
+
+typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_MESSAGE;
+typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_BASENAME;
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/

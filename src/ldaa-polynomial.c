@@ -1,5 +1,6 @@
 #include "ldaa-params.h"
 #include "ldaa-polynomial.h"
+#include "ldaa-polynomial-ntt.h"
 #include "ldaa-sample-z.h"
 
 const UINT32 LDAA_WS[65536] = {
@@ -449,3 +450,4 @@ void ldaa_poly_from_hash(
         out->coeffs[i] = pi;
     }
 }
+

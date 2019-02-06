@@ -722,6 +722,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 #define CC_LDAA_Join                      (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit                (CC_YES && ALG_LDAA)
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1111,6 +1112,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_LDAA_Join
 #define TPM_CC_LDAA_Join                    (TPM_CC)(0x0000019E)
 #endif
+#if         CC_LDAA_SignCommit
+#define TPM_CC_LDAA_SignCommit              (TPM_CC)(0x0000019F)
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1277,6 +1281,8 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_Dec)                            \
                       + (ADD_FILL || CC_KYBER_2Phase_KEX)                     \
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
+                      + (ADD_FILL || CC_LDAA_Join)                            \
+                      + (ADD_FILL || CC_LDAA_SignCommit)                      \
 					  )
 
 
