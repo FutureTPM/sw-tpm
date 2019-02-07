@@ -40,6 +40,8 @@ typedef struct {
   ldaa_poly_t coeffs[(LDAA_COMMIT2_LENGTH - 1)*1];
 } ldaa_poly_matrix_comm2_t;
 
+typedef ldaa_poly_matrix_comm2_t ldaa_poly_matrix_comm3_t;
+
 void ldaa_poly_matrix_comm2_set_v_entries(
         ldaa_poly_matrix_comm2_t *this,
         size_t i0, size_t j0,
@@ -48,6 +50,8 @@ void ldaa_poly_matrix_comm2_set_v_entries(
 typedef struct {
   ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH];
 } ldaa_poly_matrix_commit2_t;
+
+typedef ldaa_poly_matrix_commit2_t ldaa_poly_matrix_commit3_t;
 
 void ldaa_poly_matrix_commit2_add(ldaa_poly_matrix_commit2_t *out,
 		    ldaa_poly_matrix_commit2_t *a,

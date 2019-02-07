@@ -17,6 +17,8 @@ typedef struct {
   ldaa_poly_ntt_t coeffs[LDAA_ISSUER_BNTT2_LENGTH];
 } ldaa_poly_matrix_ntt_B2_t;
 
+typedef ldaa_poly_matrix_ntt_B2_t ldaa_poly_matrix_ntt_B3_t;
+
 typedef struct {
   ldaa_poly_ntt_t coeffs[LDAA_K_COMM * 1];
 } ldaa_poly_matrix_ntt_R_t;

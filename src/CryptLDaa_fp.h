@@ -48,6 +48,8 @@ CryptLDaaSignCommit(
         TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt1_serial,
         // IN: Serialized key
         TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt2_serial,
+        // IN: Serialized key
+        TPM2B_LDAA_ISSUER_BNTT3 *issuer_bntt3_serial,
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn
         );

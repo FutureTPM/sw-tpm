@@ -25,6 +25,8 @@ typedef struct {
   ldaa_poly_matrix_R_t R;
 } ldaa_commitment2_t;
 
+typedef ldaa_commitment2_t ldaa_commitment3_t;
+
 //typedef struct {
 //  vector_t *Chash;
 //  polynomial_matrix_t *R;

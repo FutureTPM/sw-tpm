@@ -4313,8 +4313,8 @@ typedef const struct {
     UINT16          inSize;
     UINT16          outSize;
     UINT16          offsetOfTypes;
-    UINT16          paramOffsets[10];
-    BYTE            types[14];
+    UINT16          paramOffsets[11];
+    BYTE            types[15];
 } LDAA_SignCommit_COMMAND_DESCRIPTOR_t;
 LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
     /* entry  */          &TPM2_LDAA_SignCommit,
@@ -4327,6 +4327,7 @@ LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
                            (UINT16)(offsetof(LDAA_SignCommit_In, issuer_at_ntt)),
                            (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt)),
                            (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt2)),
+                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt3)),
                            (UINT16)(offsetof(LDAA_SignCommit_Out, ssid)),
                            (UINT16)(offsetof(LDAA_SignCommit_Out, c1)),
                            (UINT16)(offsetof(LDAA_SignCommit_Out, c2)),
@@ -4337,6 +4338,7 @@ LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
+                           TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL,
                            END_OF_LIST,
                            UINT8_P_MARSHAL,

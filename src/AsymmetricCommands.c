@@ -705,14 +705,11 @@ TPM2_LDAA_SignCommit(
 
     retVal = CryptLDaaSignCommit(
             // Outputs
-            &out->c1,
-            &out->c2,
-            &out->c3,
+            &out->c1, &out->c2, &out->c3,
             // Inputs
             &ldaa_key->sensitive,
             &in->issuer_at_ntt,
-            &in->issuer_bntt,
-            &in->issuer_bntt2,
+            &in->issuer_bntt, &in->issuer_bntt2, &in->issuer_bntt3,
             &in->bsn);
 
     // Run Commit command

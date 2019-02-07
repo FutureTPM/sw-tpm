@@ -1081,6 +1081,8 @@ typedef union {
     TPM2B        b;
 } TPM2B_LDAA_ISSUER_BNTT2;
 
+typedef TPM2B_LDAA_ISSUER_BNTT2 TPM2B_LDAA_ISSUER_BNTT3;
+
 typedef union {
     struct {
 	UINT16                  size;

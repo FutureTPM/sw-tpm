@@ -9,6 +9,7 @@ typedef struct {
     TPM2B_LDAA_ISSUER_ATNTT    issuer_at_ntt;
     TPM2B_LDAA_ISSUER_BNTT     issuer_bntt;
     TPM2B_LDAA_ISSUER_BNTT2    issuer_bntt2;
+    TPM2B_LDAA_ISSUER_BNTT3    issuer_bntt3;
 } LDAA_SignCommit_In;
 
 #define RC_LDAA_SignCommit_key_handle	 (TPM_RC_P + TPM_RC_1)
@@ -18,6 +19,7 @@ typedef struct {
 #define RC_LDAA_SignCommit_issuer_at_ntt (TPM_RC_P + TPM_RC_5)
 #define RC_LDAA_SignCommit_issuer_bntt	 (TPM_RC_P + TPM_RC_6)
 #define RC_LDAA_SignCommit_issuer_bntt2	 (TPM_RC_P + TPM_RC_7)
+#define RC_LDAA_SignCommit_issuer_bntt3	 (TPM_RC_P + TPM_RC_8)
 
 typedef struct {
     UINT8                   sid;   // Session ID
