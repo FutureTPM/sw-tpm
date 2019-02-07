@@ -55,3 +55,27 @@ void ldaa_integer_matrix_add(ldaa_integer_matrix_t *this,
       this->coeffs[i] -= LDAA_Q;
   }
 }
+
+void ldaa_integer_matrix_copy(ldaa_integer_matrix_t *this,
+        ldaa_integer_matrix_t *other) {
+    for (size_t i = 0; i < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; i++) {
+        other->coeffs[i] = this->coeffs[i];
+    }
+}
+
+void ldaa_integer_matrix_permute(ldaa_integer_matrix_t *this,
+		    ldaa_permutation_t *p)
+{
+    size_t i;
+    UINT32 coeffs[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
+
+    // Permute data
+    for (i = 0; i < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; i++) {
+        coeffs[p->v[i]] = this->coeffs[i];
+    }
+
+    // Copy data back
+    for (i = 0; i < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; i++) {
+        this->coeffs[i] = coeffs[i];
+    }
+}

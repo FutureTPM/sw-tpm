@@ -550,6 +550,8 @@ extern "C" {
     TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, INT32 *size);
     TPM_RC
     TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, INT32 *size);
+    TPM_RC
+    TPM2B_LDAA_ISSUER_BNTT2_Unmarshal(TPM2B_LDAA_ISSUER_BNTT2 *target, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

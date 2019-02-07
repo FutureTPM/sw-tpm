@@ -5005,6 +5005,17 @@ TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, 
     }
     return rc;
 }
+
+TPM_RC
+TPM2B_LDAA_ISSUER_BNTT2_Unmarshal(TPM2B_LDAA_ISSUER_BNTT2 *target, BYTE **buffer, INT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/

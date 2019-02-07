@@ -34,4 +34,8 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
        ldaa_poly_matrix_ntt_issuer_at_t *atNTT,
        ldaa_commitment1_t *commited,
        ldaa_poly_matrix_ntt_B_t *BNTT);
+
+void ldaa_tpm_comm_2(ldaa_sign_state_i_t *s,
+        ldaa_commitment2_t *commited,
+        ldaa_poly_matrix_ntt_B2_t *BNTT);
 #endif

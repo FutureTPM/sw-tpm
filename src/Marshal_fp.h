@@ -447,7 +447,11 @@ extern "C" {
     UINT16
     TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, INT32 *size);
     UINT16
-    TPM2B_LDAA_THETA_T_Marshal(TPM2B_LDAA_THETA_T *source, BYTE **buffer, INT32 *size);
+    TPM2B_LDAA_C1_Marshal(TPM2B_LDAA_C1 *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_C2_Marshal(TPM2B_LDAA_C2 *source, BYTE **buffer, INT32 *size);
+    UINT16
+    TPM2B_LDAA_C3_Marshal(TPM2B_LDAA_C3 *source, BYTE **buffer, INT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

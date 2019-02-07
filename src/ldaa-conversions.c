@@ -91,6 +91,10 @@ void fold_embed(ldaa_integer_matrix_t *vs, ldaa_poly_t *res) {
     size_t i, j;
     size_t shift_amount = 0;
 
+    for (i = 0; i < LDAA_N; i++) {
+        xs[i] = 0;
+    }
+
     for (i = 0; i < LDAA_LOG_BETA; i++) {
         ldaa_integer_matrix_t *vi = &vs[i];
 
@@ -103,5 +107,24 @@ void fold_embed(ldaa_integer_matrix_t *vs, ldaa_poly_t *res) {
 
     for (j = 0; j < LDAA_N; j++) {
         res->coeffs[j] = ldaa_reduce(xs[j]);
+    }
+}
+
+void embed_1(ldaa_integer_matrix_t *v, ldaa_poly_t *ps)
+{
+    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    size_t i, j;
+
+    for (i = 0; i < numpols; i++) {
+        for (j = 0; j < LDAA_N; j++) {
+            UINT32 pi;
+            if (i * LDAA_N + j < m) {
+                pi = v->coeffs[i * LDAA_N + j];
+            } else {
+                pi = 0;
+            }
+            ps[i].coeffs[j] = pi;
+        }
     }
 }

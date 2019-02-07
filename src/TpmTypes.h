@@ -1012,10 +1012,13 @@ typedef struct {
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 #include "ldaa-params.h"
-#define MAX_LDAA_PUBLIC_KEY_SIZE  (LDAA_PUBLIC_KEY_LENGTH*4)
-#define MAX_LDAA_SECRET_KEY_SIZE  (LDAA_SECRET_KEY_LENGTH*4)
-#define MAX_LDAA_ISSUER_BNTT_SIZE (LDAA_ISSUER_BNTT_LENGTH*4)
-#define MAX_LDAA_THETA_T_SIZE     (LDAA_THETA_T_LENGTH*4)
+#define MAX_LDAA_PUBLIC_KEY_SIZE   (LDAA_PUBLIC_KEY_LENGTH * 4UL)
+#define MAX_LDAA_SECRET_KEY_SIZE   (LDAA_SECRET_KEY_LENGTH * 4UL)
+#define MAX_LDAA_ISSUER_BNTT_SIZE  (LDAA_ISSUER_BNTT_LENGTH * LDAA_N * 4UL)
+#define MAX_LDAA_ISSUER_BNTT2_SIZE (LDAA_ISSUER_BNTT2_LENGTH * LDAA_N * 4UL)
+#define MAX_LDAA_C1_SIZE           (LDAA_C1_LENGTH * 4UL)
+#define MAX_LDAA_C2_SIZE           (LDAA_C2_LENGTH * 4UL)
+#define MAX_LDAA_C3_SIZE           (LDAA_C3_LENGTH * 4UL)
 
 typedef union {
     struct {
@@ -1041,10 +1044,26 @@ typedef TPM2B_LDAA_SECRET_KEY TPM2B_LDAA_ISSUER_ATNTT;
 typedef union {
     struct {
 	UINT16                  size;
-	BYTE                    buffer[MAX_LDAA_THETA_T_SIZE];
+	BYTE                    buffer[MAX_LDAA_C1_SIZE];
     }            t;
     TPM2B        b;
-} TPM2B_LDAA_THETA_T;
+} TPM2B_LDAA_C1;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_C2_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_C2;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_C3_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_C3;
 
 typedef union {
     struct {
@@ -1053,6 +1072,14 @@ typedef union {
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_ISSUER_BNTT;
+
+typedef union {
+    struct {
+	UINT16                  size;
+	BYTE                    buffer[MAX_LDAA_ISSUER_BNTT2_SIZE];
+    }            t;
+    TPM2B        b;
+} TPM2B_LDAA_ISSUER_BNTT2;
 
 typedef union {
     struct {

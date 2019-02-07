@@ -67,7 +67,7 @@ static void CryptLDaaDeserializeIssuerATNTT(
 }
 
 
-static void CryptLDaaDeserializeIssuerBNTT(
+static void CryptLDaaDeserializeIssuerBNTT1(
         // OUT: Issuer NTT B matrix
         ldaa_poly_matrix_ntt_B_t *b_ntt,
         // IN: The public area parameter which contains the serialized
@@ -76,7 +76,28 @@ static void CryptLDaaDeserializeIssuerBNTT(
     // Loop polynomial matrix
     // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
     // Loop rows
-    for (size_t i = 0; i < (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA); i++) {
+    for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
+        // Loop columns
+        for (size_t j = 0; j < LDAA_K_COMM; j++) {
+            // Loop coefficients of each polynomial
+            for (size_t k = 0; k < LDAA_N; k++) {
+               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
+                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+(((i*LDAA_K_COMM+j*LDAA_N)+k)*4));
+            }
+        }
+    }
+}
+
+static void CryptLDaaDeserializeIssuerBNTT2(
+        // OUT: Issuer NTT B matrix
+        ldaa_poly_matrix_ntt_B2_t *b_ntt,
+        // IN: The public area parameter which contains the serialized
+        // NTT matrix of B from the issuer
+        TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt) {
+    // Loop polynomial matrix
+    // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
+    // Loop rows
+    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
             // Loop coefficients of each polynomial
@@ -228,6 +249,9 @@ CryptLDaaJoin(
 
     ldaa_poly_sample_z(&pe);
 
+    for (size_t i = 0; i < LDAA_N; i++) {
+        nym.coeffs[i] = 0;
+    }
     ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
     ldaa_poly_add(&nym, &nym, &pe);
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
@@ -261,14 +285,20 @@ CryptLDaaCommit(void) {
 
 LIB_EXPORT TPM_RC
 CryptLDaaSignCommit(
-        // OUT: Result of each commit
-        TPM2B_LDAA_THETA_T *theta_t,
+        // OUT: Result of commit 1
+        TPM2B_LDAA_C1 *c1_out,
+        // OUT: Result of commit 2
+        TPM2B_LDAA_C2 *c2_out,
+        // OUT: Result of commit 3
+        TPM2B_LDAA_C3 *c3_out,
         // IN: Serialized private key
         TPMT_SENSITIVE *sensitive,
-        // IN: Serialized  key
+        // IN: Serialized key
         TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
-        // IN: Serialized  key
-        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt_serial,
+        // IN: Serialized key
+        TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt1_serial,
+        // IN: Serialized key
+        TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt2_serial,
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn
         ) {
@@ -280,16 +310,20 @@ CryptLDaaSignCommit(
     HASH_STATE                       hash_state;
     BYTE                             digest[SHA256_BLOCK_SIZE];
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;
-    ldaa_poly_matrix_ntt_B_t         issuer_b_ntt;
+    ldaa_poly_matrix_ntt_B_t         issuer_b_ntt_1;
+    ldaa_poly_matrix_ntt_B2_t        issuer_b_ntt_2;
     /* TODO: sign state needs to be stored in the TPM. Find some way to do so
     without blowing up the memory */
     ldaa_sign_state_i_t              sign_states_tpm[LDAA_C];
+
     ldaa_poly_matrix_commit1_t       C1[LDAA_C];
+    ldaa_poly_matrix_commit2_t       C2[LDAA_C];
 
     /* Deserialize keys */
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
     CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
-    CryptLDaaDeserializeIssuerBNTT(&issuer_b_ntt, issuer_bntt_serial);
+    CryptLDaaDeserializeIssuerBNTT1(&issuer_b_ntt_1, issuer_bntt1_serial);
+    CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_2, issuer_bntt2_serial);
 
     /* ********************************************************************* */
     /* Token Link Calculation                                                */
@@ -301,6 +335,9 @@ CryptLDaaSignCommit(
 
     ldaa_poly_sample_z(&pe);
 
+    for (size_t i = 0; i < LDAA_N; i++) {
+        nym.coeffs[i] = 0;
+    }
     ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
     ldaa_poly_add(&nym, &nym, &pe);
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
@@ -313,19 +350,26 @@ CryptLDaaSignCommit(
     for (i = 0; i < LDAA_C; i++) {
         ldaa_sign_state_i_t *ssi = &sign_states_tpm[i];
         ldaa_commitment1_t commited1;
+        ldaa_commitment2_t commited2;
 
         ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
-        ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt);
+        ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt_1);
+        ldaa_tpm_comm_2(ssi, &commited2, &issuer_b_ntt_2);
+
         /* TODO: Implement functions
-        tpm_comm_2(ssi);
         tpm_comm_3(ssi);
         */
 
         ldaa_poly_matrix_commit1_t *c1 = &C1[i];
-        for (j = 0; j < (4 + 4*(2*(1<<LDAA_LOG_W)-1)*LDAA_LOG_BETA); j++) {
+        ldaa_poly_matrix_commit2_t *c2 = &C2[i];
+        for (j = 0; j < LDAA_COMMIT1_LENGTH; j++) {
             for (k = 0; k < LDAA_N; k++) {
                 c1->coeffs[j].coeffs[k] = commited1.C.coeffs[j].coeffs[k];
-                /* C2[i].coeffs[j].coeffs[k] = commited2.C.coeffs[j].coeffs[k]; */
+            }
+        }
+        for (j = 0; j < LDAA_COMMIT2_LENGTH; j++) {
+            for (k = 0; k < LDAA_N; k++) {
+                c2->coeffs[j].coeffs[k] = commited2.C.coeffs[j].coeffs[k];
                 /* C3[i].coeffs[j].coeffs[k] = commited3.C.coeffs[j].coeffs[k]; */
             }
         }
