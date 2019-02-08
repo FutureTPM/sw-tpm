@@ -1,6 +1,6 @@
 #include "ldaa-conversions.h"
 #include "ldaa-params.h"
-#include <assert.h>
+#include <stddef.h>
 
 static void decompose_w(ldaa_poly_t *p, ldaa_integer_matrix_t *pdecomp)
 {
@@ -13,11 +13,9 @@ static void decompose_w(ldaa_poly_t *p, ldaa_integer_matrix_t *pdecomp)
             UINT32 pj = p->coeffs[j];
             BOOL neg = pj > LDAA_Q/2;
             if (!neg) {
-                assert(pj < (1ULL<<(LDAA_LOG_W * LDAA_LOG_BETA)));
                 pdecomp[i].coeffs[j] = (pj >> shift_amount) & mask;
             } else {
                 pj = LDAA_Q - pj;
-                assert(pj < (1ULL<<(LDAA_LOG_W * LDAA_LOG_BETA)));
                 UINT32 word = (pj >> shift_amount) & mask;
                 pdecomp[i].coeffs[j] = (word == 0 ? 0 : LDAA_Q - word);
             }

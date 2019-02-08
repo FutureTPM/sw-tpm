@@ -6,18 +6,17 @@
 
 void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *this,
 		    ldaa_poly_matrix_ntt_B_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b)
+		    ldaa_poly_matrix_ntt_R_commit_t *b)
 {
-    size_t i, j, k;
-    ldaa_poly_ntt_t prod;
+    size_t i, k;
+    UINT32 prod;
 
     for (i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
-        for (j = 0; j < 1; j++) {
-            for (k = 0; k < LDAA_K_COMM; k++) {
-                ldaa_poly_ntt_mul(&prod,
-                        &a->coeffs[i * LDAA_K_COMM + k], &b->coeffs[k + j]);
-                ldaa_poly_ntt_add(&this->coeffs[i + j],
-                        &this->coeffs[i + j], &prod);
+        for (k = 0; k < LDAA_K_COMM; k++) {
+            prod = ldaa_reduce((UINT64)a->coeffs[i * LDAA_K_COMM + k] * b->coeffs[k]);
+            this->coeffs[i] = this->coeffs[i] + prod;
+            if (this->coeffs[i] >= LDAA_Q) {
+                this->coeffs[i] -= LDAA_Q;
             }
         }
     }
@@ -25,33 +24,27 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
 		    ldaa_poly_matrix_ntt_B2_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b)
+		    ldaa_poly_matrix_ntt_R_commit_t *b)
 {
-    size_t i, j, k;
-    ldaa_poly_ntt_t prod;
+    size_t i, k;
+    UINT32 prod;
 
     for (i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
-        for (j = 0; j < 1; j++) {
-            for (k = 0; k < LDAA_K_COMM; k++) {
-                ldaa_poly_ntt_mul(&prod,
-                        &a->coeffs[i * LDAA_K_COMM + k], &b->coeffs[k + j]);
-                ldaa_poly_ntt_add(&this->coeffs[i + j],
-                        &this->coeffs[i + j], &prod);
+        for (k = 0; k < LDAA_K_COMM; k++) {
+            prod = ldaa_reduce((UINT64)a->coeffs[i * LDAA_K_COMM + k] * b->coeffs[k]);
+            this->coeffs[i] = this->coeffs[i] + prod;
+            if (this->coeffs[i] >= LDAA_Q) {
+                this->coeffs[i] -= LDAA_Q;
             }
         }
     }
 }
 
-void ldaa_poly_matrix_ntt_R_from_canonical(ldaa_poly_matrix_ntt_R_t *this,
-			   ldaa_poly_matrix_R_t *a)
+void ldaa_poly_matrix_ntt_R_commit_from_canonical(ldaa_poly_matrix_ntt_R_commit_t *this,
+			   ldaa_poly_matrix_R_commit_t *a)
 {
-    size_t i, j, k;
+    size_t i;
     for (i = 0; i < LDAA_LOG_BETA; i++) {
-        for (j = 0; j < 1; j++) {
-            ldaa_poly_t *aij = &a->coeffs[i];
-            for (k = 0; k < LDAA_N; k++) {
-                this->coeffs[i + j].coeffs[k] = aij->coeffs[k];
-            }
-        }
+        this->coeffs[i] = a->coeffs[i];
     }
 }

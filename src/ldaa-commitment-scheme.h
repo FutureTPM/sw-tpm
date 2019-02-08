@@ -1,7 +1,6 @@
 #ifndef LDAA_COMMITMENT_SCHEME_H
 #define LDAA_COMMITMENT_SCHEME_H
 
-#include "Tpm.h"
 #include "ldaa-params.h"
 #include "ldaa-commitment.h"
 #include "ldaa-polynomial-matrix-ntt.h"

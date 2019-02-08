@@ -1,5 +1,6 @@
 #include "ldaa-polynomial-ntt.h"
 #include "ldaa-polynomial.h"
+#include <stddef.h>
 
 void ldaa_poly_ntt_mul(ldaa_poly_ntt_t *this,
 		ldaa_poly_ntt_t *a,

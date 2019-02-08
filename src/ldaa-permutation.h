@@ -1,7 +1,7 @@
 #ifndef LDAA_PERMUTATION_H
 #define LDAA_PERMUTATION_H
 
-#include "Tpm.h"
+#include "BaseTypes.h"
 #include "ldaa-params.h"
 #include "ldaa-polynomial.h"
 

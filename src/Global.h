@@ -89,6 +89,7 @@ _NORMAL_WARNING_LEVEL_
 #include "CryptTest.h"
 #include "TpmError.h"
 #include "NV.h"
+#include "ldaa-sign-state.h"
 //** Defines and Types
 //*** Crypto Self-Test Values
 extern ALGORITHM_VECTOR     g_implementedAlgorithms;
@@ -854,6 +855,9 @@ typedef struct state_reset_data
     // the current session. A hash is used but it may not be the best solution
     // because it requires a lot of memory, in this case 32B.
     BYTE                ldaa_hash_private_key[SHA256_BLOCK_SIZE];
+    // Keep internal state of the sign process. This variable uses 16MB,
+    // doesn't fit in the stack.
+    ldaa_sign_state_i_t sign_states_tpm[LDAA_C];
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;

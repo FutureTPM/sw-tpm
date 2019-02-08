@@ -1,5 +1,6 @@
 #include "ldaa-params.h"
 #include "ldaa-polynomial-matrix.h"
+#include <stddef.h>
 
 void ldaa_poly_matrix_sample_z_xt(ldaa_poly_matrix_xt_t *this)
 {

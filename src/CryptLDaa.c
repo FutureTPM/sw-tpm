@@ -79,11 +79,8 @@ static void CryptLDaaDeserializeIssuerBNTT1(
     for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
-            // Loop coefficients of each polynomial
-            for (size_t k = 0; k < LDAA_N; k++) {
-               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
-                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+(((i*LDAA_K_COMM+j*LDAA_N)+k)*4));
-            }
+           b_ntt->coeffs[i * LDAA_K_COMM + j] =
+               Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM+j)*4));
         }
     }
 }
@@ -100,11 +97,8 @@ static void CryptLDaaDeserializeIssuerBNTT2(
     for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
-            // Loop coefficients of each polynomial
-            for (size_t k = 0; k < LDAA_N; k++) {
-               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
-                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+(((i*LDAA_K_COMM+j*LDAA_N)+k)*4));
-            }
+           b_ntt->coeffs[i * LDAA_K_COMM + j] =
+               Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM+j)*4));
         }
     }
 }
@@ -315,10 +309,6 @@ CryptLDaaSignCommit(
     ldaa_poly_matrix_ntt_B_t         issuer_b_ntt_1;
     ldaa_poly_matrix_ntt_B2_t        issuer_b_ntt_2;
     ldaa_poly_matrix_ntt_B3_t        issuer_b_ntt_3;
-    /* TODO: sign state needs to be stored in the TPM. Find some way to do so
-    without blowing up the memory */
-    ldaa_sign_state_i_t              sign_states_tpm[LDAA_C];
-
     ldaa_poly_matrix_commit1_t       C1[LDAA_C];
     ldaa_poly_matrix_commit2_t       C2[LDAA_C];
     ldaa_poly_matrix_commit3_t       C3[LDAA_C];
@@ -352,8 +342,10 @@ CryptLDaaSignCommit(
     /* ********************************************************************* */
     /*                            Pi calculations                            */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+    // TODO: Break up this for into a switch case where the user selects which
+    // commit to process?
     for (i = 0; i < LDAA_C; i++) {
-        ldaa_sign_state_i_t *ssi = &sign_states_tpm[i];
+        ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[i];
         ldaa_commitment1_t commited1;
         ldaa_commitment2_t commited2;
         ldaa_commitment3_t commited3;

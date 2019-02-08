@@ -1,6 +1,6 @@
 #ifndef LDAA_POLYNOMIAL_NTT_H
 #define LDAA_POLYNOMIAL_NTT_H
-#include "Tpm.h"
+#include "BaseTypes.h"
 #include "ldaa-params.h"
 #include "ldaa-polynomial.h"
 

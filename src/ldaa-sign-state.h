@@ -24,7 +24,6 @@ typedef struct {
     ldaa_poly_matrix_R_t R1, R2, R3;
 } ldaa_sign_state_i_t;
 
-
 void ldaa_fill_sign_state_tpm(ldaa_sign_state_i_t *sign_state,
 		    ldaa_poly_matrix_xt_t *xt,
 		    ldaa_poly_t *pe);
