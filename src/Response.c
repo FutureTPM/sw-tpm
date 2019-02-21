@@ -61,13 +61,14 @@
 
 /* 9.15 Response.c */
 /* 9.15.1 Description */
-/* This file contains the common code for building a response header, including setting the size of
-   the structure. command may be NULL if result is not TPM_RC_SUCCESS. */
+/* This file contains the common code for building a response header, including
+ * setting the size of the structure. command may be NULL if result is not
+ * TPM_RC_SUCCESS. */
 /* 9.15.2 Includes and Defines */
 #include "Tpm.h"
 /*     9.15.3 BuildResponseHeader() */
-/* Adds the response header to the response. It will update command->parameterSize to indicate the
-   total size of the response. */
+/* Adds the response header to the response. It will update
+ * command->parameterSize to indicate the total size of the response. */
 void
 BuildResponseHeader(
 		    COMMAND         *command,       // IN: main control structure

@@ -151,7 +151,7 @@ int                  s_freeSessionSlots;
 
 /* 9.5.5.7	Used in MemoryLib.c */
 #ifndef __IGNORE_STATE__        // DO NOT DEFINE THIS VALUE
-UINT64   s_actionIoBuffer[8192];      // action I/O buffer
+UINT64   s_actionIoBuffer[16384];    // action I/O buffer
 UINT32   s_actionIoAllocation;       // number of UIN64 allocated for in
 #endif
 /* 9.5.4.10 Used in TpmFail.c */

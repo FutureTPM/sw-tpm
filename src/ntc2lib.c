@@ -48,7 +48,7 @@
 /* Marshal and Unmarshal Functions */
 
 TPM_RC
-NTC2_CFG_STRUCT_Unmarshal(NTC2_CFG_STRUCT *target, BYTE **buffer, INT32 *size)
+NTC2_CFG_STRUCT_Unmarshal(NTC2_CFG_STRUCT *target, BYTE **buffer, UINT32 *size)
 {
     TPM_RC rc = TPM_RC_SUCCESS;
 
@@ -59,11 +59,11 @@ NTC2_CFG_STRUCT_Unmarshal(NTC2_CFG_STRUCT *target, BYTE **buffer, INT32 *size)
     }
     return rc;
 }
-    
+
 UINT16
-NTC2_CFG_STRUCT_Marshal(NTC2_CFG_STRUCT *source, BYTE **buffer, INT32 *size)
+NTC2_CFG_STRUCT_Marshal(NTC2_CFG_STRUCT *source, BYTE **buffer, UINT32 *size)
 {
-    UINT16 written = 0;
+    UINT32 written = 0;
     /* assumes that the NTC2_CFG_STRUCT structure are all uint8_t so that there are no endian
        issues */
     written += Array_Marshal((BYTE *)source, sizeof(NTC2_CFG_STRUCT), buffer, size);

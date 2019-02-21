@@ -414,11 +414,13 @@ TPM2_Kyber_2Phase_KEX(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     OBJECT *kyber_key_static;
+    OBJECT *kyber_alice_key_static;
     OBJECT *kyber_key_ephemeral;
 
     // Input Validation
     kyber_key_static = HandleToObject(in->static_key);
     kyber_key_ephemeral = HandleToObject(in->ephemeral_key);
+    kyber_alice_key_static = HandleToObject(in->alice_static_key);
 
     // selected key must be a Kyber key
     if(kyber_key_static->publicArea.type != TPM_ALG_KYBER)
@@ -471,8 +473,8 @@ TPM2_Kyber_2Phase_KEX(
               &out->cipher_text_1);
       MemoryCopy(buf, &tmp_ss.t.buffer, 32);
 
-      // Encapsulate the second secret using the static key
-      CryptKyberEncapsulate(&kyber_key_static->publicArea, &tmp_ss,
+      // Encapsulate the second secret using alice's static key
+      CryptKyberEncapsulate(&kyber_alice_key_static->publicArea, &tmp_ss,
               &out->cipher_text_2);
       MemoryCopy(buf+KYBER_SYMBYTES, &tmp_ss.t.buffer, 32);
 
@@ -487,6 +489,7 @@ TPM2_Kyber_2Phase_KEX(
       // final shared key.
       shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
               buf, 3*KYBER_SYMBYTES);
+      out->shared_key.t.size = 32;
     }
 
     return retVal;
@@ -585,6 +588,7 @@ TPM2_Kyber_3Phase_KEX(
       // final shared key.
       shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
               buf, 3*KYBER_SYMBYTES);
+      out->shared_key.t.size = 32;
     }
 
     return retVal;
@@ -705,11 +709,13 @@ TPM2_LDAA_SignCommit(
 
     retVal = CryptLDaaSignCommit(
             // Outputs
-            &out->c1, &out->c2, &out->c3,
+            &out->commit,
             // Inputs
             &ldaa_key->sensitive,
+            &in->commit_sel, &in->sign_state_sel,
+            &in->pbsn, &in->pe,
             &in->issuer_at_ntt,
-            &in->issuer_bntt, &in->issuer_bntt2, &in->issuer_bntt3,
+            &in->issuer_bntt,
             &in->bsn);
 
     // Run Commit command

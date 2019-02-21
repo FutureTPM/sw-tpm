@@ -68,17 +68,17 @@ typedef struct tdNTC2_CFG_STRUCT {
 
 typedef struct {
     NTC2_CFG_STRUCT preConfig;
-} NTC2_PreConfig_In;     
+} NTC2_PreConfig_In;
 
 typedef struct {
     NTC2_CFG_STRUCT preConfig;
-} NTC2_GetConfig_Out;     
+} NTC2_GetConfig_Out;
 
 
 TPM_RC
-NTC2_CFG_STRUCT_Unmarshal(NTC2_CFG_STRUCT *target, BYTE **buffer, INT32 *size);
+NTC2_CFG_STRUCT_Unmarshal(NTC2_CFG_STRUCT *target, BYTE **buffer, UINT32 *size);
 UINT16
-NTC2_CFG_STRUCT_Marshal(NTC2_CFG_STRUCT *source, BYTE **buffer, INT32 *size);
+NTC2_CFG_STRUCT_Marshal(NTC2_CFG_STRUCT *source, BYTE **buffer, UINT32 *size);
 
 
 #endif

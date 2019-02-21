@@ -240,10 +240,12 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
 #define TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL (TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT_Unmarshal,
-#define TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT2_Unmarshal,
+#define TPM2B_LDAA_PE_P_UNMARSHAL (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
+#define TPM2B_LDAA_PBSN_P_UNMARSHAL (TPM2B_LDAA_PE_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_PBSN_P_UNMARSHAL)
 
 #else
 #define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
@@ -258,10 +260,12 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
 #define TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL (TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT_Unmarshal,
-#define TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL + 1)
-    (UNMARSHAL_t)TPM2B_LDAA_ISSUER_BNTT2_Unmarshal,
+#define TPM2B_LDAA_PE_P_UNMARSHAL (TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
+#define TPM2B_LDAA_PBSN_P_UNMARSHAL (TPM2B_LDAA_PE_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_PBSN_P_UNMARSHAL)
 
 
 #endif	/* TPM_NUVOTON */
@@ -364,13 +368,9 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
-#define TPM2B_LDAA_C1_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define TPM2B_LDAA_C2_P_MARSHAL (TPM2B_LDAA_C1_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define TPM2B_LDAA_C3_P_MARSHAL (TPM2B_LDAA_C2_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_C3_P_MARSHAL)
+#define TPM2B_LDAA_COMMIT_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_COMMIT_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_COMMIT_P_MARSHAL)
 
 #else
 
@@ -385,13 +385,9 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
-#define TPM2B_LDAA_C1_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define TPM2B_LDAA_C2_P_MARSHAL (TPM2B_LDAA_C1_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define TPM2B_LDAA_C3_P_MARSHAL (TPM2B_LDAA_C2_P_MARSHAL + 1)
-    (MARSHAL_t)TPM2B_LDAA_C1_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_C3_P_MARSHAL)
+#define TPM2B_LDAA_COMMIT_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_COMMIT_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_COMMIT_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -420,14 +416,14 @@ typedef TPM_RC  (Startup_Entry)(
 				);
 typedef const struct {
     Startup_Entry    *entry;
-    UINT16           inSize;
-    UINT16           outSize;
-    UINT16           offsetOfTypes;
+    UINT32           inSize;
+    UINT32           outSize;
+    UINT32           offsetOfTypes;
     BYTE             types[3];
 } Startup_COMMAND_DESCRIPTOR_t;
 Startup_COMMAND_DESCRIPTOR_t _StartupData = {
     /* entry  */          &TPM2_Startup,
-    /* inSize */          (UINT16)(sizeof(Startup_In)),
+    /* inSize */          (UINT32)(sizeof(Startup_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(Startup_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -446,14 +442,14 @@ typedef TPM_RC  (Shutdown_Entry)(
 				 );
 typedef const struct {
     Shutdown_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
     BYTE              types[3];
 } Shutdown_COMMAND_DESCRIPTOR_t;
 Shutdown_COMMAND_DESCRIPTOR_t _ShutdownData = {
     /* entry  */          &TPM2_Shutdown,
-    /* inSize */          (UINT16)(sizeof(Shutdown_In)),
+    /* inSize */          (UINT32)(sizeof(Shutdown_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(Shutdown_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -472,14 +468,14 @@ typedef TPM_RC  (SelfTest_Entry)(
 				 );
 typedef const struct {
     SelfTest_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
     BYTE              types[3];
 } SelfTest_COMMAND_DESCRIPTOR_t;
 SelfTest_COMMAND_DESCRIPTOR_t _SelfTestData = {
     /* entry  */          &TPM2_SelfTest,
-    /* inSize */          (UINT16)(sizeof(SelfTest_In)),
+    /* inSize */          (UINT32)(sizeof(SelfTest_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(SelfTest_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -499,15 +495,15 @@ typedef TPM_RC  (IncrementalSelfTest_Entry)(
 					    );
 typedef const struct {
     IncrementalSelfTest_Entry    *entry;
-    UINT16                       inSize;
-    UINT16                       outSize;
-    UINT16                       offsetOfTypes;
+    UINT32                       inSize;
+    UINT32                       outSize;
+    UINT32                       offsetOfTypes;
     BYTE                         types[4];
 } IncrementalSelfTest_COMMAND_DESCRIPTOR_t;
 IncrementalSelfTest_COMMAND_DESCRIPTOR_t _IncrementalSelfTestData = {
     /* entry  */          &TPM2_IncrementalSelfTest,
-    /* inSize */          (UINT16)(sizeof(IncrementalSelfTest_In)),
-    /* outSize */         (UINT16)(sizeof(IncrementalSelfTest_Out)),
+    /* inSize */          (UINT32)(sizeof(IncrementalSelfTest_In)),
+    /* outSize */         (UINT32)(sizeof(IncrementalSelfTest_Out)),
     /* offsetOfTypes */   offsetof(IncrementalSelfTest_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPML_ALG_P_UNMARSHAL,
@@ -526,18 +522,18 @@ typedef TPM_RC  (GetTestResult_Entry)(
 				      );
 typedef const struct {
     GetTestResult_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[1];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[1];
     BYTE                   types[4];
 } GetTestResult_COMMAND_DESCRIPTOR_t;
 GetTestResult_COMMAND_DESCRIPTOR_t _GetTestResultData = {
     /* entry  */          &TPM2_GetTestResult,
     /* inSize */          0,
-    /* outSize */         (UINT16)(sizeof(GetTestResult_Out)),
+    /* outSize */         (UINT32)(sizeof(GetTestResult_Out)),
     /* offsetOfTypes */   offsetof(GetTestResult_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(GetTestResult_Out, testResult))},
+    /* offsets */         {(UINT32)(offsetof(GetTestResult_Out, testResult))},
     /* types */           {END_OF_LIST,
 			   TPM2B_MAX_BUFFER_P_MARSHAL,
 			   TPM_RC_P_MARSHAL,
@@ -555,24 +551,24 @@ typedef TPM_RC  (StartAuthSession_Entry)(
 					 );
 typedef const struct {
     StartAuthSession_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[7];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[7];
     BYTE                      types[11];
 } StartAuthSession_COMMAND_DESCRIPTOR_t;
 StartAuthSession_COMMAND_DESCRIPTOR_t _StartAuthSessionData = {
     /* entry  */          &TPM2_StartAuthSession,
-    /* inSize */          (UINT16)(sizeof(StartAuthSession_In)),
-    /* outSize */         (UINT16)(sizeof(StartAuthSession_Out)),
+    /* inSize */          (UINT32)(sizeof(StartAuthSession_In)),
+    /* outSize */         (UINT32)(sizeof(StartAuthSession_Out)),
     /* offsetOfTypes */   offsetof(StartAuthSession_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(StartAuthSession_In, bind)),
-			   (UINT16)(offsetof(StartAuthSession_In, nonceCaller)),
-			   (UINT16)(offsetof(StartAuthSession_In, encryptedSalt)),
-			   (UINT16)(offsetof(StartAuthSession_In, sessionType)),
-			   (UINT16)(offsetof(StartAuthSession_In, symmetric)),
-			   (UINT16)(offsetof(StartAuthSession_In, authHash)),
-			   (UINT16)(offsetof(StartAuthSession_Out, nonceTPM))},
+    /* offsets */         {(UINT32)(offsetof(StartAuthSession_In, bind)),
+			   (UINT32)(offsetof(StartAuthSession_In, nonceCaller)),
+			   (UINT32)(offsetof(StartAuthSession_In, encryptedSalt)),
+			   (UINT32)(offsetof(StartAuthSession_In, sessionType)),
+			   (UINT32)(offsetof(StartAuthSession_In, symmetric)),
+			   (UINT32)(offsetof(StartAuthSession_In, authHash)),
+			   (UINT32)(offsetof(StartAuthSession_Out, nonceTPM))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_DH_ENTITY_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_NONCE_P_UNMARSHAL,
@@ -596,14 +592,14 @@ typedef TPM_RC  (PolicyRestart_Entry)(
 				      );
 typedef const struct {
     PolicyRestart_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
     BYTE                   types[3];
 } PolicyRestart_COMMAND_DESCRIPTOR_t;
 PolicyRestart_COMMAND_DESCRIPTOR_t _PolicyRestartData = {
     /* entry  */          &TPM2_PolicyRestart,
-    /* inSize */          (UINT16)(sizeof(PolicyRestart_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyRestart_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyRestart_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -623,25 +619,25 @@ typedef TPM_RC  (Create_Entry)(
 			       );
 typedef const struct {
     Create_Entry    *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[8];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[8];
     BYTE            types[12];
 } Create_COMMAND_DESCRIPTOR_t;
 Create_COMMAND_DESCRIPTOR_t _CreateData = {
     /* entry  */          &TPM2_Create,
-    /* inSize */          (UINT16)(sizeof(Create_In)),
-    /* outSize */         (UINT16)(sizeof(Create_Out)),
+    /* inSize */          (UINT32)(sizeof(Create_In)),
+    /* outSize */         (UINT32)(sizeof(Create_Out)),
     /* offsetOfTypes */   offsetof(Create_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Create_In, inSensitive)),
-			   (UINT16)(offsetof(Create_In, inPublic)),
-			   (UINT16)(offsetof(Create_In, outsideInfo)),
-			   (UINT16)(offsetof(Create_In, creationPCR)),
-			   (UINT16)(offsetof(Create_Out, outPublic)),
-			   (UINT16)(offsetof(Create_Out, creationData)),
-			   (UINT16)(offsetof(Create_Out, creationHash)),
-			   (UINT16)(offsetof(Create_Out, creationTicket))},
+    /* offsets */         {(UINT32)(offsetof(Create_In, inSensitive)),
+			   (UINT32)(offsetof(Create_In, inPublic)),
+			   (UINT32)(offsetof(Create_In, outsideInfo)),
+			   (UINT32)(offsetof(Create_In, creationPCR)),
+			   (UINT32)(offsetof(Create_Out, outPublic)),
+			   (UINT32)(offsetof(Create_Out, creationData)),
+			   (UINT32)(offsetof(Create_Out, creationHash)),
+			   (UINT32)(offsetof(Create_Out, creationTicket))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_SENSITIVE_CREATE_P_UNMARSHAL,
 			   TPM2B_PUBLIC_P_UNMARSHAL,
@@ -667,20 +663,20 @@ typedef TPM_RC  (Load_Entry)(
 			     );
 typedef const struct {
     Load_Entry    *entry;
-    UINT16        inSize;
-    UINT16        outSize;
-    UINT16        offsetOfTypes;
-    UINT16        paramOffsets[3];
+    UINT32        inSize;
+    UINT32        outSize;
+    UINT32        offsetOfTypes;
+    UINT32        paramOffsets[3];
     BYTE          types[7];
 } Load_COMMAND_DESCRIPTOR_t;
 Load_COMMAND_DESCRIPTOR_t _LoadData = {
     /* entry  */          &TPM2_Load,
-    /* inSize */          (UINT16)(sizeof(Load_In)),
-    /* outSize */         (UINT16)(sizeof(Load_Out)),
+    /* inSize */          (UINT32)(sizeof(Load_In)),
+    /* outSize */         (UINT32)(sizeof(Load_Out)),
     /* offsetOfTypes */   offsetof(Load_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Load_In, inPrivate)),
-			   (UINT16)(offsetof(Load_In, inPublic)),
-			   (UINT16)(offsetof(Load_Out, name))},
+    /* offsets */         {(UINT32)(offsetof(Load_In, inPrivate)),
+			   (UINT32)(offsetof(Load_In, inPublic)),
+			   (UINT32)(offsetof(Load_Out, name))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_PRIVATE_P_UNMARSHAL,
 			   TPM2B_PUBLIC_P_UNMARSHAL,
@@ -701,20 +697,20 @@ typedef TPM_RC  (LoadExternal_Entry)(
 				     );
 typedef const struct {
     LoadExternal_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[3];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[3];
     BYTE                  types[7];
 } LoadExternal_COMMAND_DESCRIPTOR_t;
 LoadExternal_COMMAND_DESCRIPTOR_t _LoadExternalData = {
     /* entry  */          &TPM2_LoadExternal,
-    /* inSize */          (UINT16)(sizeof(LoadExternal_In)),
-    /* outSize */         (UINT16)(sizeof(LoadExternal_Out)),
+    /* inSize */          (UINT32)(sizeof(LoadExternal_In)),
+    /* outSize */         (UINT32)(sizeof(LoadExternal_Out)),
     /* offsetOfTypes */   offsetof(LoadExternal_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(LoadExternal_In, inPublic)),
-			   (UINT16)(offsetof(LoadExternal_In, hierarchy)),
-			   (UINT16)(offsetof(LoadExternal_Out, name))},
+    /* offsets */         {(UINT32)(offsetof(LoadExternal_In, inPublic)),
+			   (UINT32)(offsetof(LoadExternal_In, hierarchy)),
+			   (UINT32)(offsetof(LoadExternal_Out, name))},
     /* types */           {TPM2B_SENSITIVE_P_UNMARSHAL,
 			   TPM2B_PUBLIC_P_UNMARSHAL + ADD_FLAG,
 			   TPMI_RH_HIERARCHY_P_UNMARSHAL + ADD_FLAG,
@@ -735,19 +731,19 @@ typedef TPM_RC  (ReadPublic_Entry)(
 				   );
 typedef const struct {
     ReadPublic_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
-    UINT16              paramOffsets[2];
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
+    UINT32              paramOffsets[2];
     BYTE                types[6];
 } ReadPublic_COMMAND_DESCRIPTOR_t;
 ReadPublic_COMMAND_DESCRIPTOR_t _ReadPublicData = {
     /* entry  */          &TPM2_ReadPublic,
-    /* inSize */          (UINT16)(sizeof(ReadPublic_In)),
-    /* outSize */         (UINT16)(sizeof(ReadPublic_Out)),
+    /* inSize */          (UINT32)(sizeof(ReadPublic_In)),
+    /* outSize */         (UINT32)(sizeof(ReadPublic_Out)),
     /* offsetOfTypes */   offsetof(ReadPublic_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ReadPublic_Out, name)),
-			   (UINT16)(offsetof(ReadPublic_Out, qualifiedName))},
+    /* offsets */         {(UINT32)(offsetof(ReadPublic_Out, name)),
+			   (UINT32)(offsetof(ReadPublic_Out, qualifiedName))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   END_OF_LIST,
 			   TPM2B_PUBLIC_P_MARSHAL,
@@ -767,20 +763,20 @@ typedef TPM_RC  (ActivateCredential_Entry)(
 					   );
 typedef const struct {
     ActivateCredential_Entry    *entry;
-    UINT16                      inSize;
-    UINT16                      outSize;
-    UINT16                      offsetOfTypes;
-    UINT16                      paramOffsets[3];
+    UINT32                      inSize;
+    UINT32                      outSize;
+    UINT32                      offsetOfTypes;
+    UINT32                      paramOffsets[3];
     BYTE                        types[7];
 } ActivateCredential_COMMAND_DESCRIPTOR_t;
 ActivateCredential_COMMAND_DESCRIPTOR_t _ActivateCredentialData = {
     /* entry  */          &TPM2_ActivateCredential,
-    /* inSize */          (UINT16)(sizeof(ActivateCredential_In)),
-    /* outSize */         (UINT16)(sizeof(ActivateCredential_Out)),
+    /* inSize */          (UINT32)(sizeof(ActivateCredential_In)),
+    /* outSize */         (UINT32)(sizeof(ActivateCredential_Out)),
     /* offsetOfTypes */   offsetof(ActivateCredential_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ActivateCredential_In, keyHandle)),
-			   (UINT16)(offsetof(ActivateCredential_In, credentialBlob)),
-			   (UINT16)(offsetof(ActivateCredential_In, secret))},
+    /* offsets */         {(UINT32)(offsetof(ActivateCredential_In, keyHandle)),
+			   (UINT32)(offsetof(ActivateCredential_In, credentialBlob)),
+			   (UINT32)(offsetof(ActivateCredential_In, secret))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_ID_OBJECT_P_UNMARSHAL,
@@ -801,20 +797,20 @@ typedef TPM_RC  (MakeCredential_Entry)(
 				       );
 typedef const struct {
     MakeCredential_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[3];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[3];
     BYTE                    types[7];
 } MakeCredential_COMMAND_DESCRIPTOR_t;
 MakeCredential_COMMAND_DESCRIPTOR_t _MakeCredentialData = {
     /* entry  */          &TPM2_MakeCredential,
-    /* inSize */          (UINT16)(sizeof(MakeCredential_In)),
-    /* outSize */         (UINT16)(sizeof(MakeCredential_Out)),
+    /* inSize */          (UINT32)(sizeof(MakeCredential_In)),
+    /* outSize */         (UINT32)(sizeof(MakeCredential_Out)),
     /* offsetOfTypes */   offsetof(MakeCredential_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(MakeCredential_In, credential)),
-			   (UINT16)(offsetof(MakeCredential_In, objectName)),
-			   (UINT16)(offsetof(MakeCredential_Out, secret))},
+    /* offsets */         {(UINT32)(offsetof(MakeCredential_In, credential)),
+			   (UINT32)(offsetof(MakeCredential_In, objectName)),
+			   (UINT32)(offsetof(MakeCredential_Out, secret))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPM2B_NAME_P_UNMARSHAL,
@@ -835,15 +831,15 @@ typedef TPM_RC  (Unseal_Entry)(
 			       );
 typedef const struct {
     Unseal_Entry    *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
     BYTE            types[4];
 } Unseal_COMMAND_DESCRIPTOR_t;
 Unseal_COMMAND_DESCRIPTOR_t _UnsealData = {
     /* entry  */          &TPM2_Unseal,
-    /* inSize */          (UINT16)(sizeof(Unseal_In)),
-    /* outSize */         (UINT16)(sizeof(Unseal_Out)),
+    /* inSize */          (UINT32)(sizeof(Unseal_In)),
+    /* outSize */         (UINT32)(sizeof(Unseal_Out)),
     /* offsetOfTypes */   offsetof(Unseal_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
@@ -863,19 +859,19 @@ typedef TPM_RC  (ObjectChangeAuth_Entry)(
 					 );
 typedef const struct {
     ObjectChangeAuth_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[2];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[2];
     BYTE                      types[6];
 } ObjectChangeAuth_COMMAND_DESCRIPTOR_t;
 ObjectChangeAuth_COMMAND_DESCRIPTOR_t _ObjectChangeAuthData = {
     /* entry  */          &TPM2_ObjectChangeAuth,
-    /* inSize */          (UINT16)(sizeof(ObjectChangeAuth_In)),
-    /* outSize */         (UINT16)(sizeof(ObjectChangeAuth_Out)),
+    /* inSize */          (UINT32)(sizeof(ObjectChangeAuth_In)),
+    /* outSize */         (UINT32)(sizeof(ObjectChangeAuth_Out)),
     /* offsetOfTypes */   offsetof(ObjectChangeAuth_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ObjectChangeAuth_In, parentHandle)),
-			   (UINT16)(offsetof(ObjectChangeAuth_In, newAuth))},
+    /* offsets */         {(UINT32)(offsetof(ObjectChangeAuth_In, parentHandle)),
+			   (UINT32)(offsetof(ObjectChangeAuth_In, newAuth))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
@@ -895,22 +891,22 @@ typedef TPM_RC  (CreateLoaded_Entry)(
 				     );
 typedef const struct {
     CreateLoaded_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[5];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[5];
     BYTE                  types[9];
 } CreateLoaded_COMMAND_DESCRIPTOR_t;
 CreateLoaded_COMMAND_DESCRIPTOR_t _CreateLoadedData = {
     /* entry  */          &TPM2_CreateLoaded,
-    /* inSize */          (UINT16)(sizeof(CreateLoaded_In)),
-    /* outSize */         (UINT16)(sizeof(CreateLoaded_Out)),
+    /* inSize */          (UINT32)(sizeof(CreateLoaded_In)),
+    /* outSize */         (UINT32)(sizeof(CreateLoaded_Out)),
     /* offsetOfTypes */   offsetof(CreateLoaded_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(CreateLoaded_In, inSensitive)),
-			   (UINT16)(offsetof(CreateLoaded_In, inPublic)),
-			   (UINT16)(offsetof(CreateLoaded_Out, outPrivate)),
-			   (UINT16)(offsetof(CreateLoaded_Out, outPublic)),
-			   (UINT16)(offsetof(CreateLoaded_Out, name))},
+    /* offsets */         {(UINT32)(offsetof(CreateLoaded_In, inSensitive)),
+			   (UINT32)(offsetof(CreateLoaded_In, inPublic)),
+			   (UINT32)(offsetof(CreateLoaded_Out, outPrivate)),
+			   (UINT32)(offsetof(CreateLoaded_Out, outPublic)),
+			   (UINT32)(offsetof(CreateLoaded_Out, name))},
     /* types */           {TPMI_DH_PARENT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_SENSITIVE_CREATE_P_UNMARSHAL,
 			   TPM2B_TEMPLATE_P_UNMARSHAL,
@@ -933,22 +929,22 @@ typedef TPM_RC  (Duplicate_Entry)(
 				  );
 typedef const struct {
     Duplicate_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[5];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[5];
     BYTE               types[9];
 } Duplicate_COMMAND_DESCRIPTOR_t;
 Duplicate_COMMAND_DESCRIPTOR_t _DuplicateData = {
     /* entry  */          &TPM2_Duplicate,
-    /* inSize */          (UINT16)(sizeof(Duplicate_In)),
-    /* outSize */         (UINT16)(sizeof(Duplicate_Out)),
+    /* inSize */          (UINT32)(sizeof(Duplicate_In)),
+    /* outSize */         (UINT32)(sizeof(Duplicate_Out)),
     /* offsetOfTypes */   offsetof(Duplicate_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Duplicate_In, newParentHandle)),
-			   (UINT16)(offsetof(Duplicate_In, encryptionKeyIn)),
-			   (UINT16)(offsetof(Duplicate_In, symmetricAlg)),
-			   (UINT16)(offsetof(Duplicate_Out, duplicate)),
-			   (UINT16)(offsetof(Duplicate_Out, outSymSeed))},
+    /* offsets */         {(UINT32)(offsetof(Duplicate_In, newParentHandle)),
+			   (UINT32)(offsetof(Duplicate_In, encryptionKeyIn)),
+			   (UINT32)(offsetof(Duplicate_In, symmetricAlg)),
+			   (UINT32)(offsetof(Duplicate_Out, duplicate)),
+			   (UINT32)(offsetof(Duplicate_Out, outSymSeed))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_DATA_P_UNMARSHAL,
@@ -971,22 +967,22 @@ typedef TPM_RC  (Rewrap_Entry)(
 			       );
 typedef const struct {
     Rewrap_Entry    *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[5];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[5];
     BYTE            types[9];
 } Rewrap_COMMAND_DESCRIPTOR_t;
 Rewrap_COMMAND_DESCRIPTOR_t _RewrapData = {
     /* entry  */          &TPM2_Rewrap,
-    /* inSize */          (UINT16)(sizeof(Rewrap_In)),
-    /* outSize */         (UINT16)(sizeof(Rewrap_Out)),
+    /* inSize */          (UINT32)(sizeof(Rewrap_In)),
+    /* outSize */         (UINT32)(sizeof(Rewrap_Out)),
     /* offsetOfTypes */   offsetof(Rewrap_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Rewrap_In, newParent)),
-			   (UINT16)(offsetof(Rewrap_In, inDuplicate)),
-			   (UINT16)(offsetof(Rewrap_In, name)),
-			   (UINT16)(offsetof(Rewrap_In, inSymSeed)),
-			   (UINT16)(offsetof(Rewrap_Out, outSymSeed))},
+    /* offsets */         {(UINT32)(offsetof(Rewrap_In, newParent)),
+			   (UINT32)(offsetof(Rewrap_In, inDuplicate)),
+			   (UINT32)(offsetof(Rewrap_In, name)),
+			   (UINT32)(offsetof(Rewrap_In, inSymSeed)),
+			   (UINT32)(offsetof(Rewrap_Out, outSymSeed))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_PRIVATE_P_UNMARSHAL,
@@ -1009,22 +1005,22 @@ typedef TPM_RC  (Import_Entry)(
 			       );
 typedef const struct {
     Import_Entry    *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[5];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[5];
     BYTE            types[9];
 } Import_COMMAND_DESCRIPTOR_t;
 Import_COMMAND_DESCRIPTOR_t _ImportData = {
     /* entry  */          &TPM2_Import,
-    /* inSize */          (UINT16)(sizeof(Import_In)),
-    /* outSize */         (UINT16)(sizeof(Import_Out)),
+    /* inSize */          (UINT32)(sizeof(Import_In)),
+    /* outSize */         (UINT32)(sizeof(Import_Out)),
     /* offsetOfTypes */   offsetof(Import_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Import_In, encryptionKey)),
-			   (UINT16)(offsetof(Import_In, objectPublic)),
-			   (UINT16)(offsetof(Import_In, duplicate)),
-			   (UINT16)(offsetof(Import_In, inSymSeed)),
-			   (UINT16)(offsetof(Import_In, symmetricAlg))},
+    /* offsets */         {(UINT32)(offsetof(Import_In, encryptionKey)),
+			   (UINT32)(offsetof(Import_In, objectPublic)),
+			   (UINT32)(offsetof(Import_In, duplicate)),
+			   (UINT32)(offsetof(Import_In, inSymSeed)),
+			   (UINT32)(offsetof(Import_In, symmetricAlg))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DATA_P_UNMARSHAL,
 			   TPM2B_PUBLIC_P_UNMARSHAL,
@@ -1047,20 +1043,20 @@ typedef TPM_RC  (RSA_Encrypt_Entry)(
 				    );
 typedef const struct {
     RSA_Encrypt_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[3];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[3];
     BYTE                 types[7];
 } RSA_Encrypt_COMMAND_DESCRIPTOR_t;
 RSA_Encrypt_COMMAND_DESCRIPTOR_t _RSA_EncryptData = {
     /* entry  */          &TPM2_RSA_Encrypt,
-    /* inSize */          (UINT16)(sizeof(RSA_Encrypt_In)),
-    /* outSize */         (UINT16)(sizeof(RSA_Encrypt_Out)),
+    /* inSize */          (UINT32)(sizeof(RSA_Encrypt_In)),
+    /* outSize */         (UINT32)(sizeof(RSA_Encrypt_Out)),
     /* offsetOfTypes */   offsetof(RSA_Encrypt_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(RSA_Encrypt_In, message)),
-			   (UINT16)(offsetof(RSA_Encrypt_In, inScheme)),
-			   (UINT16)(offsetof(RSA_Encrypt_In, label))},
+    /* offsets */         {(UINT32)(offsetof(RSA_Encrypt_In, message)),
+			   (UINT32)(offsetof(RSA_Encrypt_In, inScheme)),
+			   (UINT32)(offsetof(RSA_Encrypt_In, label))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_PUBLIC_KEY_RSA_P_UNMARSHAL,
 			   TPMT_RSA_DECRYPT_P_UNMARSHAL + ADD_FLAG,
@@ -1081,20 +1077,20 @@ typedef TPM_RC  (RSA_Decrypt_Entry)(
 				    );
 typedef const struct {
     RSA_Decrypt_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[3];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[3];
     BYTE                 types[7];
 } RSA_Decrypt_COMMAND_DESCRIPTOR_t;
 RSA_Decrypt_COMMAND_DESCRIPTOR_t _RSA_DecryptData = {
     /* entry  */          &TPM2_RSA_Decrypt,
-    /* inSize */          (UINT16)(sizeof(RSA_Decrypt_In)),
-    /* outSize */         (UINT16)(sizeof(RSA_Decrypt_Out)),
+    /* inSize */          (UINT32)(sizeof(RSA_Decrypt_In)),
+    /* outSize */         (UINT32)(sizeof(RSA_Decrypt_Out)),
     /* offsetOfTypes */   offsetof(RSA_Decrypt_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(RSA_Decrypt_In, cipherText)),
-			   (UINT16)(offsetof(RSA_Decrypt_In, inScheme)),
-			   (UINT16)(offsetof(RSA_Decrypt_In, label))},
+    /* offsets */         {(UINT32)(offsetof(RSA_Decrypt_In, cipherText)),
+			   (UINT32)(offsetof(RSA_Decrypt_In, inScheme)),
+			   (UINT32)(offsetof(RSA_Decrypt_In, label))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_PUBLIC_KEY_RSA_P_UNMARSHAL,
 			   TPMT_RSA_DECRYPT_P_UNMARSHAL + ADD_FLAG,
@@ -1115,18 +1111,18 @@ typedef TPM_RC  (ECDH_KeyGen_Entry)(
 				    );
 typedef const struct {
     ECDH_KeyGen_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[1];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
     BYTE                 types[5];
 } ECDH_KeyGen_COMMAND_DESCRIPTOR_t;
 ECDH_KeyGen_COMMAND_DESCRIPTOR_t _ECDH_KeyGenData = {
     /* entry  */          &TPM2_ECDH_KeyGen,
-    /* inSize */          (UINT16)(sizeof(ECDH_KeyGen_In)),
-    /* outSize */         (UINT16)(sizeof(ECDH_KeyGen_Out)),
+    /* inSize */          (UINT32)(sizeof(ECDH_KeyGen_In)),
+    /* outSize */         (UINT32)(sizeof(ECDH_KeyGen_Out)),
     /* offsetOfTypes */   offsetof(ECDH_KeyGen_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ECDH_KeyGen_Out, pubPoint))},
+    /* offsets */         {(UINT32)(offsetof(ECDH_KeyGen_Out, pubPoint))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   END_OF_LIST,
 			   TPM2B_ECC_POINT_P_MARSHAL,
@@ -1145,18 +1141,18 @@ typedef TPM_RC  (ECDH_ZGen_Entry)(
 				  );
 typedef const struct {
     ECDH_ZGen_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[1];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[1];
     BYTE               types[5];
 } ECDH_ZGen_COMMAND_DESCRIPTOR_t;
 ECDH_ZGen_COMMAND_DESCRIPTOR_t _ECDH_ZGenData = {
     /* entry  */          &TPM2_ECDH_ZGen,
-    /* inSize */          (UINT16)(sizeof(ECDH_ZGen_In)),
-    /* outSize */         (UINT16)(sizeof(ECDH_ZGen_Out)),
+    /* inSize */          (UINT32)(sizeof(ECDH_ZGen_In)),
+    /* outSize */         (UINT32)(sizeof(ECDH_ZGen_Out)),
     /* offsetOfTypes */   offsetof(ECDH_ZGen_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ECDH_ZGen_In, inPoint))},
+    /* offsets */         {(UINT32)(offsetof(ECDH_ZGen_In, inPoint))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_ECC_POINT_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -1175,15 +1171,15 @@ typedef TPM_RC  (ECC_Parameters_Entry)(
 				       );
 typedef const struct {
     ECC_Parameters_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
     BYTE                    types[4];
 } ECC_Parameters_COMMAND_DESCRIPTOR_t;
 ECC_Parameters_COMMAND_DESCRIPTOR_t _ECC_ParametersData = {
     /* entry  */          &TPM2_ECC_Parameters,
-    /* inSize */          (UINT16)(sizeof(ECC_Parameters_In)),
-    /* outSize */         (UINT16)(sizeof(ECC_Parameters_Out)),
+    /* inSize */          (UINT32)(sizeof(ECC_Parameters_In)),
+    /* outSize */         (UINT32)(sizeof(ECC_Parameters_Out)),
     /* offsetOfTypes */   offsetof(ECC_Parameters_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPMI_ECC_CURVE_P_UNMARSHAL,
@@ -1203,22 +1199,22 @@ typedef TPM_RC  (ZGen_2Phase_Entry)(
 				    );
 typedef const struct {
     ZGen_2Phase_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[5];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[5];
     BYTE                 types[9];
 } ZGen_2Phase_COMMAND_DESCRIPTOR_t;
 ZGen_2Phase_COMMAND_DESCRIPTOR_t _ZGen_2PhaseData = {
     /* entry  */          &TPM2_ZGen_2Phase,
-    /* inSize */          (UINT16)(sizeof(ZGen_2Phase_In)),
-    /* outSize */         (UINT16)(sizeof(ZGen_2Phase_Out)),
+    /* inSize */          (UINT32)(sizeof(ZGen_2Phase_In)),
+    /* outSize */         (UINT32)(sizeof(ZGen_2Phase_Out)),
     /* offsetOfTypes */   offsetof(ZGen_2Phase_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ZGen_2Phase_In, inQsB)),
-			   (UINT16)(offsetof(ZGen_2Phase_In, inQeB)),
-			   (UINT16)(offsetof(ZGen_2Phase_In, inScheme)),
-			   (UINT16)(offsetof(ZGen_2Phase_In, counter)),
-			   (UINT16)(offsetof(ZGen_2Phase_Out, outZ2))},
+    /* offsets */         {(UINT32)(offsetof(ZGen_2Phase_In, inQsB)),
+			   (UINT32)(offsetof(ZGen_2Phase_In, inQeB)),
+			   (UINT32)(offsetof(ZGen_2Phase_In, inScheme)),
+			   (UINT32)(offsetof(ZGen_2Phase_In, counter)),
+			   (UINT32)(offsetof(ZGen_2Phase_Out, outZ2))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_ECC_POINT_P_UNMARSHAL,
 			   TPM2B_ECC_POINT_P_UNMARSHAL,
@@ -1241,22 +1237,22 @@ typedef TPM_RC  (EncryptDecrypt_Entry)(
 				       );
 typedef const struct {
     EncryptDecrypt_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[5];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[5];
     BYTE                    types[9];
 } EncryptDecrypt_COMMAND_DESCRIPTOR_t;
 EncryptDecrypt_COMMAND_DESCRIPTOR_t _EncryptDecryptData = {
     /* entry  */          &TPM2_EncryptDecrypt,
-    /* inSize */          (UINT16)(sizeof(EncryptDecrypt_In)),
-    /* outSize */         (UINT16)(sizeof(EncryptDecrypt_Out)),
+    /* inSize */          (UINT32)(sizeof(EncryptDecrypt_In)),
+    /* outSize */         (UINT32)(sizeof(EncryptDecrypt_Out)),
     /* offsetOfTypes */   offsetof(EncryptDecrypt_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(EncryptDecrypt_In, decrypt)),
-			   (UINT16)(offsetof(EncryptDecrypt_In, mode)),
-			   (UINT16)(offsetof(EncryptDecrypt_In, ivIn)),
-			   (UINT16)(offsetof(EncryptDecrypt_In, inData)),
-			   (UINT16)(offsetof(EncryptDecrypt_Out, ivOut))},
+    /* offsets */         {(UINT32)(offsetof(EncryptDecrypt_In, decrypt)),
+			   (UINT32)(offsetof(EncryptDecrypt_In, mode)),
+			   (UINT32)(offsetof(EncryptDecrypt_In, ivIn)),
+			   (UINT32)(offsetof(EncryptDecrypt_In, inData)),
+			   (UINT32)(offsetof(EncryptDecrypt_Out, ivOut))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_YES_NO_P_UNMARSHAL,
 			   TPMI_ALG_CIPHER_MODE_P_UNMARSHAL + ADD_FLAG,
@@ -1279,22 +1275,22 @@ typedef TPM_RC  (EncryptDecrypt2_Entry)(
 					);
 typedef const struct {
     EncryptDecrypt2_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[5];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[5];
     BYTE                     types[9];
 } EncryptDecrypt2_COMMAND_DESCRIPTOR_t;
 EncryptDecrypt2_COMMAND_DESCRIPTOR_t _EncryptDecrypt2Data = {
     /* entry  */          &TPM2_EncryptDecrypt2,
-    /* inSize */          (UINT16)(sizeof(EncryptDecrypt2_In)),
-    /* outSize */         (UINT16)(sizeof(EncryptDecrypt2_Out)),
+    /* inSize */          (UINT32)(sizeof(EncryptDecrypt2_In)),
+    /* outSize */         (UINT32)(sizeof(EncryptDecrypt2_Out)),
     /* offsetOfTypes */   offsetof(EncryptDecrypt2_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(EncryptDecrypt2_In, inData)),
-			   (UINT16)(offsetof(EncryptDecrypt2_In, decrypt)),
-			   (UINT16)(offsetof(EncryptDecrypt2_In, mode)),
-			   (UINT16)(offsetof(EncryptDecrypt2_In, ivIn)),
-			   (UINT16)(offsetof(EncryptDecrypt2_Out, ivOut))},
+    /* offsets */         {(UINT32)(offsetof(EncryptDecrypt2_In, inData)),
+			   (UINT32)(offsetof(EncryptDecrypt2_In, decrypt)),
+			   (UINT32)(offsetof(EncryptDecrypt2_In, mode)),
+			   (UINT32)(offsetof(EncryptDecrypt2_In, ivIn)),
+			   (UINT32)(offsetof(EncryptDecrypt2_Out, ivOut))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   TPMI_YES_NO_P_UNMARSHAL,
@@ -1317,20 +1313,20 @@ typedef TPM_RC  (Hash_Entry)(
 			     );
 typedef const struct {
     Hash_Entry    *entry;
-    UINT16        inSize;
-    UINT16        outSize;
-    UINT16        offsetOfTypes;
-    UINT16        paramOffsets[3];
+    UINT32        inSize;
+    UINT32        outSize;
+    UINT32        offsetOfTypes;
+    UINT32        paramOffsets[3];
     BYTE          types[7];
 } Hash_COMMAND_DESCRIPTOR_t;
 Hash_COMMAND_DESCRIPTOR_t _HashData = {
     /* entry  */          &TPM2_Hash,
-    /* inSize */          (UINT16)(sizeof(Hash_In)),
-    /* outSize */         (UINT16)(sizeof(Hash_Out)),
+    /* inSize */          (UINT32)(sizeof(Hash_In)),
+    /* outSize */         (UINT32)(sizeof(Hash_Out)),
     /* offsetOfTypes */   offsetof(Hash_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Hash_In, hashAlg)),
-			   (UINT16)(offsetof(Hash_In, hierarchy)),
-			   (UINT16)(offsetof(Hash_Out, validation))},
+    /* offsets */         {(UINT32)(offsetof(Hash_In, hashAlg)),
+			   (UINT32)(offsetof(Hash_In, hierarchy)),
+			   (UINT32)(offsetof(Hash_Out, validation))},
     /* types */           {TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL,
 			   TPMI_RH_HIERARCHY_P_UNMARSHAL + ADD_FLAG,
@@ -1351,19 +1347,19 @@ typedef TPM_RC  (HMAC_Entry)(
 			     );
 typedef const struct {
     HMAC_Entry    *entry;
-    UINT16        inSize;
-    UINT16        outSize;
-    UINT16        offsetOfTypes;
-    UINT16        paramOffsets[2];
+    UINT32        inSize;
+    UINT32        outSize;
+    UINT32        offsetOfTypes;
+    UINT32        paramOffsets[2];
     BYTE          types[6];
 } HMAC_COMMAND_DESCRIPTOR_t;
 HMAC_COMMAND_DESCRIPTOR_t _HMACData = {
     /* entry  */          &TPM2_HMAC,
-    /* inSize */          (UINT16)(sizeof(HMAC_In)),
-    /* outSize */         (UINT16)(sizeof(HMAC_Out)),
+    /* inSize */          (UINT32)(sizeof(HMAC_In)),
+    /* outSize */         (UINT32)(sizeof(HMAC_Out)),
     /* offsetOfTypes */   offsetof(HMAC_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(HMAC_In, buffer)),
-			   (UINT16)(offsetof(HMAC_In, hashAlg))},
+    /* offsets */         {(UINT32)(offsetof(HMAC_In, buffer)),
+			   (UINT32)(offsetof(HMAC_In, hashAlg))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
@@ -1383,19 +1379,19 @@ typedef TPM_RC  (MAC_Entry)(
 			    );
 typedef const struct {
     MAC_Entry    *entry;
-    UINT16       inSize;
-    UINT16       outSize;
-    UINT16       offsetOfTypes;
-    UINT16       paramOffsets[2];
+    UINT32       inSize;
+    UINT32       outSize;
+    UINT32       offsetOfTypes;
+    UINT32       paramOffsets[2];
     BYTE         types[6];
 } MAC_COMMAND_DESCRIPTOR_t;
 MAC_COMMAND_DESCRIPTOR_t _MACData = {
     /* entry  */          &TPM2_MAC,
-    /* inSize */          (UINT16)(sizeof(MAC_In)),
-    /* outSize */         (UINT16)(sizeof(MAC_Out)),
+    /* inSize */          (UINT32)(sizeof(MAC_In)),
+    /* outSize */         (UINT32)(sizeof(MAC_Out)),
     /* offsetOfTypes */   offsetof(MAC_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(MAC_In, buffer)),
-			   (UINT16)(offsetof(MAC_In, inScheme))},
+    /* offsets */         {(UINT32)(offsetof(MAC_In, buffer)),
+			   (UINT32)(offsetof(MAC_In, inScheme))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   TPMI_ALG_MAC_SCHEME_P_UNMARSHAL + ADD_FLAG,
@@ -1415,15 +1411,15 @@ typedef TPM_RC  (GetRandom_Entry)(
 				  );
 typedef const struct {
     GetRandom_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[4];
 } GetRandom_COMMAND_DESCRIPTOR_t;
 GetRandom_COMMAND_DESCRIPTOR_t _GetRandomData = {
     /* entry  */          &TPM2_GetRandom,
-    /* inSize */          (UINT16)(sizeof(GetRandom_In)),
-    /* outSize */         (UINT16)(sizeof(GetRandom_Out)),
+    /* inSize */          (UINT32)(sizeof(GetRandom_In)),
+    /* outSize */         (UINT32)(sizeof(GetRandom_Out)),
     /* offsetOfTypes */   offsetof(GetRandom_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {UINT16_P_UNMARSHAL,
@@ -1442,14 +1438,14 @@ typedef TPM_RC  (StirRandom_Entry)(
 				   );
 typedef const struct {
     StirRandom_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
     BYTE                types[3];
 } StirRandom_COMMAND_DESCRIPTOR_t;
 StirRandom_COMMAND_DESCRIPTOR_t _StirRandomData = {
     /* entry  */          &TPM2_StirRandom,
-    /* inSize */          (UINT16)(sizeof(StirRandom_In)),
+    /* inSize */          (UINT32)(sizeof(StirRandom_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(StirRandom_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -1469,19 +1465,19 @@ typedef TPM_RC  (HMAC_Start_Entry)(
 				   );
 typedef const struct {
     HMAC_Start_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
-    UINT16              paramOffsets[2];
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
+    UINT32              paramOffsets[2];
     BYTE                types[6];
 } HMAC_Start_COMMAND_DESCRIPTOR_t;
 HMAC_Start_COMMAND_DESCRIPTOR_t _HMAC_StartData = {
     /* entry  */          &TPM2_HMAC_Start,
-    /* inSize */          (UINT16)(sizeof(HMAC_Start_In)),
-    /* outSize */         (UINT16)(sizeof(HMAC_Start_Out)),
+    /* inSize */          (UINT32)(sizeof(HMAC_Start_In)),
+    /* outSize */         (UINT32)(sizeof(HMAC_Start_Out)),
     /* offsetOfTypes */   offsetof(HMAC_Start_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(HMAC_Start_In, auth)),
-			   (UINT16)(offsetof(HMAC_Start_In, hashAlg))},
+    /* offsets */         {(UINT32)(offsetof(HMAC_Start_In, auth)),
+			   (UINT32)(offsetof(HMAC_Start_In, hashAlg))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
@@ -1501,19 +1497,19 @@ typedef TPM_RC  (MAC_Start_Entry)(
 				  );
 typedef const struct {
     MAC_Start_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[2];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[2];
     BYTE               types[6];
 } MAC_Start_COMMAND_DESCRIPTOR_t;
 MAC_Start_COMMAND_DESCRIPTOR_t _MAC_StartData = {
     /* entry  */          &TPM2_MAC_Start,
-    /* inSize */          (UINT16)(sizeof(MAC_Start_In)),
-    /* outSize */         (UINT16)(sizeof(MAC_Start_Out)),
+    /* inSize */          (UINT32)(sizeof(MAC_Start_In)),
+    /* outSize */         (UINT32)(sizeof(MAC_Start_Out)),
     /* offsetOfTypes */   offsetof(MAC_Start_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(MAC_Start_In, auth)),
-			   (UINT16)(offsetof(MAC_Start_In, inScheme))},
+    /* offsets */         {(UINT32)(offsetof(MAC_Start_In, auth)),
+			   (UINT32)(offsetof(MAC_Start_In, inScheme))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
 			   TPMI_ALG_MAC_SCHEME_P_UNMARSHAL + ADD_FLAG,
@@ -1533,18 +1529,18 @@ typedef TPM_RC  (HashSequenceStart_Entry)(
 					  );
 typedef const struct {
     HashSequenceStart_Entry    *entry;
-    UINT16                     inSize;
-    UINT16                     outSize;
-    UINT16                     offsetOfTypes;
-    UINT16                     paramOffsets[1];
+    UINT32                     inSize;
+    UINT32                     outSize;
+    UINT32                     offsetOfTypes;
+    UINT32                     paramOffsets[1];
     BYTE                       types[5];
 } HashSequenceStart_COMMAND_DESCRIPTOR_t;
 HashSequenceStart_COMMAND_DESCRIPTOR_t _HashSequenceStartData = {
     /* entry  */          &TPM2_HashSequenceStart,
-    /* inSize */          (UINT16)(sizeof(HashSequenceStart_In)),
-    /* outSize */         (UINT16)(sizeof(HashSequenceStart_Out)),
+    /* inSize */          (UINT32)(sizeof(HashSequenceStart_In)),
+    /* outSize */         (UINT32)(sizeof(HashSequenceStart_Out)),
     /* offsetOfTypes */   offsetof(HashSequenceStart_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(HashSequenceStart_In, hashAlg))},
+    /* offsets */         {(UINT32)(offsetof(HashSequenceStart_In, hashAlg))},
     /* types */           {TPM2B_AUTH_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
 			   END_OF_LIST,
@@ -1562,18 +1558,18 @@ typedef TPM_RC  (SequenceUpdate_Entry)(
 				       );
 typedef const struct {
     SequenceUpdate_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[1];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[1];
     BYTE                    types[4];
 } SequenceUpdate_COMMAND_DESCRIPTOR_t;
 SequenceUpdate_COMMAND_DESCRIPTOR_t _SequenceUpdateData = {
     /* entry  */          &TPM2_SequenceUpdate,
-    /* inSize */          (UINT16)(sizeof(SequenceUpdate_In)),
+    /* inSize */          (UINT32)(sizeof(SequenceUpdate_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(SequenceUpdate_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(SequenceUpdate_In, buffer))},
+    /* offsets */         {(UINT32)(offsetof(SequenceUpdate_In, buffer))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -1591,20 +1587,20 @@ typedef TPM_RC  (SequenceComplete_Entry)(
 					 );
 typedef const struct {
     SequenceComplete_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[3];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[3];
     BYTE                      types[7];
 } SequenceComplete_COMMAND_DESCRIPTOR_t;
 SequenceComplete_COMMAND_DESCRIPTOR_t _SequenceCompleteData = {
     /* entry  */          &TPM2_SequenceComplete,
-    /* inSize */          (UINT16)(sizeof(SequenceComplete_In)),
-    /* outSize */         (UINT16)(sizeof(SequenceComplete_Out)),
+    /* inSize */          (UINT32)(sizeof(SequenceComplete_In)),
+    /* outSize */         (UINT32)(sizeof(SequenceComplete_Out)),
     /* offsetOfTypes */   offsetof(SequenceComplete_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(SequenceComplete_In, buffer)),
-			   (UINT16)(offsetof(SequenceComplete_In, hierarchy)),
-			   (UINT16)(offsetof(SequenceComplete_Out, validation))},
+    /* offsets */         {(UINT32)(offsetof(SequenceComplete_In, buffer)),
+			   (UINT32)(offsetof(SequenceComplete_In, hierarchy)),
+			   (UINT32)(offsetof(SequenceComplete_Out, validation))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   TPMI_RH_HIERARCHY_P_UNMARSHAL + ADD_FLAG,
@@ -1625,19 +1621,19 @@ typedef TPM_RC  (EventSequenceComplete_Entry)(
 					      );
 typedef const struct {
     EventSequenceComplete_Entry    *entry;
-    UINT16                         inSize;
-    UINT16                         outSize;
-    UINT16                         offsetOfTypes;
-    UINT16                         paramOffsets[2];
+    UINT32                         inSize;
+    UINT32                         outSize;
+    UINT32                         offsetOfTypes;
+    UINT32                         paramOffsets[2];
     BYTE                           types[6];
 } EventSequenceComplete_COMMAND_DESCRIPTOR_t;
 EventSequenceComplete_COMMAND_DESCRIPTOR_t _EventSequenceCompleteData = {
     /* entry  */          &TPM2_EventSequenceComplete,
-    /* inSize */          (UINT16)(sizeof(EventSequenceComplete_In)),
-    /* outSize */         (UINT16)(sizeof(EventSequenceComplete_Out)),
+    /* inSize */          (UINT32)(sizeof(EventSequenceComplete_In)),
+    /* outSize */         (UINT32)(sizeof(EventSequenceComplete_Out)),
     /* offsetOfTypes */   offsetof(EventSequenceComplete_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(EventSequenceComplete_In, sequenceHandle)),
-			   (UINT16)(offsetof(EventSequenceComplete_In, buffer))},
+    /* offsets */         {(UINT32)(offsetof(EventSequenceComplete_In, sequenceHandle)),
+			   (UINT32)(offsetof(EventSequenceComplete_In, buffer))},
     /* types */           {TPMI_DH_PCR_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
@@ -1657,21 +1653,21 @@ typedef TPM_RC  (Certify_Entry)(
 				);
 typedef const struct {
     Certify_Entry    *entry;
-    UINT16           inSize;
-    UINT16           outSize;
-    UINT16           offsetOfTypes;
-    UINT16           paramOffsets[4];
+    UINT32           inSize;
+    UINT32           outSize;
+    UINT32           offsetOfTypes;
+    UINT32           paramOffsets[4];
     BYTE             types[8];
 } Certify_COMMAND_DESCRIPTOR_t;
 Certify_COMMAND_DESCRIPTOR_t _CertifyData = {
     /* entry  */          &TPM2_Certify,
-    /* inSize */          (UINT16)(sizeof(Certify_In)),
-    /* outSize */         (UINT16)(sizeof(Certify_Out)),
+    /* inSize */          (UINT32)(sizeof(Certify_In)),
+    /* outSize */         (UINT32)(sizeof(Certify_Out)),
     /* offsetOfTypes */   offsetof(Certify_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Certify_In, signHandle)),
-			   (UINT16)(offsetof(Certify_In, qualifyingData)),
-			   (UINT16)(offsetof(Certify_In, inScheme)),
-			   (UINT16)(offsetof(Certify_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(Certify_In, signHandle)),
+			   (UINT32)(offsetof(Certify_In, qualifyingData)),
+			   (UINT32)(offsetof(Certify_In, inScheme)),
+			   (UINT32)(offsetof(Certify_Out, signature))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_DATA_P_UNMARSHAL,
@@ -1693,23 +1689,23 @@ typedef TPM_RC  (CertifyCreation_Entry)(
 					);
 typedef const struct {
     CertifyCreation_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[6];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[6];
     BYTE                     types[10];
 } CertifyCreation_COMMAND_DESCRIPTOR_t;
 CertifyCreation_COMMAND_DESCRIPTOR_t _CertifyCreationData = {
     /* entry  */          &TPM2_CertifyCreation,
-    /* inSize */          (UINT16)(sizeof(CertifyCreation_In)),
-    /* outSize */         (UINT16)(sizeof(CertifyCreation_Out)),
+    /* inSize */          (UINT32)(sizeof(CertifyCreation_In)),
+    /* outSize */         (UINT32)(sizeof(CertifyCreation_Out)),
     /* offsetOfTypes */   offsetof(CertifyCreation_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(CertifyCreation_In, objectHandle)),
-			   (UINT16)(offsetof(CertifyCreation_In, qualifyingData)),
-			   (UINT16)(offsetof(CertifyCreation_In, creationHash)),
-			   (UINT16)(offsetof(CertifyCreation_In, inScheme)),
-			   (UINT16)(offsetof(CertifyCreation_In, creationTicket)),
-			   (UINT16)(offsetof(CertifyCreation_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(CertifyCreation_In, objectHandle)),
+			   (UINT32)(offsetof(CertifyCreation_In, qualifyingData)),
+			   (UINT32)(offsetof(CertifyCreation_In, creationHash)),
+			   (UINT32)(offsetof(CertifyCreation_In, inScheme)),
+			   (UINT32)(offsetof(CertifyCreation_In, creationTicket)),
+			   (UINT32)(offsetof(CertifyCreation_Out, signature))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DATA_P_UNMARSHAL,
@@ -1733,21 +1729,21 @@ typedef TPM_RC  (Quote_Entry)(
 			      );
 typedef const struct {
     Quote_Entry    *entry;
-    UINT16         inSize;
-    UINT16         outSize;
-    UINT16         offsetOfTypes;
-    UINT16         paramOffsets[4];
+    UINT32         inSize;
+    UINT32         outSize;
+    UINT32         offsetOfTypes;
+    UINT32         paramOffsets[4];
     BYTE           types[8];
 } Quote_COMMAND_DESCRIPTOR_t;
 Quote_COMMAND_DESCRIPTOR_t _QuoteData = {
     /* entry  */          &TPM2_Quote,
-    /* inSize */          (UINT16)(sizeof(Quote_In)),
-    /* outSize */         (UINT16)(sizeof(Quote_Out)),
+    /* inSize */          (UINT32)(sizeof(Quote_In)),
+    /* outSize */         (UINT32)(sizeof(Quote_Out)),
     /* offsetOfTypes */   offsetof(Quote_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Quote_In, qualifyingData)),
-			   (UINT16)(offsetof(Quote_In, inScheme)),
-			   (UINT16)(offsetof(Quote_In, PCRselect)),
-			   (UINT16)(offsetof(Quote_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(Quote_In, qualifyingData)),
+			   (UINT32)(offsetof(Quote_In, inScheme)),
+			   (UINT32)(offsetof(Quote_In, PCRselect)),
+			   (UINT32)(offsetof(Quote_Out, signature))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_DATA_P_UNMARSHAL,
 			   TPMT_SIG_SCHEME_P_UNMARSHAL + ADD_FLAG,
@@ -1769,22 +1765,22 @@ typedef TPM_RC  (GetSessionAuditDigest_Entry)(
 					      );
 typedef const struct {
     GetSessionAuditDigest_Entry    *entry;
-    UINT16                         inSize;
-    UINT16                         outSize;
-    UINT16                         offsetOfTypes;
-    UINT16                         paramOffsets[5];
+    UINT32                         inSize;
+    UINT32                         outSize;
+    UINT32                         offsetOfTypes;
+    UINT32                         paramOffsets[5];
     BYTE                           types[9];
 } GetSessionAuditDigest_COMMAND_DESCRIPTOR_t;
 GetSessionAuditDigest_COMMAND_DESCRIPTOR_t _GetSessionAuditDigestData = {
     /* entry  */          &TPM2_GetSessionAuditDigest,
-    /* inSize */          (UINT16)(sizeof(GetSessionAuditDigest_In)),
-    /* outSize */         (UINT16)(sizeof(GetSessionAuditDigest_Out)),
+    /* inSize */          (UINT32)(sizeof(GetSessionAuditDigest_In)),
+    /* outSize */         (UINT32)(sizeof(GetSessionAuditDigest_Out)),
     /* offsetOfTypes */   offsetof(GetSessionAuditDigest_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(GetSessionAuditDigest_In, signHandle)),
-			   (UINT16)(offsetof(GetSessionAuditDigest_In, sessionHandle)),
-			   (UINT16)(offsetof(GetSessionAuditDigest_In, qualifyingData)),
-			   (UINT16)(offsetof(GetSessionAuditDigest_In, inScheme)),
-			   (UINT16)(offsetof(GetSessionAuditDigest_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(GetSessionAuditDigest_In, signHandle)),
+			   (UINT32)(offsetof(GetSessionAuditDigest_In, sessionHandle)),
+			   (UINT32)(offsetof(GetSessionAuditDigest_In, qualifyingData)),
+			   (UINT32)(offsetof(GetSessionAuditDigest_In, inScheme)),
+			   (UINT32)(offsetof(GetSessionAuditDigest_Out, signature))},
     /* types */           {TPMI_RH_ENDORSEMENT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_SH_HMAC_H_UNMARSHAL,
@@ -1807,21 +1803,21 @@ typedef TPM_RC  (GetCommandAuditDigest_Entry)(
 					      );
 typedef const struct {
     GetCommandAuditDigest_Entry    *entry;
-    UINT16                         inSize;
-    UINT16                         outSize;
-    UINT16                         offsetOfTypes;
-    UINT16                         paramOffsets[4];
+    UINT32                         inSize;
+    UINT32                         outSize;
+    UINT32                         offsetOfTypes;
+    UINT32                         paramOffsets[4];
     BYTE                           types[8];
 } GetCommandAuditDigest_COMMAND_DESCRIPTOR_t;
 GetCommandAuditDigest_COMMAND_DESCRIPTOR_t _GetCommandAuditDigestData = {
     /* entry  */          &TPM2_GetCommandAuditDigest,
-    /* inSize */          (UINT16)(sizeof(GetCommandAuditDigest_In)),
-    /* outSize */         (UINT16)(sizeof(GetCommandAuditDigest_Out)),
+    /* inSize */          (UINT32)(sizeof(GetCommandAuditDigest_In)),
+    /* outSize */         (UINT32)(sizeof(GetCommandAuditDigest_Out)),
     /* offsetOfTypes */   offsetof(GetCommandAuditDigest_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(GetCommandAuditDigest_In, signHandle)),
-			   (UINT16)(offsetof(GetCommandAuditDigest_In, qualifyingData)),
-			   (UINT16)(offsetof(GetCommandAuditDigest_In, inScheme)),
-			   (UINT16)(offsetof(GetCommandAuditDigest_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(GetCommandAuditDigest_In, signHandle)),
+			   (UINT32)(offsetof(GetCommandAuditDigest_In, qualifyingData)),
+			   (UINT32)(offsetof(GetCommandAuditDigest_In, inScheme)),
+			   (UINT32)(offsetof(GetCommandAuditDigest_Out, signature))},
     /* types */           {TPMI_RH_ENDORSEMENT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_DATA_P_UNMARSHAL,
@@ -1843,21 +1839,21 @@ typedef TPM_RC  (GetTime_Entry)(
 				);
 typedef const struct {
     GetTime_Entry    *entry;
-    UINT16           inSize;
-    UINT16           outSize;
-    UINT16           offsetOfTypes;
-    UINT16           paramOffsets[4];
+    UINT32           inSize;
+    UINT32           outSize;
+    UINT32           offsetOfTypes;
+    UINT32           paramOffsets[4];
     BYTE             types[8];
 } GetTime_COMMAND_DESCRIPTOR_t;
 GetTime_COMMAND_DESCRIPTOR_t _GetTimeData = {
     /* entry  */          &TPM2_GetTime,
-    /* inSize */          (UINT16)(sizeof(GetTime_In)),
-    /* outSize */         (UINT16)(sizeof(GetTime_Out)),
+    /* inSize */          (UINT32)(sizeof(GetTime_In)),
+    /* outSize */         (UINT32)(sizeof(GetTime_Out)),
     /* offsetOfTypes */   offsetof(GetTime_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(GetTime_In, signHandle)),
-			   (UINT16)(offsetof(GetTime_In, qualifyingData)),
-			   (UINT16)(offsetof(GetTime_In, inScheme)),
-			   (UINT16)(offsetof(GetTime_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(GetTime_In, signHandle)),
+			   (UINT32)(offsetof(GetTime_In, qualifyingData)),
+			   (UINT32)(offsetof(GetTime_In, inScheme)),
+			   (UINT32)(offsetof(GetTime_Out, signature))},
     /* types */           {TPMI_RH_ENDORSEMENT_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_DATA_P_UNMARSHAL,
@@ -1879,23 +1875,23 @@ typedef TPM_RC  (Commit_Entry)(
 			       );
 typedef const struct {
     Commit_Entry    *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[6];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[6];
     BYTE            types[10];
 } Commit_COMMAND_DESCRIPTOR_t;
 Commit_COMMAND_DESCRIPTOR_t _CommitData = {
     /* entry  */          &TPM2_Commit,
-    /* inSize */          (UINT16)(sizeof(Commit_In)),
-    /* outSize */         (UINT16)(sizeof(Commit_Out)),
+    /* inSize */          (UINT32)(sizeof(Commit_In)),
+    /* outSize */         (UINT32)(sizeof(Commit_Out)),
     /* offsetOfTypes */   offsetof(Commit_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Commit_In, P1)),
-			   (UINT16)(offsetof(Commit_In, s2)),
-			   (UINT16)(offsetof(Commit_In, y2)),
-			   (UINT16)(offsetof(Commit_Out, L)),
-			   (UINT16)(offsetof(Commit_Out, E)),
-			   (UINT16)(offsetof(Commit_Out, counter))},
+    /* offsets */         {(UINT32)(offsetof(Commit_In, P1)),
+			   (UINT32)(offsetof(Commit_In, s2)),
+			   (UINT32)(offsetof(Commit_In, y2)),
+			   (UINT32)(offsetof(Commit_Out, L)),
+			   (UINT32)(offsetof(Commit_Out, E)),
+			   (UINT32)(offsetof(Commit_Out, counter))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_ECC_POINT_P_UNMARSHAL,
 			   TPM2B_SENSITIVE_DATA_P_UNMARSHAL,
@@ -1919,18 +1915,18 @@ typedef TPM_RC  (EC_Ephemeral_Entry)(
 				     );
 typedef const struct {
     EC_Ephemeral_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[1];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[1];
     BYTE                  types[5];
 } EC_Ephemeral_COMMAND_DESCRIPTOR_t;
 EC_Ephemeral_COMMAND_DESCRIPTOR_t _EC_EphemeralData = {
     /* entry  */          &TPM2_EC_Ephemeral,
-    /* inSize */          (UINT16)(sizeof(EC_Ephemeral_In)),
-    /* outSize */         (UINT16)(sizeof(EC_Ephemeral_Out)),
+    /* inSize */          (UINT32)(sizeof(EC_Ephemeral_In)),
+    /* outSize */         (UINT32)(sizeof(EC_Ephemeral_Out)),
     /* offsetOfTypes */   offsetof(EC_Ephemeral_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(EC_Ephemeral_Out, counter))},
+    /* offsets */         {(UINT32)(offsetof(EC_Ephemeral_Out, counter))},
     /* types */           {TPMI_ECC_CURVE_P_UNMARSHAL,
 			   END_OF_LIST,
 			   TPM2B_ECC_POINT_P_MARSHAL,
@@ -1949,19 +1945,19 @@ typedef TPM_RC  (VerifySignature_Entry)(
 					);
 typedef const struct {
     VerifySignature_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[2];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[2];
     BYTE                     types[6];
 } VerifySignature_COMMAND_DESCRIPTOR_t;
 VerifySignature_COMMAND_DESCRIPTOR_t _VerifySignatureData = {
     /* entry  */          &TPM2_VerifySignature,
-    /* inSize */          (UINT16)(sizeof(VerifySignature_In)),
-    /* outSize */         (UINT16)(sizeof(VerifySignature_Out)),
+    /* inSize */          (UINT32)(sizeof(VerifySignature_In)),
+    /* outSize */         (UINT32)(sizeof(VerifySignature_Out)),
     /* offsetOfTypes */   offsetof(VerifySignature_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(VerifySignature_In, digest)),
-			   (UINT16)(offsetof(VerifySignature_In, signature))},
+    /* offsets */         {(UINT32)(offsetof(VerifySignature_In, digest)),
+			   (UINT32)(offsetof(VerifySignature_In, signature))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPMT_SIGNATURE_P_UNMARSHAL,
@@ -1981,20 +1977,20 @@ typedef TPM_RC  (Sign_Entry)(
 			     );
 typedef const struct {
     Sign_Entry    *entry;
-    UINT16        inSize;
-    UINT16        outSize;
-    UINT16        offsetOfTypes;
-    UINT16        paramOffsets[3];
+    UINT32        inSize;
+    UINT32        outSize;
+    UINT32        offsetOfTypes;
+    UINT32        paramOffsets[3];
     BYTE          types[7];
 } Sign_COMMAND_DESCRIPTOR_t;
 Sign_COMMAND_DESCRIPTOR_t _SignData = {
     /* entry  */          &TPM2_Sign,
-    /* inSize */          (UINT16)(sizeof(Sign_In)),
-    /* outSize */         (UINT16)(sizeof(Sign_Out)),
+    /* inSize */          (UINT32)(sizeof(Sign_In)),
+    /* outSize */         (UINT32)(sizeof(Sign_Out)),
     /* offsetOfTypes */   offsetof(Sign_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Sign_In, digest)),
-			   (UINT16)(offsetof(Sign_In, inScheme)),
-			   (UINT16)(offsetof(Sign_In, validation))},
+    /* offsets */         {(UINT32)(offsetof(Sign_In, digest)),
+			   (UINT32)(offsetof(Sign_In, inScheme)),
+			   (UINT32)(offsetof(Sign_In, validation))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPMT_SIG_SCHEME_P_UNMARSHAL + ADD_FLAG,
@@ -2014,20 +2010,20 @@ typedef TPM_RC  (SetCommandCodeAuditStatus_Entry)(
 						  );
 typedef const struct {
     SetCommandCodeAuditStatus_Entry    *entry;
-    UINT16                             inSize;
-    UINT16                             outSize;
-    UINT16                             offsetOfTypes;
-    UINT16                             paramOffsets[3];
+    UINT32                             inSize;
+    UINT32                             outSize;
+    UINT32                             offsetOfTypes;
+    UINT32                             paramOffsets[3];
     BYTE                               types[6];
 } SetCommandCodeAuditStatus_COMMAND_DESCRIPTOR_t;
 SetCommandCodeAuditStatus_COMMAND_DESCRIPTOR_t _SetCommandCodeAuditStatusData = {
     /* entry  */          &TPM2_SetCommandCodeAuditStatus,
-    /* inSize */          (UINT16)(sizeof(SetCommandCodeAuditStatus_In)),
+    /* inSize */          (UINT32)(sizeof(SetCommandCodeAuditStatus_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(SetCommandCodeAuditStatus_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(SetCommandCodeAuditStatus_In, auditAlg)),
-			   (UINT16)(offsetof(SetCommandCodeAuditStatus_In, setList)),
-			   (UINT16)(offsetof(SetCommandCodeAuditStatus_In, clearList))},
+    /* offsets */         {(UINT32)(offsetof(SetCommandCodeAuditStatus_In, auditAlg)),
+			   (UINT32)(offsetof(SetCommandCodeAuditStatus_In, setList)),
+			   (UINT32)(offsetof(SetCommandCodeAuditStatus_In, clearList))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
 			   TPML_CC_P_UNMARSHAL,
@@ -2046,18 +2042,18 @@ typedef TPM_RC  (PCR_Extend_Entry)(
 				   );
 typedef const struct {
     PCR_Extend_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
-    UINT16              paramOffsets[1];
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
+    UINT32              paramOffsets[1];
     BYTE                types[4];
 } PCR_Extend_COMMAND_DESCRIPTOR_t;
 PCR_Extend_COMMAND_DESCRIPTOR_t _PCR_ExtendData = {
     /* entry  */          &TPM2_PCR_Extend,
-    /* inSize */          (UINT16)(sizeof(PCR_Extend_In)),
+    /* inSize */          (UINT32)(sizeof(PCR_Extend_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PCR_Extend_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_Extend_In, digests))},
+    /* offsets */         {(UINT32)(offsetof(PCR_Extend_In, digests))},
     /* types */           {TPMI_DH_PCR_H_UNMARSHAL + ADD_FLAG,
 			   TPML_DIGEST_VALUES_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2075,18 +2071,18 @@ typedef TPM_RC  (PCR_Event_Entry)(
 				  );
 typedef const struct {
     PCR_Event_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[1];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[1];
     BYTE               types[5];
 } PCR_Event_COMMAND_DESCRIPTOR_t;
 PCR_Event_COMMAND_DESCRIPTOR_t _PCR_EventData = {
     /* entry  */          &TPM2_PCR_Event,
-    /* inSize */          (UINT16)(sizeof(PCR_Event_In)),
-    /* outSize */         (UINT16)(sizeof(PCR_Event_Out)),
+    /* inSize */          (UINT32)(sizeof(PCR_Event_In)),
+    /* outSize */         (UINT32)(sizeof(PCR_Event_Out)),
     /* offsetOfTypes */   offsetof(PCR_Event_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_Event_In, eventData))},
+    /* offsets */         {(UINT32)(offsetof(PCR_Event_In, eventData))},
     /* types */           {TPMI_DH_PCR_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_EVENT_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2105,19 +2101,19 @@ typedef TPM_RC  (PCR_Read_Entry)(
 				 );
 typedef const struct {
     PCR_Read_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
-    UINT16            paramOffsets[2];
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
+    UINT32            paramOffsets[2];
     BYTE              types[6];
 } PCR_Read_COMMAND_DESCRIPTOR_t;
 PCR_Read_COMMAND_DESCRIPTOR_t _PCR_ReadData = {
     /* entry  */          &TPM2_PCR_Read,
-    /* inSize */          (UINT16)(sizeof(PCR_Read_In)),
-    /* outSize */         (UINT16)(sizeof(PCR_Read_Out)),
+    /* inSize */          (UINT32)(sizeof(PCR_Read_In)),
+    /* outSize */         (UINT32)(sizeof(PCR_Read_Out)),
     /* offsetOfTypes */   offsetof(PCR_Read_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_Read_Out, pcrSelectionOut)),
-			   (UINT16)(offsetof(PCR_Read_Out, pcrValues))},
+    /* offsets */         {(UINT32)(offsetof(PCR_Read_Out, pcrSelectionOut)),
+			   (UINT32)(offsetof(PCR_Read_Out, pcrValues))},
     /* types */           {TPML_PCR_SELECTION_P_UNMARSHAL,
 			   END_OF_LIST,
 			   UINT32_P_MARSHAL,
@@ -2137,21 +2133,21 @@ typedef TPM_RC  (PCR_Allocate_Entry)(
 				     );
 typedef const struct {
     PCR_Allocate_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[4];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[4];
     BYTE                  types[8];
 } PCR_Allocate_COMMAND_DESCRIPTOR_t;
 PCR_Allocate_COMMAND_DESCRIPTOR_t _PCR_AllocateData = {
     /* entry  */          &TPM2_PCR_Allocate,
-    /* inSize */          (UINT16)(sizeof(PCR_Allocate_In)),
-    /* outSize */         (UINT16)(sizeof(PCR_Allocate_Out)),
+    /* inSize */          (UINT32)(sizeof(PCR_Allocate_In)),
+    /* outSize */         (UINT32)(sizeof(PCR_Allocate_Out)),
     /* offsetOfTypes */   offsetof(PCR_Allocate_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_Allocate_In, pcrAllocation)),
-			   (UINT16)(offsetof(PCR_Allocate_Out, maxPCR)),
-			   (UINT16)(offsetof(PCR_Allocate_Out, sizeNeeded)),
-			   (UINT16)(offsetof(PCR_Allocate_Out, sizeAvailable))},
+    /* offsets */         {(UINT32)(offsetof(PCR_Allocate_In, pcrAllocation)),
+			   (UINT32)(offsetof(PCR_Allocate_Out, maxPCR)),
+			   (UINT32)(offsetof(PCR_Allocate_Out, sizeNeeded)),
+			   (UINT32)(offsetof(PCR_Allocate_Out, sizeAvailable))},
     /* types */           {TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   TPML_PCR_SELECTION_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2172,20 +2168,20 @@ typedef TPM_RC  (PCR_SetAuthPolicy_Entry)(
 					  );
 typedef const struct {
     PCR_SetAuthPolicy_Entry    *entry;
-    UINT16                     inSize;
-    UINT16                     outSize;
-    UINT16                     offsetOfTypes;
-    UINT16                     paramOffsets[3];
+    UINT32                     inSize;
+    UINT32                     outSize;
+    UINT32                     offsetOfTypes;
+    UINT32                     paramOffsets[3];
     BYTE                       types[6];
 } PCR_SetAuthPolicy_COMMAND_DESCRIPTOR_t;
 PCR_SetAuthPolicy_COMMAND_DESCRIPTOR_t _PCR_SetAuthPolicyData = {
     /* entry  */          &TPM2_PCR_SetAuthPolicy,
-    /* inSize */          (UINT16)(sizeof(PCR_SetAuthPolicy_In)),
+    /* inSize */          (UINT32)(sizeof(PCR_SetAuthPolicy_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PCR_SetAuthPolicy_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_SetAuthPolicy_In, authPolicy)),
-			   (UINT16)(offsetof(PCR_SetAuthPolicy_In, hashAlg)),
-			   (UINT16)(offsetof(PCR_SetAuthPolicy_In, pcrNum))},
+    /* offsets */         {(UINT32)(offsetof(PCR_SetAuthPolicy_In, authPolicy)),
+			   (UINT32)(offsetof(PCR_SetAuthPolicy_In, hashAlg)),
+			   (UINT32)(offsetof(PCR_SetAuthPolicy_In, pcrNum))},
     /* types */           {TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
@@ -2204,18 +2200,18 @@ typedef TPM_RC  (PCR_SetAuthValue_Entry)(
 					 );
 typedef const struct {
     PCR_SetAuthValue_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[1];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[1];
     BYTE                      types[4];
 } PCR_SetAuthValue_COMMAND_DESCRIPTOR_t;
 PCR_SetAuthValue_COMMAND_DESCRIPTOR_t _PCR_SetAuthValueData = {
     /* entry  */          &TPM2_PCR_SetAuthValue,
-    /* inSize */          (UINT16)(sizeof(PCR_SetAuthValue_In)),
+    /* inSize */          (UINT32)(sizeof(PCR_SetAuthValue_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PCR_SetAuthValue_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PCR_SetAuthValue_In, auth))},
+    /* offsets */         {(UINT32)(offsetof(PCR_SetAuthValue_In, auth))},
     /* types */           {TPMI_DH_PCR_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2232,14 +2228,14 @@ typedef TPM_RC  (PCR_Reset_Entry)(
 				  );
 typedef const struct {
     PCR_Reset_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[3];
 } PCR_Reset_COMMAND_DESCRIPTOR_t;
 PCR_Reset_COMMAND_DESCRIPTOR_t _PCR_ResetData = {
     /* entry  */          &TPM2_PCR_Reset,
-    /* inSize */          (UINT16)(sizeof(PCR_Reset_In)),
+    /* inSize */          (UINT32)(sizeof(PCR_Reset_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PCR_Reset_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -2259,24 +2255,24 @@ typedef TPM_RC  (PolicySigned_Entry)(
 				     );
 typedef const struct {
     PolicySigned_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[7];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[7];
     BYTE                  types[11];
 } PolicySigned_COMMAND_DESCRIPTOR_t;
 PolicySigned_COMMAND_DESCRIPTOR_t _PolicySignedData = {
     /* entry  */          &TPM2_PolicySigned,
-    /* inSize */          (UINT16)(sizeof(PolicySigned_In)),
-    /* outSize */         (UINT16)(sizeof(PolicySigned_Out)),
+    /* inSize */          (UINT32)(sizeof(PolicySigned_In)),
+    /* outSize */         (UINT32)(sizeof(PolicySigned_Out)),
     /* offsetOfTypes */   offsetof(PolicySigned_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicySigned_In, policySession)),
-			   (UINT16)(offsetof(PolicySigned_In, nonceTPM)),
-			   (UINT16)(offsetof(PolicySigned_In, cpHashA)),
-			   (UINT16)(offsetof(PolicySigned_In, policyRef)),
-			   (UINT16)(offsetof(PolicySigned_In, expiration)),
-			   (UINT16)(offsetof(PolicySigned_In, auth)),
-			   (UINT16)(offsetof(PolicySigned_Out, policyTicket))},
+    /* offsets */         {(UINT32)(offsetof(PolicySigned_In, policySession)),
+			   (UINT32)(offsetof(PolicySigned_In, nonceTPM)),
+			   (UINT32)(offsetof(PolicySigned_In, cpHashA)),
+			   (UINT32)(offsetof(PolicySigned_In, policyRef)),
+			   (UINT32)(offsetof(PolicySigned_In, expiration)),
+			   (UINT32)(offsetof(PolicySigned_In, auth)),
+			   (UINT32)(offsetof(PolicySigned_Out, policyTicket))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_NONCE_P_UNMARSHAL,
@@ -2301,23 +2297,23 @@ typedef TPM_RC  (PolicySecret_Entry)(
 				     );
 typedef const struct {
     PolicySecret_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[6];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[6];
     BYTE                  types[10];
 } PolicySecret_COMMAND_DESCRIPTOR_t;
 PolicySecret_COMMAND_DESCRIPTOR_t _PolicySecretData = {
     /* entry  */          &TPM2_PolicySecret,
-    /* inSize */          (UINT16)(sizeof(PolicySecret_In)),
-    /* outSize */         (UINT16)(sizeof(PolicySecret_Out)),
+    /* inSize */          (UINT32)(sizeof(PolicySecret_In)),
+    /* outSize */         (UINT32)(sizeof(PolicySecret_Out)),
     /* offsetOfTypes */   offsetof(PolicySecret_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicySecret_In, policySession)),
-			   (UINT16)(offsetof(PolicySecret_In, nonceTPM)),
-			   (UINT16)(offsetof(PolicySecret_In, cpHashA)),
-			   (UINT16)(offsetof(PolicySecret_In, policyRef)),
-			   (UINT16)(offsetof(PolicySecret_In, expiration)),
-			   (UINT16)(offsetof(PolicySecret_Out, policyTicket))},
+    /* offsets */         {(UINT32)(offsetof(PolicySecret_In, policySession)),
+			   (UINT32)(offsetof(PolicySecret_In, nonceTPM)),
+			   (UINT32)(offsetof(PolicySecret_In, cpHashA)),
+			   (UINT32)(offsetof(PolicySecret_In, policyRef)),
+			   (UINT32)(offsetof(PolicySecret_In, expiration)),
+			   (UINT32)(offsetof(PolicySecret_Out, policyTicket))},
     /* types */           {TPMI_DH_ENTITY_H_UNMARSHAL,
 			   TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_NONCE_P_UNMARSHAL,
@@ -2340,22 +2336,22 @@ typedef TPM_RC  (PolicyTicket_Entry)(
 				     );
 typedef const struct {
     PolicyTicket_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[5];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[5];
     BYTE                  types[8];
 } PolicyTicket_COMMAND_DESCRIPTOR_t;
 PolicyTicket_COMMAND_DESCRIPTOR_t _PolicyTicketData = {
     /* entry  */          &TPM2_PolicyTicket,
-    /* inSize */          (UINT16)(sizeof(PolicyTicket_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyTicket_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyTicket_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyTicket_In, timeout)),
-			   (UINT16)(offsetof(PolicyTicket_In, cpHashA)),
-			   (UINT16)(offsetof(PolicyTicket_In, policyRef)),
-			   (UINT16)(offsetof(PolicyTicket_In, authName)),
-			   (UINT16)(offsetof(PolicyTicket_In, ticket))},
+    /* offsets */         {(UINT32)(offsetof(PolicyTicket_In, timeout)),
+			   (UINT32)(offsetof(PolicyTicket_In, cpHashA)),
+			   (UINT32)(offsetof(PolicyTicket_In, policyRef)),
+			   (UINT32)(offsetof(PolicyTicket_In, authName)),
+			   (UINT32)(offsetof(PolicyTicket_In, ticket))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_TIMEOUT_P_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
@@ -2376,18 +2372,18 @@ typedef TPM_RC  (PolicyOR_Entry)(
 				 );
 typedef const struct {
     PolicyOR_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
-    UINT16            paramOffsets[1];
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
+    UINT32            paramOffsets[1];
     BYTE              types[4];
 } PolicyOR_COMMAND_DESCRIPTOR_t;
 PolicyOR_COMMAND_DESCRIPTOR_t _PolicyORData = {
     /* entry  */          &TPM2_PolicyOR,
-    /* inSize */          (UINT16)(sizeof(PolicyOR_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyOR_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyOR_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyOR_In, pHashList))},
+    /* offsets */         {(UINT32)(offsetof(PolicyOR_In, pHashList))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPML_DIGEST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2404,19 +2400,19 @@ typedef TPM_RC  (PolicyPCR_Entry)(
 				  );
 typedef const struct {
     PolicyPCR_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[2];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[2];
     BYTE               types[5];
 } PolicyPCR_COMMAND_DESCRIPTOR_t;
 PolicyPCR_COMMAND_DESCRIPTOR_t _PolicyPCRData = {
     /* entry  */          &TPM2_PolicyPCR,
-    /* inSize */          (UINT16)(sizeof(PolicyPCR_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyPCR_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyPCR_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyPCR_In, pcrDigest)),
-			   (UINT16)(offsetof(PolicyPCR_In, pcrs))},
+    /* offsets */         {(UINT32)(offsetof(PolicyPCR_In, pcrDigest)),
+			   (UINT32)(offsetof(PolicyPCR_In, pcrs))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPML_PCR_SELECTION_P_UNMARSHAL,
@@ -2434,18 +2430,18 @@ typedef TPM_RC  (PolicyLocality_Entry)(
 				       );
 typedef const struct {
     PolicyLocality_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[1];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[1];
     BYTE                    types[4];
 } PolicyLocality_COMMAND_DESCRIPTOR_t;
 PolicyLocality_COMMAND_DESCRIPTOR_t _PolicyLocalityData = {
     /* entry  */          &TPM2_PolicyLocality,
-    /* inSize */          (UINT16)(sizeof(PolicyLocality_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyLocality_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyLocality_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyLocality_In, locality))},
+    /* offsets */         {(UINT32)(offsetof(PolicyLocality_In, locality))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPMA_LOCALITY_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2462,22 +2458,22 @@ typedef TPM_RC  (PolicyNV_Entry)(
 				 );
 typedef const struct {
     PolicyNV_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
-    UINT16            paramOffsets[5];
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
+    UINT32            paramOffsets[5];
     BYTE              types[8];
 } PolicyNV_COMMAND_DESCRIPTOR_t;
 PolicyNV_COMMAND_DESCRIPTOR_t _PolicyNVData = {
     /* entry  */          &TPM2_PolicyNV,
-    /* inSize */          (UINT16)(sizeof(PolicyNV_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyNV_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyNV_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyNV_In, nvIndex)),
-			   (UINT16)(offsetof(PolicyNV_In, policySession)),
-			   (UINT16)(offsetof(PolicyNV_In, operandB)),
-			   (UINT16)(offsetof(PolicyNV_In, offset)),
-			   (UINT16)(offsetof(PolicyNV_In, operation))},
+    /* offsets */         {(UINT32)(offsetof(PolicyNV_In, nvIndex)),
+			   (UINT32)(offsetof(PolicyNV_In, policySession)),
+			   (UINT32)(offsetof(PolicyNV_In, operandB)),
+			   (UINT32)(offsetof(PolicyNV_In, offset)),
+			   (UINT32)(offsetof(PolicyNV_In, operation))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPMI_SH_POLICY_H_UNMARSHAL,
@@ -2498,20 +2494,20 @@ typedef TPM_RC  (PolicyCounterTimer_Entry)(
 					   );
 typedef const struct {
     PolicyCounterTimer_Entry    *entry;
-    UINT16                      inSize;
-    UINT16                      outSize;
-    UINT16                      offsetOfTypes;
-    UINT16                      paramOffsets[3];
+    UINT32                      inSize;
+    UINT32                      outSize;
+    UINT32                      offsetOfTypes;
+    UINT32                      paramOffsets[3];
     BYTE                        types[6];
 } PolicyCounterTimer_COMMAND_DESCRIPTOR_t;
 PolicyCounterTimer_COMMAND_DESCRIPTOR_t _PolicyCounterTimerData = {
     /* entry  */          &TPM2_PolicyCounterTimer,
-    /* inSize */          (UINT16)(sizeof(PolicyCounterTimer_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyCounterTimer_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyCounterTimer_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyCounterTimer_In, operandB)),
-			   (UINT16)(offsetof(PolicyCounterTimer_In, offset)),
-			   (UINT16)(offsetof(PolicyCounterTimer_In, operation))},
+    /* offsets */         {(UINT32)(offsetof(PolicyCounterTimer_In, operandB)),
+			   (UINT32)(offsetof(PolicyCounterTimer_In, offset)),
+			   (UINT32)(offsetof(PolicyCounterTimer_In, operation))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_OPERAND_P_UNMARSHAL,
 			   UINT16_P_UNMARSHAL,
@@ -2530,18 +2526,18 @@ typedef TPM_RC  (PolicyCommandCode_Entry)(
 					  );
 typedef const struct {
     PolicyCommandCode_Entry    *entry;
-    UINT16                     inSize;
-    UINT16                     outSize;
-    UINT16                     offsetOfTypes;
-    UINT16                     paramOffsets[1];
+    UINT32                     inSize;
+    UINT32                     outSize;
+    UINT32                     offsetOfTypes;
+    UINT32                     paramOffsets[1];
     BYTE                       types[4];
 } PolicyCommandCode_COMMAND_DESCRIPTOR_t;
 PolicyCommandCode_COMMAND_DESCRIPTOR_t _PolicyCommandCodeData = {
     /* entry  */          &TPM2_PolicyCommandCode,
-    /* inSize */          (UINT16)(sizeof(PolicyCommandCode_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyCommandCode_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyCommandCode_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyCommandCode_In, code))},
+    /* offsets */         {(UINT32)(offsetof(PolicyCommandCode_In, code))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM_CC_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2558,14 +2554,14 @@ typedef TPM_RC  (PolicyPhysicalPresence_Entry)(
 					       );
 typedef const struct {
     PolicyPhysicalPresence_Entry    *entry;
-    UINT16                          inSize;
-    UINT16                          outSize;
-    UINT16                          offsetOfTypes;
+    UINT32                          inSize;
+    UINT32                          outSize;
+    UINT32                          offsetOfTypes;
     BYTE                            types[3];
 } PolicyPhysicalPresence_COMMAND_DESCRIPTOR_t;
 PolicyPhysicalPresence_COMMAND_DESCRIPTOR_t _PolicyPhysicalPresenceData = {
     /* entry  */          &TPM2_PolicyPhysicalPresence,
-    /* inSize */          (UINT16)(sizeof(PolicyPhysicalPresence_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyPhysicalPresence_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyPhysicalPresence_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -2584,18 +2580,18 @@ typedef TPM_RC  (PolicyCpHash_Entry)(
 				     );
 typedef const struct {
     PolicyCpHash_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[1];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[1];
     BYTE                  types[4];
 } PolicyCpHash_COMMAND_DESCRIPTOR_t;
 PolicyCpHash_COMMAND_DESCRIPTOR_t _PolicyCpHashData = {
     /* entry  */          &TPM2_PolicyCpHash,
-    /* inSize */          (UINT16)(sizeof(PolicyCpHash_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyCpHash_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyCpHash_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyCpHash_In, cpHashA))},
+    /* offsets */         {(UINT32)(offsetof(PolicyCpHash_In, cpHashA))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2612,18 +2608,18 @@ typedef TPM_RC  (PolicyNameHash_Entry)(
 				       );
 typedef const struct {
     PolicyNameHash_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[1];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[1];
     BYTE                    types[4];
 } PolicyNameHash_COMMAND_DESCRIPTOR_t;
 PolicyNameHash_COMMAND_DESCRIPTOR_t _PolicyNameHashData = {
     /* entry  */          &TPM2_PolicyNameHash,
-    /* inSize */          (UINT16)(sizeof(PolicyNameHash_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyNameHash_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyNameHash_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyNameHash_In, nameHash))},
+    /* offsets */         {(UINT32)(offsetof(PolicyNameHash_In, nameHash))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2640,20 +2636,20 @@ typedef TPM_RC  (PolicyDuplicationSelect_Entry)(
 						);
 typedef const struct {
     PolicyDuplicationSelect_Entry    *entry;
-    UINT16                           inSize;
-    UINT16                           outSize;
-    UINT16                           offsetOfTypes;
-    UINT16                           paramOffsets[3];
+    UINT32                           inSize;
+    UINT32                           outSize;
+    UINT32                           offsetOfTypes;
+    UINT32                           paramOffsets[3];
     BYTE                             types[6];
 } PolicyDuplicationSelect_COMMAND_DESCRIPTOR_t;
 PolicyDuplicationSelect_COMMAND_DESCRIPTOR_t _PolicyDuplicationSelectData = {
     /* entry  */          &TPM2_PolicyDuplicationSelect,
-    /* inSize */          (UINT16)(sizeof(PolicyDuplicationSelect_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyDuplicationSelect_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyDuplicationSelect_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyDuplicationSelect_In, objectName)),
-			   (UINT16)(offsetof(PolicyDuplicationSelect_In, newParentName)),
-			   (UINT16)(offsetof(PolicyDuplicationSelect_In, includeObject))},
+    /* offsets */         {(UINT32)(offsetof(PolicyDuplicationSelect_In, objectName)),
+			   (UINT32)(offsetof(PolicyDuplicationSelect_In, newParentName)),
+			   (UINT32)(offsetof(PolicyDuplicationSelect_In, includeObject))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_NAME_P_UNMARSHAL,
 			   TPM2B_NAME_P_UNMARSHAL,
@@ -2672,21 +2668,21 @@ typedef TPM_RC  (PolicyAuthorize_Entry)(
 					);
 typedef const struct {
     PolicyAuthorize_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[4];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[4];
     BYTE                     types[7];
 } PolicyAuthorize_COMMAND_DESCRIPTOR_t;
 PolicyAuthorize_COMMAND_DESCRIPTOR_t _PolicyAuthorizeData = {
     /* entry  */          &TPM2_PolicyAuthorize,
-    /* inSize */          (UINT16)(sizeof(PolicyAuthorize_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyAuthorize_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyAuthorize_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyAuthorize_In, approvedPolicy)),
-			   (UINT16)(offsetof(PolicyAuthorize_In, policyRef)),
-			   (UINT16)(offsetof(PolicyAuthorize_In, keySign)),
-			   (UINT16)(offsetof(PolicyAuthorize_In, checkTicket))},
+    /* offsets */         {(UINT32)(offsetof(PolicyAuthorize_In, approvedPolicy)),
+			   (UINT32)(offsetof(PolicyAuthorize_In, policyRef)),
+			   (UINT32)(offsetof(PolicyAuthorize_In, keySign)),
+			   (UINT32)(offsetof(PolicyAuthorize_In, checkTicket))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPM2B_NONCE_P_UNMARSHAL,
@@ -2706,14 +2702,14 @@ typedef TPM_RC  (PolicyAuthValue_Entry)(
 					);
 typedef const struct {
     PolicyAuthValue_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
     BYTE                     types[3];
 } PolicyAuthValue_COMMAND_DESCRIPTOR_t;
 PolicyAuthValue_COMMAND_DESCRIPTOR_t _PolicyAuthValueData = {
     /* entry  */          &TPM2_PolicyAuthValue,
-    /* inSize */          (UINT16)(sizeof(PolicyAuthValue_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyAuthValue_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyAuthValue_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -2732,14 +2728,14 @@ typedef TPM_RC  (PolicyPassword_Entry)(
 				       );
 typedef const struct {
     PolicyPassword_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
     BYTE                    types[3];
 } PolicyPassword_COMMAND_DESCRIPTOR_t;
 PolicyPassword_COMMAND_DESCRIPTOR_t _PolicyPasswordData = {
     /* entry  */          &TPM2_PolicyPassword,
-    /* inSize */          (UINT16)(sizeof(PolicyPassword_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyPassword_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyPassword_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -2759,15 +2755,15 @@ typedef TPM_RC  (PolicyGetDigest_Entry)(
 					);
 typedef const struct {
     PolicyGetDigest_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
     BYTE                     types[4];
 } PolicyGetDigest_COMMAND_DESCRIPTOR_t;
 PolicyGetDigest_COMMAND_DESCRIPTOR_t _PolicyGetDigestData = {
     /* entry  */          &TPM2_PolicyGetDigest,
-    /* inSize */          (UINT16)(sizeof(PolicyGetDigest_In)),
-    /* outSize */         (UINT16)(sizeof(PolicyGetDigest_Out)),
+    /* inSize */          (UINT32)(sizeof(PolicyGetDigest_In)),
+    /* outSize */         (UINT32)(sizeof(PolicyGetDigest_Out)),
     /* offsetOfTypes */   offsetof(PolicyGetDigest_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
@@ -2786,18 +2782,18 @@ typedef TPM_RC  (PolicyNvWritten_Entry)(
 					);
 typedef const struct {
     PolicyNvWritten_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[1];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[1];
     BYTE                     types[4];
 } PolicyNvWritten_COMMAND_DESCRIPTOR_t;
 PolicyNvWritten_COMMAND_DESCRIPTOR_t _PolicyNvWrittenData = {
     /* entry  */          &TPM2_PolicyNvWritten,
-    /* inSize */          (UINT16)(sizeof(PolicyNvWritten_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyNvWritten_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyNvWritten_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyNvWritten_In, writtenSet))},
+    /* offsets */         {(UINT32)(offsetof(PolicyNvWritten_In, writtenSet))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPMI_YES_NO_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2814,18 +2810,18 @@ typedef TPM_RC  (PolicyTemplate_Entry)(
 				       );
 typedef const struct {
     PolicyTemplate_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[1];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[1];
     BYTE                    types[4];
 } PolicyTemplate_COMMAND_DESCRIPTOR_t;
 PolicyTemplate_COMMAND_DESCRIPTOR_t _PolicyTemplateData = {
     /* entry  */          &TPM2_PolicyTemplate,
-    /* inSize */          (UINT16)(sizeof(PolicyTemplate_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyTemplate_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyTemplate_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyTemplate_In, templateHash))},
+    /* offsets */         {(UINT32)(offsetof(PolicyTemplate_In, templateHash))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -2842,19 +2838,19 @@ typedef TPM_RC  (PolicyAuthorizeNV_Entry)(
 					  );
 typedef const struct {
     PolicyAuthorizeNV_Entry    *entry;
-    UINT16                     inSize;
-    UINT16                     outSize;
-    UINT16                     offsetOfTypes;
-    UINT16                     paramOffsets[2];
+    UINT32                     inSize;
+    UINT32                     outSize;
+    UINT32                     offsetOfTypes;
+    UINT32                     paramOffsets[2];
     BYTE                       types[5];
 } PolicyAuthorizeNV_COMMAND_DESCRIPTOR_t;
 PolicyAuthorizeNV_COMMAND_DESCRIPTOR_t _PolicyAuthorizeNVData = {
     /* entry  */          &TPM2_PolicyAuthorizeNV,
-    /* inSize */          (UINT16)(sizeof(PolicyAuthorizeNV_In)),
+    /* inSize */          (UINT32)(sizeof(PolicyAuthorizeNV_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PolicyAuthorizeNV_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PolicyAuthorizeNV_In, nvIndex)),
-			   (UINT16)(offsetof(PolicyAuthorizeNV_In, policySession))},
+    /* offsets */         {(UINT32)(offsetof(PolicyAuthorizeNV_In, nvIndex)),
+			   (UINT32)(offsetof(PolicyAuthorizeNV_In, policySession))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPMI_SH_POLICY_H_UNMARSHAL,
@@ -2873,26 +2869,26 @@ typedef TPM_RC  (CreatePrimary_Entry)(
 				      );
 typedef const struct {
     CreatePrimary_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[9];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[9];
     BYTE                   types[13];
 } CreatePrimary_COMMAND_DESCRIPTOR_t;
 CreatePrimary_COMMAND_DESCRIPTOR_t _CreatePrimaryData = {
     /* entry  */          &TPM2_CreatePrimary,
-    /* inSize */          (UINT16)(sizeof(CreatePrimary_In)),
-    /* outSize */         (UINT16)(sizeof(CreatePrimary_Out)),
+    /* inSize */          (UINT32)(sizeof(CreatePrimary_In)),
+    /* outSize */         (UINT32)(sizeof(CreatePrimary_Out)),
     /* offsetOfTypes */   offsetof(CreatePrimary_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(CreatePrimary_In, inSensitive)),
-			   (UINT16)(offsetof(CreatePrimary_In, inPublic)),
-			   (UINT16)(offsetof(CreatePrimary_In, outsideInfo)),
-			   (UINT16)(offsetof(CreatePrimary_In, creationPCR)),
-			   (UINT16)(offsetof(CreatePrimary_Out, outPublic)),
-			   (UINT16)(offsetof(CreatePrimary_Out, creationData)),
-			   (UINT16)(offsetof(CreatePrimary_Out, creationHash)),
-			   (UINT16)(offsetof(CreatePrimary_Out, creationTicket)),
-			   (UINT16)(offsetof(CreatePrimary_Out, name))},
+    /* offsets */         {(UINT32)(offsetof(CreatePrimary_In, inSensitive)),
+			   (UINT32)(offsetof(CreatePrimary_In, inPublic)),
+			   (UINT32)(offsetof(CreatePrimary_In, outsideInfo)),
+			   (UINT32)(offsetof(CreatePrimary_In, creationPCR)),
+			   (UINT32)(offsetof(CreatePrimary_Out, outPublic)),
+			   (UINT32)(offsetof(CreatePrimary_Out, creationData)),
+			   (UINT32)(offsetof(CreatePrimary_Out, creationHash)),
+			   (UINT32)(offsetof(CreatePrimary_Out, creationTicket)),
+			   (UINT32)(offsetof(CreatePrimary_Out, name))},
     /* types */           {TPMI_RH_HIERARCHY_H_UNMARSHAL + ADD_FLAG,
 			   TPM2B_SENSITIVE_CREATE_P_UNMARSHAL,
 			   TPM2B_PUBLIC_P_UNMARSHAL,
@@ -2918,19 +2914,19 @@ typedef TPM_RC  (HierarchyControl_Entry)(
 					 );
 typedef const struct {
     HierarchyControl_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[2];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[2];
     BYTE                      types[5];
 } HierarchyControl_COMMAND_DESCRIPTOR_t;
 HierarchyControl_COMMAND_DESCRIPTOR_t _HierarchyControlData = {
     /* entry  */          &TPM2_HierarchyControl,
-    /* inSize */          (UINT16)(sizeof(HierarchyControl_In)),
+    /* inSize */          (UINT32)(sizeof(HierarchyControl_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(HierarchyControl_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(HierarchyControl_In, enable)),
-			   (UINT16)(offsetof(HierarchyControl_In, state))},
+    /* offsets */         {(UINT32)(offsetof(HierarchyControl_In, enable)),
+			   (UINT32)(offsetof(HierarchyControl_In, state))},
     /* types */           {TPMI_RH_HIERARCHY_H_UNMARSHAL,
 			   TPMI_RH_ENABLES_P_UNMARSHAL,
 			   TPMI_YES_NO_P_UNMARSHAL,
@@ -2948,19 +2944,19 @@ typedef TPM_RC  (SetPrimaryPolicy_Entry)(
 					 );
 typedef const struct {
     SetPrimaryPolicy_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[2];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[2];
     BYTE                      types[5];
 } SetPrimaryPolicy_COMMAND_DESCRIPTOR_t;
 SetPrimaryPolicy_COMMAND_DESCRIPTOR_t _SetPrimaryPolicyData = {
     /* entry  */          &TPM2_SetPrimaryPolicy,
-    /* inSize */          (UINT16)(sizeof(SetPrimaryPolicy_In)),
+    /* inSize */          (UINT32)(sizeof(SetPrimaryPolicy_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(SetPrimaryPolicy_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(SetPrimaryPolicy_In, authPolicy)),
-			   (UINT16)(offsetof(SetPrimaryPolicy_In, hashAlg))},
+    /* offsets */         {(UINT32)(offsetof(SetPrimaryPolicy_In, authPolicy)),
+			   (UINT32)(offsetof(SetPrimaryPolicy_In, hashAlg))},
     /* types */           {TPMI_RH_HIERARCHY_AUTH_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
 			   TPMI_ALG_HASH_P_UNMARSHAL + ADD_FLAG,
@@ -2978,14 +2974,14 @@ typedef TPM_RC  (ChangePPS_Entry)(
 				  );
 typedef const struct {
     ChangePPS_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[3];
 } ChangePPS_COMMAND_DESCRIPTOR_t;
 ChangePPS_COMMAND_DESCRIPTOR_t _ChangePPSData = {
     /* entry  */          &TPM2_ChangePPS,
-    /* inSize */          (UINT16)(sizeof(ChangePPS_In)),
+    /* inSize */          (UINT32)(sizeof(ChangePPS_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(ChangePPS_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3004,14 +3000,14 @@ typedef TPM_RC  (ChangeEPS_Entry)(
 				  );
 typedef const struct {
     ChangeEPS_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[3];
 } ChangeEPS_COMMAND_DESCRIPTOR_t;
 ChangeEPS_COMMAND_DESCRIPTOR_t _ChangeEPSData = {
     /* entry  */          &TPM2_ChangeEPS,
-    /* inSize */          (UINT16)(sizeof(ChangeEPS_In)),
+    /* inSize */          (UINT32)(sizeof(ChangeEPS_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(ChangeEPS_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3030,14 +3026,14 @@ typedef TPM_RC  (Clear_Entry)(
 			      );
 typedef const struct {
     Clear_Entry    *entry;
-    UINT16         inSize;
-    UINT16         outSize;
-    UINT16         offsetOfTypes;
+    UINT32         inSize;
+    UINT32         outSize;
+    UINT32         offsetOfTypes;
     BYTE           types[3];
 } Clear_COMMAND_DESCRIPTOR_t;
 Clear_COMMAND_DESCRIPTOR_t _ClearData = {
     /* entry  */          &TPM2_Clear,
-    /* inSize */          (UINT16)(sizeof(Clear_In)),
+    /* inSize */          (UINT32)(sizeof(Clear_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(Clear_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3056,18 +3052,18 @@ typedef TPM_RC  (ClearControl_Entry)(
 				     );
 typedef const struct {
     ClearControl_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[1];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[1];
     BYTE                  types[4];
 } ClearControl_COMMAND_DESCRIPTOR_t;
 ClearControl_COMMAND_DESCRIPTOR_t _ClearControlData = {
     /* entry  */          &TPM2_ClearControl,
-    /* inSize */          (UINT16)(sizeof(ClearControl_In)),
+    /* inSize */          (UINT32)(sizeof(ClearControl_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(ClearControl_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ClearControl_In, disable))},
+    /* offsets */         {(UINT32)(offsetof(ClearControl_In, disable))},
     /* types */           {TPMI_RH_CLEAR_H_UNMARSHAL,
 			   TPMI_YES_NO_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3084,18 +3080,18 @@ typedef TPM_RC  (HierarchyChangeAuth_Entry)(
 					    );
 typedef const struct {
     HierarchyChangeAuth_Entry    *entry;
-    UINT16                       inSize;
-    UINT16                       outSize;
-    UINT16                       offsetOfTypes;
-    UINT16                       paramOffsets[1];
+    UINT32                       inSize;
+    UINT32                       outSize;
+    UINT32                       offsetOfTypes;
+    UINT32                       paramOffsets[1];
     BYTE                         types[4];
 } HierarchyChangeAuth_COMMAND_DESCRIPTOR_t;
 HierarchyChangeAuth_COMMAND_DESCRIPTOR_t _HierarchyChangeAuthData = {
     /* entry  */          &TPM2_HierarchyChangeAuth,
-    /* inSize */          (UINT16)(sizeof(HierarchyChangeAuth_In)),
+    /* inSize */          (UINT32)(sizeof(HierarchyChangeAuth_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(HierarchyChangeAuth_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(HierarchyChangeAuth_In, newAuth))},
+    /* offsets */         {(UINT32)(offsetof(HierarchyChangeAuth_In, newAuth))},
     /* types */           {TPMI_RH_HIERARCHY_AUTH_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3112,14 +3108,14 @@ typedef TPM_RC  (DictionaryAttackLockReset_Entry)(
 						  );
 typedef const struct {
     DictionaryAttackLockReset_Entry    *entry;
-    UINT16                             inSize;
-    UINT16                             outSize;
-    UINT16                             offsetOfTypes;
+    UINT32                             inSize;
+    UINT32                             outSize;
+    UINT32                             offsetOfTypes;
     BYTE                               types[3];
 } DictionaryAttackLockReset_COMMAND_DESCRIPTOR_t;
 DictionaryAttackLockReset_COMMAND_DESCRIPTOR_t _DictionaryAttackLockResetData = {
     /* entry  */          &TPM2_DictionaryAttackLockReset,
-    /* inSize */          (UINT16)(sizeof(DictionaryAttackLockReset_In)),
+    /* inSize */          (UINT32)(sizeof(DictionaryAttackLockReset_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(DictionaryAttackLockReset_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3138,20 +3134,20 @@ typedef TPM_RC  (DictionaryAttackParameters_Entry)(
 						   );
 typedef const struct {
     DictionaryAttackParameters_Entry    *entry;
-    UINT16                              inSize;
-    UINT16                              outSize;
-    UINT16                              offsetOfTypes;
-    UINT16                              paramOffsets[3];
+    UINT32                              inSize;
+    UINT32                              outSize;
+    UINT32                              offsetOfTypes;
+    UINT32                              paramOffsets[3];
     BYTE                                types[6];
 } DictionaryAttackParameters_COMMAND_DESCRIPTOR_t;
 DictionaryAttackParameters_COMMAND_DESCRIPTOR_t _DictionaryAttackParametersData = {
     /* entry  */          &TPM2_DictionaryAttackParameters,
-    /* inSize */          (UINT16)(sizeof(DictionaryAttackParameters_In)),
+    /* inSize */          (UINT32)(sizeof(DictionaryAttackParameters_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(DictionaryAttackParameters_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(DictionaryAttackParameters_In, newMaxTries)),
-			   (UINT16)(offsetof(DictionaryAttackParameters_In, newRecoveryTime)),
-			   (UINT16)(offsetof(DictionaryAttackParameters_In, lockoutRecovery))},
+    /* offsets */         {(UINT32)(offsetof(DictionaryAttackParameters_In, newMaxTries)),
+			   (UINT32)(offsetof(DictionaryAttackParameters_In, newRecoveryTime)),
+			   (UINT32)(offsetof(DictionaryAttackParameters_In, lockoutRecovery))},
     /* types */           {TPMI_RH_LOCKOUT_H_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
@@ -3170,19 +3166,19 @@ typedef TPM_RC  (PP_Commands_Entry)(
 				    );
 typedef const struct {
     PP_Commands_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[2];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[2];
     BYTE                 types[5];
 } PP_Commands_COMMAND_DESCRIPTOR_t;
 PP_Commands_COMMAND_DESCRIPTOR_t _PP_CommandsData = {
     /* entry  */          &TPM2_PP_Commands,
-    /* inSize */          (UINT16)(sizeof(PP_Commands_In)),
+    /* inSize */          (UINT32)(sizeof(PP_Commands_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(PP_Commands_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(PP_Commands_In, setList)),
-			   (UINT16)(offsetof(PP_Commands_In, clearList))},
+    /* offsets */         {(UINT32)(offsetof(PP_Commands_In, setList)),
+			   (UINT32)(offsetof(PP_Commands_In, clearList))},
     /* types */           {TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   TPML_CC_P_UNMARSHAL,
 			   TPML_CC_P_UNMARSHAL,
@@ -3200,18 +3196,18 @@ typedef TPM_RC  (SetAlgorithmSet_Entry)(
 					);
 typedef const struct {
     SetAlgorithmSet_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[1];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[1];
     BYTE                     types[4];
 } SetAlgorithmSet_COMMAND_DESCRIPTOR_t;
 SetAlgorithmSet_COMMAND_DESCRIPTOR_t _SetAlgorithmSetData = {
     /* entry  */          &TPM2_SetAlgorithmSet,
-    /* inSize */          (UINT16)(sizeof(SetAlgorithmSet_In)),
+    /* inSize */          (UINT32)(sizeof(SetAlgorithmSet_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(SetAlgorithmSet_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(SetAlgorithmSet_In, algorithmSet))},
+    /* offsets */         {(UINT32)(offsetof(SetAlgorithmSet_In, algorithmSet))},
     /* types */           {TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3228,20 +3224,20 @@ typedef TPM_RC  (FieldUpgradeStart_Entry)(
 					  );
 typedef const struct {
     FieldUpgradeStart_Entry    *entry;
-    UINT16                     inSize;
-    UINT16                     outSize;
-    UINT16                     offsetOfTypes;
-    UINT16                     paramOffsets[3];
+    UINT32                     inSize;
+    UINT32                     outSize;
+    UINT32                     offsetOfTypes;
+    UINT32                     paramOffsets[3];
     BYTE                       types[6];
 } FieldUpgradeStart_COMMAND_DESCRIPTOR_t;
 FieldUpgradeStart_COMMAND_DESCRIPTOR_t _FieldUpgradeStartData = {
     /* entry  */          &TPM2_FieldUpgradeStart,
-    /* inSize */          (UINT16)(sizeof(FieldUpgradeStart_In)),
+    /* inSize */          (UINT32)(sizeof(FieldUpgradeStart_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(FieldUpgradeStart_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(FieldUpgradeStart_In, keyHandle)),
-			   (UINT16)(offsetof(FieldUpgradeStart_In, fuDigest)),
-			   (UINT16)(offsetof(FieldUpgradeStart_In, manifestSignature))},
+    /* offsets */         {(UINT32)(offsetof(FieldUpgradeStart_In, keyHandle)),
+			   (UINT32)(offsetof(FieldUpgradeStart_In, fuDigest)),
+			   (UINT32)(offsetof(FieldUpgradeStart_In, manifestSignature))},
     /* types */           {TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPM2B_DIGEST_P_UNMARSHAL,
@@ -3261,18 +3257,18 @@ typedef TPM_RC  (FieldUpgradeData_Entry)(
 					 );
 typedef const struct {
     FieldUpgradeData_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[1];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[1];
     BYTE                      types[5];
 } FieldUpgradeData_COMMAND_DESCRIPTOR_t;
 FieldUpgradeData_COMMAND_DESCRIPTOR_t _FieldUpgradeDataData = {
     /* entry  */          &TPM2_FieldUpgradeData,
-    /* inSize */          (UINT16)(sizeof(FieldUpgradeData_In)),
-    /* outSize */         (UINT16)(sizeof(FieldUpgradeData_Out)),
+    /* inSize */          (UINT32)(sizeof(FieldUpgradeData_In)),
+    /* outSize */         (UINT32)(sizeof(FieldUpgradeData_Out)),
     /* offsetOfTypes */   offsetof(FieldUpgradeData_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(FieldUpgradeData_Out, firstDigest))},
+    /* offsets */         {(UINT32)(offsetof(FieldUpgradeData_Out, firstDigest))},
     /* types */           {TPM2B_MAX_BUFFER_P_UNMARSHAL,
 			   END_OF_LIST,
 			   TPMT_HA_P_MARSHAL,
@@ -3291,15 +3287,15 @@ typedef TPM_RC  (FirmwareRead_Entry)(
 				     );
 typedef const struct {
     FirmwareRead_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
     BYTE                  types[4];
 } FirmwareRead_COMMAND_DESCRIPTOR_t;
 FirmwareRead_COMMAND_DESCRIPTOR_t _FirmwareReadData = {
     /* entry  */          &TPM2_FirmwareRead,
-    /* inSize */          (UINT16)(sizeof(FirmwareRead_In)),
-    /* outSize */         (UINT16)(sizeof(FirmwareRead_Out)),
+    /* inSize */          (UINT32)(sizeof(FirmwareRead_In)),
+    /* outSize */         (UINT32)(sizeof(FirmwareRead_Out)),
     /* offsetOfTypes */   offsetof(FirmwareRead_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {UINT32_P_UNMARSHAL,
@@ -3319,15 +3315,15 @@ typedef TPM_RC  (ContextSave_Entry)(
 				    );
 typedef const struct {
     ContextSave_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
     BYTE                 types[4];
 } ContextSave_COMMAND_DESCRIPTOR_t;
 ContextSave_COMMAND_DESCRIPTOR_t _ContextSaveData = {
     /* entry  */          &TPM2_ContextSave,
-    /* inSize */          (UINT16)(sizeof(ContextSave_In)),
-    /* outSize */         (UINT16)(sizeof(ContextSave_Out)),
+    /* inSize */          (UINT32)(sizeof(ContextSave_In)),
+    /* outSize */         (UINT32)(sizeof(ContextSave_Out)),
     /* offsetOfTypes */   offsetof(ContextSave_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPMI_DH_CONTEXT_H_UNMARSHAL,
@@ -3347,15 +3343,15 @@ typedef TPM_RC  (ContextLoad_Entry)(
 				    );
 typedef const struct {
     ContextLoad_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
     BYTE                 types[4];
 } ContextLoad_COMMAND_DESCRIPTOR_t;
 ContextLoad_COMMAND_DESCRIPTOR_t _ContextLoadData = {
     /* entry  */          &TPM2_ContextLoad,
-    /* inSize */          (UINT16)(sizeof(ContextLoad_In)),
-    /* outSize */         (UINT16)(sizeof(ContextLoad_Out)),
+    /* inSize */          (UINT32)(sizeof(ContextLoad_In)),
+    /* outSize */         (UINT32)(sizeof(ContextLoad_Out)),
     /* offsetOfTypes */   offsetof(ContextLoad_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPMS_CONTEXT_P_UNMARSHAL,
@@ -3374,14 +3370,14 @@ typedef TPM_RC  (FlushContext_Entry)(
 				     );
 typedef const struct {
     FlushContext_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
     BYTE                  types[3];
 } FlushContext_COMMAND_DESCRIPTOR_t;
 FlushContext_COMMAND_DESCRIPTOR_t _FlushContextData = {
     /* entry  */          &TPM2_FlushContext,
-    /* inSize */          (UINT16)(sizeof(FlushContext_In)),
+    /* inSize */          (UINT32)(sizeof(FlushContext_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(FlushContext_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3400,19 +3396,19 @@ typedef TPM_RC  (EvictControl_Entry)(
 				     );
 typedef const struct {
     EvictControl_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[2];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[2];
     BYTE                  types[5];
 } EvictControl_COMMAND_DESCRIPTOR_t;
 EvictControl_COMMAND_DESCRIPTOR_t _EvictControlData = {
     /* entry  */          &TPM2_EvictControl,
-    /* inSize */          (UINT16)(sizeof(EvictControl_In)),
+    /* inSize */          (UINT32)(sizeof(EvictControl_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(EvictControl_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(EvictControl_In, objectHandle)),
-			   (UINT16)(offsetof(EvictControl_In, persistentHandle))},
+    /* offsets */         {(UINT32)(offsetof(EvictControl_In, objectHandle)),
+			   (UINT32)(offsetof(EvictControl_In, persistentHandle))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_DH_PERSISTENT_P_UNMARSHAL,
@@ -3430,15 +3426,15 @@ typedef TPM_RC  (ReadClock_Entry)(
 				  );
 typedef const struct {
     ReadClock_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[3];
 } ReadClock_COMMAND_DESCRIPTOR_t;
 ReadClock_COMMAND_DESCRIPTOR_t _ReadClockData = {
     /* entry  */          &TPM2_ReadClock,
     /* inSize */          0,
-    /* outSize */         (UINT16)(sizeof(ReadClock_Out)),
+    /* outSize */         (UINT32)(sizeof(ReadClock_Out)),
     /* offsetOfTypes */   offsetof(ReadClock_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {END_OF_LIST,
@@ -3456,18 +3452,18 @@ typedef TPM_RC  (ClockSet_Entry)(
 				 );
 typedef const struct {
     ClockSet_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
-    UINT16            paramOffsets[1];
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
+    UINT32            paramOffsets[1];
     BYTE              types[4];
 } ClockSet_COMMAND_DESCRIPTOR_t;
 ClockSet_COMMAND_DESCRIPTOR_t _ClockSetData = {
     /* entry  */          &TPM2_ClockSet,
-    /* inSize */          (UINT16)(sizeof(ClockSet_In)),
+    /* inSize */          (UINT32)(sizeof(ClockSet_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(ClockSet_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ClockSet_In, newTime))},
+    /* offsets */         {(UINT32)(offsetof(ClockSet_In, newTime))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   UINT64_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3484,18 +3480,18 @@ typedef TPM_RC  (ClockRateAdjust_Entry)(
 					);
 typedef const struct {
     ClockRateAdjust_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
-    UINT16                   paramOffsets[1];
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
+    UINT32                   paramOffsets[1];
     BYTE                     types[4];
 } ClockRateAdjust_COMMAND_DESCRIPTOR_t;
 ClockRateAdjust_COMMAND_DESCRIPTOR_t _ClockRateAdjustData = {
     /* entry  */          &TPM2_ClockRateAdjust,
-    /* inSize */          (UINT16)(sizeof(ClockRateAdjust_In)),
+    /* inSize */          (UINT32)(sizeof(ClockRateAdjust_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(ClockRateAdjust_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(ClockRateAdjust_In, rateAdjust))},
+    /* offsets */         {(UINT32)(offsetof(ClockRateAdjust_In, rateAdjust))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   TPM_CLOCK_ADJUST_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3513,20 +3509,20 @@ typedef TPM_RC  (GetCapability_Entry)(
 				      );
 typedef const struct {
     GetCapability_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[3];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[3];
     BYTE                   types[7];
 } GetCapability_COMMAND_DESCRIPTOR_t;
 GetCapability_COMMAND_DESCRIPTOR_t _GetCapabilityData = {
     /* entry  */          &TPM2_GetCapability,
-    /* inSize */          (UINT16)(sizeof(GetCapability_In)),
-    /* outSize */         (UINT16)(sizeof(GetCapability_Out)),
+    /* inSize */          (UINT32)(sizeof(GetCapability_In)),
+    /* outSize */         (UINT32)(sizeof(GetCapability_Out)),
     /* offsetOfTypes */   offsetof(GetCapability_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(GetCapability_In, property)),
-			   (UINT16)(offsetof(GetCapability_In, propertyCount)),
-			   (UINT16)(offsetof(GetCapability_Out, capabilityData))},
+    /* offsets */         {(UINT32)(offsetof(GetCapability_In, property)),
+			   (UINT32)(offsetof(GetCapability_In, propertyCount)),
+			   (UINT32)(offsetof(GetCapability_Out, capabilityData))},
     /* types */           {TPM_CAP_P_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
@@ -3546,14 +3542,14 @@ typedef TPM_RC  (TestParms_Entry)(
 				  );
 typedef const struct {
     TestParms_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
     BYTE               types[3];
 } TestParms_COMMAND_DESCRIPTOR_t;
 TestParms_COMMAND_DESCRIPTOR_t _TestParmsData = {
     /* entry  */          &TPM2_TestParms,
-    /* inSize */          (UINT16)(sizeof(TestParms_In)),
+    /* inSize */          (UINT32)(sizeof(TestParms_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(TestParms_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3572,19 +3568,19 @@ typedef TPM_RC  (NV_DefineSpace_Entry)(
 				       );
 typedef const struct {
     NV_DefineSpace_Entry    *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[2];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[2];
     BYTE                    types[5];
 } NV_DefineSpace_COMMAND_DESCRIPTOR_t;
 NV_DefineSpace_COMMAND_DESCRIPTOR_t _NV_DefineSpaceData = {
     /* entry  */          &TPM2_NV_DefineSpace,
-    /* inSize */          (UINT16)(sizeof(NV_DefineSpace_In)),
+    /* inSize */          (UINT32)(sizeof(NV_DefineSpace_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_DefineSpace_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_DefineSpace_In, auth)),
-			   (UINT16)(offsetof(NV_DefineSpace_In, publicInfo))},
+    /* offsets */         {(UINT32)(offsetof(NV_DefineSpace_In, auth)),
+			   (UINT32)(offsetof(NV_DefineSpace_In, publicInfo))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
 			   TPM2B_NV_PUBLIC_P_UNMARSHAL,
@@ -3602,18 +3598,18 @@ typedef TPM_RC  (NV_UndefineSpace_Entry)(
 					 );
 typedef const struct {
     NV_UndefineSpace_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[1];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[1];
     BYTE                      types[4];
 } NV_UndefineSpace_COMMAND_DESCRIPTOR_t;
 NV_UndefineSpace_COMMAND_DESCRIPTOR_t _NV_UndefineSpaceData = {
     /* entry  */          &TPM2_NV_UndefineSpace,
-    /* inSize */          (UINT16)(sizeof(NV_UndefineSpace_In)),
+    /* inSize */          (UINT32)(sizeof(NV_UndefineSpace_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_UndefineSpace_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_UndefineSpace_In, nvIndex))},
+    /* offsets */         {(UINT32)(offsetof(NV_UndefineSpace_In, nvIndex))},
     /* types */           {TPMI_RH_PROVISION_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   END_OF_LIST,
@@ -3630,18 +3626,18 @@ typedef TPM_RC  (NV_UndefineSpaceSpecial_Entry)(
 						);
 typedef const struct {
     NV_UndefineSpaceSpecial_Entry    *entry;
-    UINT16                           inSize;
-    UINT16                           outSize;
-    UINT16                           offsetOfTypes;
-    UINT16                           paramOffsets[1];
+    UINT32                           inSize;
+    UINT32                           outSize;
+    UINT32                           offsetOfTypes;
+    UINT32                           paramOffsets[1];
     BYTE                             types[4];
 } NV_UndefineSpaceSpecial_COMMAND_DESCRIPTOR_t;
 NV_UndefineSpaceSpecial_COMMAND_DESCRIPTOR_t _NV_UndefineSpaceSpecialData = {
     /* entry  */          &TPM2_NV_UndefineSpaceSpecial,
-    /* inSize */          (UINT16)(sizeof(NV_UndefineSpaceSpecial_In)),
+    /* inSize */          (UINT32)(sizeof(NV_UndefineSpaceSpecial_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_UndefineSpaceSpecial_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_UndefineSpaceSpecial_In, platform))},
+    /* offsets */         {(UINT32)(offsetof(NV_UndefineSpaceSpecial_In, platform))},
     /* types */           {TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPMI_RH_PLATFORM_H_UNMARSHAL,
 			   END_OF_LIST,
@@ -3659,18 +3655,18 @@ typedef TPM_RC  (NV_ReadPublic_Entry)(
 				      );
 typedef const struct {
     NV_ReadPublic_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[1];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[1];
     BYTE                   types[5];
 } NV_ReadPublic_COMMAND_DESCRIPTOR_t;
 NV_ReadPublic_COMMAND_DESCRIPTOR_t _NV_ReadPublicData = {
     /* entry  */          &TPM2_NV_ReadPublic,
-    /* inSize */          (UINT16)(sizeof(NV_ReadPublic_In)),
-    /* outSize */         (UINT16)(sizeof(NV_ReadPublic_Out)),
+    /* inSize */          (UINT32)(sizeof(NV_ReadPublic_In)),
+    /* outSize */         (UINT32)(sizeof(NV_ReadPublic_Out)),
     /* offsetOfTypes */   offsetof(NV_ReadPublic_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_ReadPublic_Out, nvName))},
+    /* offsets */         {(UINT32)(offsetof(NV_ReadPublic_Out, nvName))},
     /* types */           {TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   END_OF_LIST,
 			   TPM2B_NV_PUBLIC_P_MARSHAL,
@@ -3688,20 +3684,20 @@ typedef TPM_RC  (NV_Write_Entry)(
 				 );
 typedef const struct {
     NV_Write_Entry    *entry;
-    UINT16            inSize;
-    UINT16            outSize;
-    UINT16            offsetOfTypes;
-    UINT16            paramOffsets[3];
+    UINT32            inSize;
+    UINT32            outSize;
+    UINT32            offsetOfTypes;
+    UINT32            paramOffsets[3];
     BYTE              types[6];
 } NV_Write_COMMAND_DESCRIPTOR_t;
 NV_Write_COMMAND_DESCRIPTOR_t _NV_WriteData = {
     /* entry  */          &TPM2_NV_Write,
-    /* inSize */          (UINT16)(sizeof(NV_Write_In)),
+    /* inSize */          (UINT32)(sizeof(NV_Write_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_Write_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_Write_In, nvIndex)),
-			   (UINT16)(offsetof(NV_Write_In, data)),
-			   (UINT16)(offsetof(NV_Write_In, offset))},
+    /* offsets */         {(UINT32)(offsetof(NV_Write_In, nvIndex)),
+			   (UINT32)(offsetof(NV_Write_In, data)),
+			   (UINT32)(offsetof(NV_Write_In, offset))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPM2B_MAX_NV_BUFFER_P_UNMARSHAL,
@@ -3720,18 +3716,18 @@ typedef TPM_RC  (NV_Increment_Entry)(
 				     );
 typedef const struct {
     NV_Increment_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[1];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[1];
     BYTE                  types[4];
 } NV_Increment_COMMAND_DESCRIPTOR_t;
 NV_Increment_COMMAND_DESCRIPTOR_t _NV_IncrementData = {
     /* entry  */          &TPM2_NV_Increment,
-    /* inSize */          (UINT16)(sizeof(NV_Increment_In)),
+    /* inSize */          (UINT32)(sizeof(NV_Increment_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_Increment_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_Increment_In, nvIndex))},
+    /* offsets */         {(UINT32)(offsetof(NV_Increment_In, nvIndex))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   END_OF_LIST,
@@ -3748,19 +3744,19 @@ typedef TPM_RC  (NV_Extend_Entry)(
 				  );
 typedef const struct {
     NV_Extend_Entry    *entry;
-    UINT16             inSize;
-    UINT16             outSize;
-    UINT16             offsetOfTypes;
-    UINT16             paramOffsets[2];
+    UINT32             inSize;
+    UINT32             outSize;
+    UINT32             offsetOfTypes;
+    UINT32             paramOffsets[2];
     BYTE               types[5];
 } NV_Extend_COMMAND_DESCRIPTOR_t;
 NV_Extend_COMMAND_DESCRIPTOR_t _NV_ExtendData = {
     /* entry  */          &TPM2_NV_Extend,
-    /* inSize */          (UINT16)(sizeof(NV_Extend_In)),
+    /* inSize */          (UINT32)(sizeof(NV_Extend_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_Extend_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_Extend_In, nvIndex)),
-			   (UINT16)(offsetof(NV_Extend_In, data))},
+    /* offsets */         {(UINT32)(offsetof(NV_Extend_In, nvIndex)),
+			   (UINT32)(offsetof(NV_Extend_In, data))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPM2B_MAX_NV_BUFFER_P_UNMARSHAL,
@@ -3778,19 +3774,19 @@ typedef TPM_RC  (NV_SetBits_Entry)(
 				   );
 typedef const struct {
     NV_SetBits_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
-    UINT16              paramOffsets[2];
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
+    UINT32              paramOffsets[2];
     BYTE                types[5];
 } NV_SetBits_COMMAND_DESCRIPTOR_t;
 NV_SetBits_COMMAND_DESCRIPTOR_t _NV_SetBitsData = {
     /* entry  */          &TPM2_NV_SetBits,
-    /* inSize */          (UINT16)(sizeof(NV_SetBits_In)),
+    /* inSize */          (UINT32)(sizeof(NV_SetBits_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_SetBits_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_SetBits_In, nvIndex)),
-			   (UINT16)(offsetof(NV_SetBits_In, bits))},
+    /* offsets */         {(UINT32)(offsetof(NV_SetBits_In, nvIndex)),
+			   (UINT32)(offsetof(NV_SetBits_In, bits))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   UINT64_P_UNMARSHAL,
@@ -3808,18 +3804,18 @@ typedef TPM_RC  (NV_WriteLock_Entry)(
 				     );
 typedef const struct {
     NV_WriteLock_Entry    *entry;
-    UINT16                inSize;
-    UINT16                outSize;
-    UINT16                offsetOfTypes;
-    UINT16                paramOffsets[1];
+    UINT32                inSize;
+    UINT32                outSize;
+    UINT32                offsetOfTypes;
+    UINT32                paramOffsets[1];
     BYTE                  types[4];
 } NV_WriteLock_COMMAND_DESCRIPTOR_t;
 NV_WriteLock_COMMAND_DESCRIPTOR_t _NV_WriteLockData = {
     /* entry  */          &TPM2_NV_WriteLock,
-    /* inSize */          (UINT16)(sizeof(NV_WriteLock_In)),
+    /* inSize */          (UINT32)(sizeof(NV_WriteLock_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_WriteLock_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_WriteLock_In, nvIndex))},
+    /* offsets */         {(UINT32)(offsetof(NV_WriteLock_In, nvIndex))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   END_OF_LIST,
@@ -3836,14 +3832,14 @@ typedef TPM_RC  (NV_GlobalWriteLock_Entry)(
 					   );
 typedef const struct {
     NV_GlobalWriteLock_Entry    *entry;
-    UINT16                      inSize;
-    UINT16                      outSize;
-    UINT16                      offsetOfTypes;
+    UINT32                      inSize;
+    UINT32                      outSize;
+    UINT32                      offsetOfTypes;
     BYTE                        types[3];
 } NV_GlobalWriteLock_COMMAND_DESCRIPTOR_t;
 NV_GlobalWriteLock_COMMAND_DESCRIPTOR_t _NV_GlobalWriteLockData = {
     /* entry  */          &TPM2_NV_GlobalWriteLock,
-    /* inSize */          (UINT16)(sizeof(NV_GlobalWriteLock_In)),
+    /* inSize */          (UINT32)(sizeof(NV_GlobalWriteLock_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_GlobalWriteLock_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -3863,20 +3859,20 @@ typedef TPM_RC  (NV_Read_Entry)(
 				);
 typedef const struct {
     NV_Read_Entry    *entry;
-    UINT16           inSize;
-    UINT16           outSize;
-    UINT16           offsetOfTypes;
-    UINT16           paramOffsets[3];
+    UINT32           inSize;
+    UINT32           outSize;
+    UINT32           offsetOfTypes;
+    UINT32           paramOffsets[3];
     BYTE             types[7];
 } NV_Read_COMMAND_DESCRIPTOR_t;
 NV_Read_COMMAND_DESCRIPTOR_t _NV_ReadData = {
     /* entry  */          &TPM2_NV_Read,
-    /* inSize */          (UINT16)(sizeof(NV_Read_In)),
-    /* outSize */         (UINT16)(sizeof(NV_Read_Out)),
+    /* inSize */          (UINT32)(sizeof(NV_Read_In)),
+    /* outSize */         (UINT32)(sizeof(NV_Read_Out)),
     /* offsetOfTypes */   offsetof(NV_Read_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_Read_In, nvIndex)),
-			   (UINT16)(offsetof(NV_Read_In, size)),
-			   (UINT16)(offsetof(NV_Read_In, offset))},
+    /* offsets */         {(UINT32)(offsetof(NV_Read_In, nvIndex)),
+			   (UINT32)(offsetof(NV_Read_In, size)),
+			   (UINT32)(offsetof(NV_Read_In, offset))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   UINT16_P_UNMARSHAL,
@@ -3896,18 +3892,18 @@ typedef TPM_RC  (NV_ReadLock_Entry)(
 				    );
 typedef const struct {
     NV_ReadLock_Entry    *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[1];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
     BYTE                 types[4];
 } NV_ReadLock_COMMAND_DESCRIPTOR_t;
 NV_ReadLock_COMMAND_DESCRIPTOR_t _NV_ReadLockData = {
     /* entry  */          &TPM2_NV_ReadLock,
-    /* inSize */          (UINT16)(sizeof(NV_ReadLock_In)),
+    /* inSize */          (UINT32)(sizeof(NV_ReadLock_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_ReadLock_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_ReadLock_In, nvIndex))},
+    /* offsets */         {(UINT32)(offsetof(NV_ReadLock_In, nvIndex))},
     /* types */           {TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   END_OF_LIST,
@@ -3924,18 +3920,18 @@ typedef TPM_RC  (NV_ChangeAuth_Entry)(
 				      );
 typedef const struct {
     NV_ChangeAuth_Entry    *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[1];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[1];
     BYTE                   types[4];
 } NV_ChangeAuth_COMMAND_DESCRIPTOR_t;
 NV_ChangeAuth_COMMAND_DESCRIPTOR_t _NV_ChangeAuthData = {
     /* entry  */          &TPM2_NV_ChangeAuth,
-    /* inSize */          (UINT16)(sizeof(NV_ChangeAuth_In)),
+    /* inSize */          (UINT32)(sizeof(NV_ChangeAuth_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NV_ChangeAuth_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_ChangeAuth_In, newAuth))},
+    /* offsets */         {(UINT32)(offsetof(NV_ChangeAuth_In, newAuth))},
     /* types */           {TPMI_RH_NV_INDEX_H_UNMARSHAL,
 			   TPM2B_AUTH_P_UNMARSHAL,
 			   END_OF_LIST,
@@ -3953,24 +3949,24 @@ typedef TPM_RC  (NV_Certify_Entry)(
 				   );
 typedef const struct {
     NV_Certify_Entry    *entry;
-    UINT16              inSize;
-    UINT16              outSize;
-    UINT16              offsetOfTypes;
-    UINT16              paramOffsets[7];
+    UINT32              inSize;
+    UINT32              outSize;
+    UINT32              offsetOfTypes;
+    UINT32              paramOffsets[7];
     BYTE                types[11];
 } NV_Certify_COMMAND_DESCRIPTOR_t;
 NV_Certify_COMMAND_DESCRIPTOR_t _NV_CertifyData = {
     /* entry  */          &TPM2_NV_Certify,
-    /* inSize */          (UINT16)(sizeof(NV_Certify_In)),
-    /* outSize */         (UINT16)(sizeof(NV_Certify_Out)),
+    /* inSize */          (UINT32)(sizeof(NV_Certify_In)),
+    /* outSize */         (UINT32)(sizeof(NV_Certify_Out)),
     /* offsetOfTypes */   offsetof(NV_Certify_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(NV_Certify_In, authHandle)),
-			   (UINT16)(offsetof(NV_Certify_In, nvIndex)),
-			   (UINT16)(offsetof(NV_Certify_In, qualifyingData)),
-			   (UINT16)(offsetof(NV_Certify_In, inScheme)),
-			   (UINT16)(offsetof(NV_Certify_In, size)),
-			   (UINT16)(offsetof(NV_Certify_In, offset)),
-			   (UINT16)(offsetof(NV_Certify_Out, signature))},
+    /* offsets */         {(UINT32)(offsetof(NV_Certify_In, authHandle)),
+			   (UINT32)(offsetof(NV_Certify_In, nvIndex)),
+			   (UINT32)(offsetof(NV_Certify_In, qualifyingData)),
+			   (UINT32)(offsetof(NV_Certify_In, inScheme)),
+			   (UINT32)(offsetof(NV_Certify_In, size)),
+			   (UINT32)(offsetof(NV_Certify_In, offset)),
+			   (UINT32)(offsetof(NV_Certify_Out, signature))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL + ADD_FLAG,
 			   TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_NV_INDEX_H_UNMARSHAL,
@@ -3995,20 +3991,20 @@ typedef TPM_RC  (AC_GetCapability_Entry)(
 					 );
 typedef const struct {
     AC_GetCapability_Entry    *entry;
-    UINT16                    inSize;
-    UINT16                    outSize;
-    UINT16                    offsetOfTypes;
-    UINT16                    paramOffsets[3];
+    UINT32                    inSize;
+    UINT32                    outSize;
+    UINT32                    offsetOfTypes;
+    UINT32                    paramOffsets[3];
     BYTE                      types[7];
 } AC_GetCapability_COMMAND_DESCRIPTOR_t;
 AC_GetCapability_COMMAND_DESCRIPTOR_t _AC_GetCapabilityData = {
     /* entry  */          &TPM2_AC_GetCapability,
-    /* inSize */          (UINT16)(sizeof(AC_GetCapability_In)),
-    /* outSize */         (UINT16)(sizeof(AC_GetCapability_Out)),
+    /* inSize */          (UINT32)(sizeof(AC_GetCapability_In)),
+    /* outSize */         (UINT32)(sizeof(AC_GetCapability_Out)),
     /* offsetOfTypes */   offsetof(AC_GetCapability_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(AC_GetCapability_In, capability)),
-			   (UINT16)(offsetof(AC_GetCapability_In, count)),
-			   (UINT16)(offsetof(AC_GetCapability_Out, capabilitiesData))},
+    /* offsets */         {(UINT32)(offsetof(AC_GetCapability_In, capability)),
+			   (UINT32)(offsetof(AC_GetCapability_In, count)),
+			   (UINT32)(offsetof(AC_GetCapability_Out, capabilitiesData))},
     /* types */           {TPMI_RH_AC_H_UNMARSHAL,
 			   TPM_AT_P_UNMARSHAL,
 			   UINT32_P_UNMARSHAL,
@@ -4029,20 +4025,20 @@ typedef TPM_RC  (AC_Send_Entry)(
 				);
 typedef const struct {
     AC_Send_Entry    *entry;
-    UINT16           inSize;
-    UINT16           outSize;
-    UINT16           offsetOfTypes;
-    UINT16           paramOffsets[3];
+    UINT32           inSize;
+    UINT32           outSize;
+    UINT32           offsetOfTypes;
+    UINT32           paramOffsets[3];
     BYTE             types[7];
 } AC_Send_COMMAND_DESCRIPTOR_t;
 AC_Send_COMMAND_DESCRIPTOR_t _AC_SendData = {
     /* entry  */          &TPM2_AC_Send,
-    /* inSize */          (UINT16)(sizeof(AC_Send_In)),
-    /* outSize */         (UINT16)(sizeof(AC_Send_Out)),
+    /* inSize */          (UINT32)(sizeof(AC_Send_In)),
+    /* outSize */         (UINT32)(sizeof(AC_Send_Out)),
     /* offsetOfTypes */   offsetof(AC_Send_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(AC_Send_In, authHandle)),
-			   (UINT16)(offsetof(AC_Send_In, ac)),
-			   (UINT16)(offsetof(AC_Send_In, acDataIn))},
+    /* offsets */         {(UINT32)(offsetof(AC_Send_In, authHandle)),
+			   (UINT32)(offsetof(AC_Send_In, ac)),
+			   (UINT32)(offsetof(AC_Send_In, acDataIn))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
 			   TPMI_RH_NV_AUTH_H_UNMARSHAL,
 			   TPMI_RH_AC_H_UNMARSHAL,
@@ -4062,21 +4058,21 @@ typedef TPM_RC  (Policy_AC_SendSelect_Entry)(
 					     );
 typedef const struct {
     Policy_AC_SendSelect_Entry    *entry;
-    UINT16                        inSize;
-    UINT16                        outSize;
-    UINT16                        offsetOfTypes;
-    UINT16                        paramOffsets[4];
+    UINT32                        inSize;
+    UINT32                        outSize;
+    UINT32                        offsetOfTypes;
+    UINT32                        paramOffsets[4];
     BYTE                          types[7];
 } Policy_AC_SendSelect_COMMAND_DESCRIPTOR_t;
 Policy_AC_SendSelect_COMMAND_DESCRIPTOR_t _Policy_AC_SendSelectData = {
     /* entry  */          &TPM2_Policy_AC_SendSelect,
-    /* inSize */          (UINT16)(sizeof(Policy_AC_SendSelect_In)),
+    /* inSize */          (UINT32)(sizeof(Policy_AC_SendSelect_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(Policy_AC_SendSelect_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Policy_AC_SendSelect_In, objectName)),
-			   (UINT16)(offsetof(Policy_AC_SendSelect_In, authHandleName)),
-			   (UINT16)(offsetof(Policy_AC_SendSelect_In, acName)),
-			   (UINT16)(offsetof(Policy_AC_SendSelect_In, includeObject))},
+    /* offsets */         {(UINT32)(offsetof(Policy_AC_SendSelect_In, objectName)),
+			   (UINT32)(offsetof(Policy_AC_SendSelect_In, authHandleName)),
+			   (UINT32)(offsetof(Policy_AC_SendSelect_In, acName)),
+			   (UINT32)(offsetof(Policy_AC_SendSelect_In, includeObject))},
     /* types */           {TPMI_SH_POLICY_H_UNMARSHAL,
 			   TPM2B_NAME_P_UNMARSHAL,
 			   TPM2B_NAME_P_UNMARSHAL,
@@ -4097,15 +4093,15 @@ typedef TPM_RC  (Vendor_TCG_Test_Entry)(
 					);
 typedef const struct {
     Vendor_TCG_Test_Entry    *entry;
-    UINT16                   inSize;
-    UINT16                   outSize;
-    UINT16                   offsetOfTypes;
+    UINT32                   inSize;
+    UINT32                   outSize;
+    UINT32                   offsetOfTypes;
     BYTE                     types[4];
 } Vendor_TCG_Test_COMMAND_DESCRIPTOR_t;
 Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
     /* entry  */          &TPM2_Vendor_TCG_Test,
-    /* inSize */          (UINT16)(sizeof(Vendor_TCG_Test_In)),
-    /* outSize */         (UINT16)(sizeof(Vendor_TCG_Test_Out)),
+    /* inSize */          (UINT32)(sizeof(Vendor_TCG_Test_In)),
+    /* outSize */         (UINT32)(sizeof(Vendor_TCG_Test_Out)),
     /* offsetOfTypes */   offsetof(Vendor_TCG_Test_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */           {TPM2B_DATA_P_UNMARSHAL,
@@ -4129,18 +4125,18 @@ typedef TPM_RC  (Kyber_Enc_Entry)(
 				    );
 typedef const struct {
     Kyber_Enc_Entry      *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[1];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
     BYTE                 types[5];
 } Kyber_Enc_COMMAND_DESCRIPTOR_t;
 Kyber_Enc_COMMAND_DESCRIPTOR_t _Kyber_EncData = {
     /* entry  */          &TPM2_Kyber_Enc,
-    /* inSize */          (UINT16)(sizeof(Kyber_Encapsulate_In)),
-    /* outSize */         (UINT16)(sizeof(Kyber_Encapsulate_Out)),
+    /* inSize */          (UINT32)(sizeof(Kyber_Encapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_Encapsulate_Out)),
     /* offsetOfTypes */   offsetof(Kyber_Enc_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Kyber_Encapsulate_Out, cipher_text))},
+    /* offsets */         {(UINT32)(offsetof(Kyber_Encapsulate_Out, cipher_text))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                END_OF_LIST,
 			   TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
@@ -4160,18 +4156,18 @@ typedef TPM_RC  (Kyber_Dec_Entry)(
 				    );
 typedef const struct {
     Kyber_Dec_Entry      *entry;
-    UINT16               inSize;
-    UINT16               outSize;
-    UINT16               offsetOfTypes;
-    UINT16               paramOffsets[1];
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
     BYTE                 types[5];
 } Kyber_Dec_COMMAND_DESCRIPTOR_t;
 Kyber_Dec_COMMAND_DESCRIPTOR_t _Kyber_DecData = {
     /* entry  */          &TPM2_Kyber_Dec,
-    /* inSize */          (UINT16)(sizeof(Kyber_Decapsulate_In)),
-    /* outSize */         (UINT16)(sizeof(Kyber_Decapsulate_Out)),
+    /* inSize */          (UINT32)(sizeof(Kyber_Decapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_Decapsulate_Out)),
     /* offsetOfTypes */   offsetof(Kyber_Dec_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Kyber_Decapsulate_In, cipher_text))},
+    /* offsets */         {(UINT32)(offsetof(Kyber_Decapsulate_In, cipher_text))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
                            END_OF_LIST,
@@ -4191,22 +4187,24 @@ typedef TPM_RC  (Kyber_2Phase_KEX_Entry)(
 				    );
 typedef const struct {
     Kyber_2Phase_KEX_Entry  *entry;
-    UINT16                  inSize;
-    UINT16                  outSize;
-    UINT16                  offsetOfTypes;
-    UINT16                  paramOffsets[4];
-    BYTE                    types[8];
+    UINT32                  inSize;
+    UINT32                  outSize;
+    UINT32                  offsetOfTypes;
+    UINT32                  paramOffsets[5];
+    BYTE                    types[9];
 } Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t;
 Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_2Phase_KEXData = {
     /* entry  */          &TPM2_Kyber_2Phase_KEX,
-    /* inSize */          (UINT16)(sizeof(Kyber_2Phase_KEX_In)),
-    /* outSize */         (UINT16)(sizeof(Kyber_2Phase_KEX_Out)),
+    /* inSize */          (UINT32)(sizeof(Kyber_2Phase_KEX_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_2Phase_KEX_Out)),
     /* offsetOfTypes */   offsetof(Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Kyber_2Phase_KEX_In, ephemeral_key)),
-                           (UINT16)(offsetof(Kyber_2Phase_KEX_In, cipher_text_static)),
-                           (UINT16)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_1)),
-                           (UINT16)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_2))},
+    /* offsets */         {(UINT32)(offsetof(Kyber_2Phase_KEX_In, ephemeral_key)),
+                           (UINT32)(offsetof(Kyber_2Phase_KEX_In, alice_static_key)),
+                           (UINT32)(offsetof(Kyber_2Phase_KEX_In, cipher_text_static)),
+                           (UINT32)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_1)),
+                           (UINT32)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_2))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
                            END_OF_LIST,
@@ -4228,21 +4226,21 @@ typedef TPM_RC  (Kyber_3Phase_KEX_Entry)(
 				    );
 typedef const struct {
     Kyber_3Phase_KEX_Entry *entry;
-    UINT16                 inSize;
-    UINT16                 outSize;
-    UINT16                 offsetOfTypes;
-    UINT16                 paramOffsets[4];
+    UINT32                 inSize;
+    UINT32                 outSize;
+    UINT32                 offsetOfTypes;
+    UINT32                 paramOffsets[4];
     BYTE                   types[8];
 } Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t;
 Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_3Phase_KEXData = {
     /* entry  */          &TPM2_Kyber_3Phase_KEX,
-    /* inSize */          (UINT16)(sizeof(Kyber_3Phase_KEX_In)),
-    /* outSize */         (UINT16)(sizeof(Kyber_3Phase_KEX_Out)),
+    /* inSize */          (UINT32)(sizeof(Kyber_3Phase_KEX_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_3Phase_KEX_Out)),
     /* offsetOfTypes */   offsetof(Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(Kyber_3Phase_KEX_In, ephemeral_key)),
-                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, cipher_text_1)),
-                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, cipher_text_2)),
-                           (UINT16)(offsetof(Kyber_3Phase_KEX_In, shared_key_3))},
+    /* offsets */         {(UINT32)(offsetof(Kyber_3Phase_KEX_In, ephemeral_key)),
+                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, cipher_text_1)),
+                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, cipher_text_2)),
+                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, shared_key_3))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPMI_DH_OBJECT_H_UNMARSHAL,
                            TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
@@ -4271,22 +4269,22 @@ typedef TPM_RC  (LDAA_Join_Entry)(
 				    );
 typedef const struct {
     LDAA_Join_Entry *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[5];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[5];
     BYTE            types[9];
 } LDAA_Join_COMMAND_DESCRIPTOR_t;
 LDAA_Join_COMMAND_DESCRIPTOR_t _LDAA_JoinData = {
     /* entry  */          &TPM2_LDAA_Join,
-    /* inSize */          (UINT16)(sizeof(LDAA_Join_In)),
-    /* outSize */         (UINT16)(sizeof(LDAA_Join_Out)),
+    /* inSize */          (UINT32)(sizeof(LDAA_Join_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_Join_Out)),
     /* offsetOfTypes */   offsetof(LDAA_Join_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(LDAA_Join_In, sid)),
-                           (UINT16)(offsetof(LDAA_Join_In, jsid)),
-                           (UINT16)(offsetof(LDAA_Join_In, nonce)),
-                           (UINT16)(offsetof(LDAA_Join_In, bsn_I)),
-                           (UINT16)(offsetof(LDAA_Join_Out, public_key))},
+    /* offsets */         {(UINT32)(offsetof(LDAA_Join_In, sid)),
+                           (UINT32)(offsetof(LDAA_Join_In, jsid)),
+                           (UINT32)(offsetof(LDAA_Join_In, nonce)),
+                           (UINT32)(offsetof(LDAA_Join_In, bsn_I)),
+                           (UINT32)(offsetof(LDAA_Join_Out, public_key))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
@@ -4310,42 +4308,42 @@ typedef TPM_RC  (LDAA_SignCommit_Entry)(
 				    );
 typedef const struct {
     LDAA_SignCommit_Entry *entry;
-    UINT16          inSize;
-    UINT16          outSize;
-    UINT16          offsetOfTypes;
-    UINT16          paramOffsets[11];
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[11];
     BYTE            types[15];
 } LDAA_SignCommit_COMMAND_DESCRIPTOR_t;
 LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
     /* entry  */          &TPM2_LDAA_SignCommit,
-    /* inSize */          (UINT16)(sizeof(LDAA_SignCommit_In)),
-    /* outSize */         (UINT16)(sizeof(LDAA_SignCommit_Out)),
+    /* inSize */          (UINT32)(sizeof(LDAA_SignCommit_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_SignCommit_Out)),
     /* offsetOfTypes */   offsetof(LDAA_SignCommit_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT16)(offsetof(LDAA_SignCommit_In, sid)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, ssid)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, bsn)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_at_ntt)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt2)),
-                           (UINT16)(offsetof(LDAA_SignCommit_In, issuer_bntt3)),
-                           (UINT16)(offsetof(LDAA_SignCommit_Out, ssid)),
-                           (UINT16)(offsetof(LDAA_SignCommit_Out, c1)),
-                           (UINT16)(offsetof(LDAA_SignCommit_Out, c2)),
-                           (UINT16)(offsetof(LDAA_SignCommit_Out, c3))},
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit_In, sid)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, bsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, issuer_at_ntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, issuer_bntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, commit_sel)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, sign_state_sel)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, pe)),
+                           (UINT32)(offsetof(LDAA_SignCommit_In, pbsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit_Out, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit_Out, commit))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
-                           TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL,
-                           TPM2B_LDAA_ISSUER_BNTT2_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_PE_P_UNMARSHAL,
+                           TPM2B_LDAA_PBSN_P_UNMARSHAL,
                            END_OF_LIST,
                            UINT8_P_MARSHAL,
                            UINT8_P_MARSHAL,
-                           TPM2B_LDAA_C1_P_MARSHAL,
-                           TPM2B_LDAA_C2_P_MARSHAL,
-                           TPM2B_LDAA_C3_P_MARSHAL,
+                           TPM2B_LDAA_COMMIT_P_MARSHAL,
                            END_OF_LIST}
 };
 #define _LDAA_SignCommitDataAddress (&_LDAA_SignCommitData)
@@ -4364,15 +4362,15 @@ typedef TPM_RC (NTC2_PreConfig_Entry) (
 
 typedef const struct {
     NTC2_PreConfig_Entry    	*entry;
-    UINT16           		inSize;
-    UINT16           		outSize;
-    UINT16           		offsetOfTypes;
+    UINT32           		inSize;
+    UINT32           		outSize;
+    UINT32           		offsetOfTypes;
     BYTE             		types[3];
 } NTC2_PreConfig_COMMAND_DESCRIPTOR_t;
 
 NTC2_PreConfig_COMMAND_DESCRIPTOR_t _NTC2_PreConfigData = {
     /* entry  */          &NTC2_PreConfig,
-    /* inSize */          (UINT16)(sizeof(NTC2_PreConfig_In)),
+    /* inSize */          (UINT32)(sizeof(NTC2_PreConfig_In)),
     /* outSize */         0,
     /* offsetOfTypes */   offsetof(NTC2_PreConfig_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
@@ -4387,9 +4385,9 @@ typedef TPM_RC (NTC2_LockPreConfig_Entry) ();
 
 typedef const struct {
     NTC2_LockPreConfig_Entry    *entry;
-    UINT16           		inSize;
-    UINT16           		outSize;
-    UINT16             		offsetOfTypes;
+    UINT32           		inSize;
+    UINT32           		outSize;
+    UINT32             		offsetOfTypes;
     BYTE                        types[2];
 } NTC2_LockPreConfig_COMMAND_DESCRIPTOR_t;
 
@@ -4410,16 +4408,16 @@ typedef TPM_RC (NTC2_GetConfig_Entry) (
 				       );
 typedef const struct {
     NTC2_GetConfig_Entry	*entry;
-    UINT16             		inSize;
-    UINT16             		outSize;
-    UINT16             		offsetOfTypes;
+    UINT32             		inSize;
+    UINT32             		outSize;
+    UINT32             		offsetOfTypes;
     BYTE               		types[3];
 } NTC2_GetConfig_COMMAND_DESCRIPTOR_t;
 
 NTC2_GetConfig_COMMAND_DESCRIPTOR_t _NTC2_GetConfigData = {
     /* entry */		&NTC2_GetConfig,
     /* inSize */        0,
-    /* outSize */       (UINT16)(sizeof(NTC2_GetConfig_Out)),
+    /* outSize */       (UINT32)(sizeof(NTC2_GetConfig_Out)),
     /* offsetOfTypes */ offsetof(NTC2_GetConfig_COMMAND_DESCRIPTOR_t, types),
     /* offsets */         // No parameter offsets
     /* types */         {END_OF_LIST,

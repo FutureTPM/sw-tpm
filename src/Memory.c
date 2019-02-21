@@ -109,9 +109,10 @@ MemoryEqual(
     return (equal == 0);
 }
 /* 9.12.3.3 MemoryCopy2B() */
-/* This function copies a TPM2B. This can be used when the TPM2B types are the same or different. */
-/* This function returns the number of octets in the data buffer of the TPM2B. */
-LIB_EXPORT INT16
+/* This function copies a TPM2B. This can be used when the TPM2B types are the
+ * same or different. This function returns the number of octets in the data
+ * buffer of the TPM2B. */
+LIB_EXPORT UINT32
 MemoryCopy2B(
 	     TPM2B           *dest,          // OUT: receiving TPM2B
 	     const TPM2B     *source,        // IN: source TPM2B
@@ -130,8 +131,9 @@ MemoryCopy2B(
     return dest->size;
 }
 /* 9.12.3.4 MemoryConcat2B() */
-/* This function will concatenate the buffer contents of a TPM2B to an the buffer contents of
-   another TPM2B and adjust the size accordingly (a := (a | b)). */
+/* This function will concatenate the buffer contents of a TPM2B to an the
+ * buffer contents of another TPM2B and adjust the size accordingly
+ * (a := (a | b)). */
 void
 MemoryConcat2B(
 	       TPM2B           *aInOut,        // IN/OUT: destination 2B

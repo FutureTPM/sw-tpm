@@ -68,13 +68,13 @@
 #define RSA_TEST_KEY_SIZE   256
 typedef struct
 {
-    UINT16      size;
+    UINT32      size;
     BYTE        buffer[RSA_TEST_KEY_SIZE];
 } TPM2B_RSA_TEST_KEY;
 typedef TPM2B_RSA_TEST_KEY  TPM2B_RSA_TEST_VALUE;
 typedef struct
 {
-    UINT16       size;
+    UINT32       size;
     BYTE        buffer[RSA_TEST_KEY_SIZE / 2];
 } TPM2B_RSA_TEST_PRIME;
 const TPM2B_RSA_TEST_KEY    c_rsaPublicModulus = {256, {

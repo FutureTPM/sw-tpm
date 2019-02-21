@@ -97,7 +97,7 @@ typedef struct sequenceMethods {
 typedef struct tpmCmacState {
     TPM_ALG_ID              symAlg;
     UINT16                  keySizeBits;
-    INT16                   bcount; // current count of bytes accumulated in IV
+    UINT32                  bcount; // current count of bytes accumulated in IV
     TPM2B_IV                iv;     // IV buffer
     TPM2B_SYM_KEY           symKey;
 } tpmCmacState_t;

@@ -74,7 +74,7 @@ MemoryEqual(
 	    const void      *buffer2,       // IN: compare buffer2
 	    unsigned int     size           // IN: size of bytes being compared
 	    );
-LIB_EXPORT INT16
+LIB_EXPORT UINT32
 MemoryCopy2B(
 	     TPM2B           *dest,          // OUT: receiving TPM2B
 	     const TPM2B     *source,        // IN: source TPM2B

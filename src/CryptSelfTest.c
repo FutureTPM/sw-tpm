@@ -188,13 +188,15 @@ CryptInitializeToTest(
     return;
 }
 /* 10.2.7.2.5 CryptTestAlgorithm() */
-/* Only point of contact with the actual self tests. If a self-test fails, there is no return and
-   the TPM goes into failure mode. The call to TestAlgorithm() uses an algorithm selector and a bit
-   vector. When the test is run, the corresponding bit in toTest and in g_toTest is CLEAR. If toTest
-   is NULL, then only the bit in g_toTest is CLEAR. There is a special case for the call to
-   TestAlgorithm(). When alg is TPM_ALG_ERROR, TestAlgorithm() will CLEAR any bit in toTest for
-   which it has no test. This allows the knowledge about which algorithms have test to be accessed
-   through the interface that provides the test. */
+/* Only point of contact with the actual self tests. If a self-test fails,
+ * there is no return and the TPM goes into failure mode. The call to
+ * TestAlgorithm() uses an algorithm selector and a bit vector. When the test
+ * is run, the corresponding bit in toTest and in g_toTest is CLEAR. If toTest
+ * is NULL, then only the bit in g_toTest is CLEAR. There is a special case for
+ * the call to TestAlgorithm(). When alg is TPM_ALG_ERROR, TestAlgorithm() will
+ * CLEAR any bit in toTest for which it has no test. This allows the knowledge
+ * about which algorithms have test to be accessed through the interface that
+ * provides the test. */
 /* Error Returns Meaning */
 /* TPM_RC_SUCCESS test complete */
 /* TPM_RC_CANCELED test was canceled */

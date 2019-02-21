@@ -160,17 +160,18 @@
 #  define IsOdd(a)        (((a) & 1) != 0)
 #endif
 #ifndef BITS_TO_BYTES
-#  define BITS_TO_BYTES(bits) (((bits) + 7) >> 3)
+#  define BITS_TO_BYTES(bits) (((bits) + 7U) >> 3U)
 #endif
 #ifndef DIV_UP
 #  define DIV_UP(var, div) ((var + div - 1) / (div))
 #endif
-/* These are defined for use when the size of the vector being checked is known at compile time. */
+/* These are defined for use when the size of the vector being checked is known
+ * at compile time. */
 #define TEST_BIT(bit, vector)   TestBit((bit), (BYTE *)&(vector), sizeof(vector))
 #define SET_BIT(bit, vector)    SetBit((bit), (BYTE *)&(vector), sizeof(vector))
 #define CLEAR_BIT(bit, vector) ClearBit((bit), (BYTE *)&(vector), sizeof(vector))
-/* The following definitions are used if they have not already been defined. The defaults for these
-   settings are compatible with ISO/IEC 9899:2011 (E) */
+/* The following definitions are used if they have not already been defined.
+ * The defaults for these settings are compatible with ISO/IEC 9899:2011 (E) */
 #ifndef LIB_EXPORT
 #   define LIB_EXPORT
 #   define LIB_IMPORT

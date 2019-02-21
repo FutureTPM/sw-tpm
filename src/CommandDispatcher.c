@@ -77,10 +77,10 @@
 /* 6.3.1.1 Includes and Typedefs */
 #include "Tpm.h"
 #if TABLE_DRIVEN_DISPATCH
-typedef TPM_RC(NoFlagFunction)(void *target, BYTE **buffer, INT32 *size);
-typedef TPM_RC(FlagFunction)(void *target, BYTE **buffer, INT32 *size, BOOL flag);
+typedef TPM_RC(NoFlagFunction)(void *target, BYTE **buffer, UINT32 *size);
+typedef TPM_RC(FlagFunction)(void *target, BYTE **buffer, UINT32 *size, BOOL flag);
 typedef FlagFunction *UNMARSHAL_t;
-typedef INT16(MarshalFunction)(void *source, BYTE **buffer, INT32 *size);
+typedef UINT32(MarshalFunction)(void *source, BYTE **buffer, UINT32 *size);
 typedef MarshalFunction *MARSHAL_t;
 typedef TPM_RC(COMMAND_NO_ARGS)(void);
 typedef TPM_RC(COMMAND_IN_ARG)(void *in);
@@ -96,10 +96,10 @@ typedef union
 typedef struct
 {
     COMMAND_t       command;        // Address of the command
-    UINT16          inSize;         // Maximum size of the input structure
-    UINT16          outSize;        // Maximum size of the output structure
-    UINT16          typesOffset;    // address of the types field
-    UINT16          offsets[1];
+    UINT32          inSize;         // Maximum size of the input structure
+    UINT32          outSize;        // Maximum size of the output structure
+    UINT32          typesOffset;    // address of the types field
+    UINT32          offsets[1];
 } COMMAND_DESCRIPTOR_t;
 #if COMPRESSED_LISTS
 #   define PAD_LIST 0
@@ -196,8 +196,8 @@ ParseHandleBuffer(
 }
 
 /* 6.3.1.2.2	CommandDispatcher() */
-/* Function to unmarshal the command parameters, call the selected action code, and marshal the
-   response parameters. */
+/* Function to unmarshal the command parameters, call the selected action code,
+ * and marshal the response parameters. */
 
 TPM_RC
 CommandDispatcher(
@@ -230,11 +230,11 @@ CommandDispatcher(
     COMMAND_DESCRIPTOR_t    *desc;
     BYTE                    *types;
     BYTE                     type;
-    UINT16                  *offsets;
-    UINT16                   offset = 0;
+    UINT32                  *offsets;
+    UINT32                   offset = 0;
     UINT32                   maxInSize;
     BYTE                    *commandIn;
-    INT32                    maxOutSize;
+    UINT32                   maxOutSize;
     BYTE                    *commandOut;
     COMMAND_t                cmd;
     TPM_HANDLE              *handles;

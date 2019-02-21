@@ -75,7 +75,7 @@ TPM_RC
 CreateChecks(
 	     OBJECT              *parentObject,
 	     TPMT_PUBLIC         *publicArea,
-	     UINT16               sensitiveDataSize
+	     UINT32               sensitiveDataSize
 	     );
 TPM_RC
 SchemeChecks(
@@ -100,7 +100,7 @@ const TPM2B *
 GetSeedForKDF(
 	      OBJECT          *protector         // IN: the protector handle
 	      );
-UINT16
+UINT32
 ProduceOuterWrap(
 		 OBJECT          *protector,     // IN: The handle of the object that provides
 		 //     protection.  For object, it is parent
@@ -112,7 +112,7 @@ ProduceOuterWrap(
 		 //     duplication blob. For non duplication
 		 //     blob, this parameter should be NULL
 		 BOOL             useIV,         // IN: indicate if an IV is used
-		 UINT16           dataSize,      // IN: the size of sensitive data, excluding the
+		 UINT32           dataSize,      // IN: the size of sensitive data, excluding the
 		 //     leading integrity buffer size or the
 		 //     optional iv size
 		 BYTE            *outerBuffer    // IN/OUT: outer buffer with sensitive data in
@@ -130,7 +130,7 @@ UnwrapOuter(
 	    //     duplication blob. For non duplication
 	    //     blob, this parameter should be NULL.
 	    BOOL             useIV,         // IN: indicates if an IV is used
-	    UINT16           dataSize,      // IN: size of sensitive data in outerBuffer,
+	    UINT32           dataSize,      // IN: size of sensitive data in outerBuffer,
 	    //     including the leading integrity buffer
 	    //     size, and an optional iv area
 	    BYTE            *outerBuffer    // IN/OUT: sensitive data
@@ -217,7 +217,7 @@ CredentialToSecret(
 		   OBJECT              *protector,     // IN: the protector
 		   TPM2B_DIGEST        *secret         // OUT: secret information
 		   );
-UINT16
+UINT32
 MemoryRemoveTrailingZeros(
 			  TPM2B_AUTH      *auth           // IN/OUT: value to adjust
 			  );

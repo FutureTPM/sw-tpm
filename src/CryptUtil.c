@@ -599,27 +599,29 @@ CryptSecretEncrypt(
     return result;
 }
 /* 10.2.6.6.4 CryptSecretDecrypt() */
-/* Decrypt a secret value by asymmetric (or symmetric) algorithm This function is used for
-   ActivateCredential() and Import for asymmetric decryption, and StartAuthSession() for both
-   asymmetric and symmetric decryption process */
+/* Decrypt a secret value by asymmetric (or symmetric) algorithm. This function
+ * is used for ActivateCredential() and Import for asymmetric decryption, and
+ * StartAuthSession() for both asymmetric and symmetric decryption process */
 /* Error Returns Meaning */
 /* TPM_RC_ATTRIBUTES RSA key is not a decryption key */
-/* TPM_RC_BINDING Invalid RSA key (public and private parts are not cryptographically bound. */
+/* TPM_RC_BINDING Invalid RSA key (public and private parts are not
+ * cryptographically bound. */
 /* TPM_RC_ECC_POINT ECC point in the secret is not on the curve */
 /* TPM_RC_INSUFFICIENT failed to retrieve ECC point from the secret */
 /* TPM_RC_NO_RESULT multiplication resulted in ECC point at infinity */
 /* TPM_RC_SIZE data to decrypt is not of the same size as RSA key */
-/* TPM_RC_VALUE For RSA key, numeric value of the encrypted data is greater than the modulus, or the
-   recovered data is larger than the output buffer. For keyedHash or symmetric key, the secret is
-   larger than the size of the digest produced by the name algorithm. */
+/* TPM_RC_VALUE For RSA key, numeric value of the encrypted data is greater
+ * than the modulus, or the recovered data is larger than the output buffer.
+ * For keyedHash or symmetric key, the secret is larger than the size of the
+ * digest produced by the name algorithm. */
 /* TPM_RC_FAILURE internal error */
 TPM_RC
 CryptSecretDecrypt(
 		   OBJECT                  *decryptKey,    // IN: decrypt key
 		   TPM2B_NONCE             *nonceCaller,   // IN: nonceCaller.  It is needed for
-		   //     symmetric decryption.  For
-		   //     asymmetric decryption, this
-		   //     parameter is NULL
+                                                   //     symmetric decryption.  For
+                                                   //     asymmetric decryption, this
+                                                   //     parameter is NULL
 		   const TPM2B             *label,         // IN: a value for L
 		   TPM2B_ENCRYPTED_SECRET  *secret,        // IN: input secret
 		   TPM2B_DATA              *data           // OUT: decrypted secret value
@@ -672,7 +674,7 @@ CryptSecretDecrypt(
 		  TPMS_ECC_POINT       eccPublic;
 		  TPMS_ECC_POINT       eccSecret;
 		  BYTE                *buffer = secret->t.secret;
-		  INT32                size = secret->t.size;
+		  UINT32               size = secret->t.size;
 		  // Retrieve ECC point from secret buffer
 		  result = TPMS_ECC_POINT_Unmarshal(&eccPublic, &buffer, &size);
 		  if(result == TPM_RC_SUCCESS)
@@ -1382,15 +1384,17 @@ CryptSelectSignScheme(
     return OK;
 }
 /* 10.2.6.6.14 CryptSign() */
-/* Sign a digest with asymmetric key or HMAC. This function is called by attestation commands and
-   the generic TPM2_Sign() command. This function checks the key scheme and digest size.  It does
-   not check if the sign operation is allowed for restricted key.  It should be checked before the
-   function is called. The function will assert if the key is not a signing key. */
+/* Sign a digest with asymmetric key or HMAC. This function is called by
+ * attestation commands and the generic TPM2_Sign() command. This function
+ * checks the key scheme and digest size.  It does not check if the sign
+ * operation is allowed for restricted key.  It should be checked before the
+ * function is called. The function will assert if the key is not a signing
+ * key. */
 /* Error Returns Meaning */
 /* TPM_RC_SCHEME signScheme is not compatible with the signing key type */
-/* TPM_RC_VALUE digest value is greater than the modulus of signHandle or size of hashData does not
-   match hash algorithm insignScheme (for an RSA key); invalid commit status or failed to generate r
-   value (for an ECC key) */
+/* TPM_RC_VALUE digest value is greater than the modulus of signHandle or size
+ * of hashData does not match hash algorithm insignScheme (for an RSA key);
+ * invalid commit status or failed to generate r value (for an ECC key) */
 TPM_RC
 CryptSign(
 	  OBJECT              *signKey,       // IN: signing key

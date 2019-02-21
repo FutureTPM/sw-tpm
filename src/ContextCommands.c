@@ -73,30 +73,30 @@ TPM2_ContextSave(
 		 )
 {
     TPM_RC          result = TPM_RC_SUCCESS;
-    UINT16          fingerprintSize;    // The size of fingerprint in context
+    UINT32          fingerprintSize;    // The size of fingerprint in context
     // blob.
     UINT64          contextID = 0;      // session context ID
     TPM2B_SYM_KEY   symKey;
     TPM2B_IV        iv;
     TPM2B_DIGEST    integrity;
-    UINT16          integritySize;
+    UINT32          integritySize;
     BYTE            *buffer;
     // This command may cause the orderlyState to be cleared due to
     // the update of state reset data. If the state is orderly and
     // cannot be changed, exit early.
     RETURN_IF_ORDERLY;
-    
+
     // Internal Data Update
-    
+
     // This implementation does not do things in quite the same way as described in
-    // Part 2 of the specification. In Part 2, it indicates that the 
-    // TPMS_CONTEXT_DATA contains two TPM2B values. That is not how this is 
-    // implemented. Rather, the size field of the TPM2B_CONTEXT_DATA is used to 
-    // determine the amount of data in the encrypted data. That part is not 
-    // independently sized. This makes the actual size 2 bytes smaller than 
-    // calculated using Part 2. Since this is opaque to the caller, it is not 
+    // Part 2 of the specification. In Part 2, it indicates that the
+    // TPMS_CONTEXT_DATA contains two TPM2B values. That is not how this is
+    // implemented. Rather, the size field of the TPM2B_CONTEXT_DATA is used to
+    // determine the amount of data in the encrypted data. That part is not
+    // independently sized. This makes the actual size 2 bytes smaller than
+    // calculated using Part 2. Since this is opaque to the caller, it is not
     // necessary to fix. The actual size is returned by TPM2_GetCapabilties().
-    
+
     // Initialize output handle.  At the end of command action, the output
     // handle of an object will be replaced, while the output handle
     // for a session will be the same as input
@@ -114,7 +114,7 @@ TPM2_ContextSave(
 	      {
 		  OBJECT              *object = HandleToObject(in->saveHandle);
 		  ANY_OBJECT_BUFFER   *outObject;
-		  UINT16               objectSize = ObjectIsSequence(object)
+		  UINT32               objectSize = ObjectIsSequence(object)
 						    ? sizeof(HASH_OBJECT) : sizeof(OBJECT);
 		  outObject = (ANY_OBJECT_BUFFER *)(out->context.contextBlob.t.buffer
 						    + integritySize + fingerprintSize);
@@ -233,7 +233,7 @@ TPM2_ContextLoad(
     TPM2B_DIGEST        integrityToCompare;
     TPM2B_DIGEST        integrity;
     BYTE                *buffer;    // defined to save some typing
-    INT32               size;       // defined to save some typing
+    UINT32              size;       // defined to save some typing
     TPM_HT              handleType;
     TPM2B_SYM_KEY       symKey;
     TPM2B_IV            iv;
@@ -247,7 +247,7 @@ TPM2_ContextLoad(
     handleType = HandleGetType(in->context.savedHandle);
     // Get integrity from context blob
     buffer = in->context.contextBlob.t.buffer;
-    size = (INT32)in->context.contextBlob.t.size;
+    size = (UINT32)in->context.contextBlob.t.size;
     result = TPM2B_DIGEST_Unmarshal(&integrity, &buffer, &size);
     if(result != TPM_RC_SUCCESS)
 	return result;

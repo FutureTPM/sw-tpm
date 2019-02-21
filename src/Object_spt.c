@@ -65,10 +65,11 @@
 #include "Object_spt_fp.h"
 /* 7.6.2 Local Functions */
 /* 7.6.2.1 GetIV2BSize() */
-/* Get the size of TPM2B_IV in canonical form that will be append to the start of the sensitive
-   data.  It includes both size of size field and size of iv data */
+/* Get the size of TPM2B_IV in canonical form that will be append to the start
+ * of the sensitive data.  It includes both size of size field and size of iv
+ * data */
 /* Return Values Meaning */
-static UINT16
+static UINT32
 GetIV2BSize(
 	    OBJECT              *protector          // IN: the protector handle
 	    )
@@ -87,9 +88,9 @@ GetIV2BSize(
 	    symAlg = protector->publicArea.parameters.asymDetail.symmetric.algorithm;
 	    keyBits = protector->publicArea.parameters.asymDetail.symmetric.keyBits.sym;
 	}
-    // The IV size is a UINT16 size field plus the block size of the symmetric
+    // The IV size is a UINT32 size field plus the block size of the symmetric
     // algorithm
-    return sizeof(UINT16) + CryptGetSymmetricBlockSize(symAlg, keyBits);
+    return sizeof(UINT32) + CryptGetSymmetricBlockSize(symAlg, keyBits);
 }
 /* 7.6.2.2 ComputeProtectionKeyParms() */
 /* This function retrieves the symmetric protection key parameters for the sensitive data The
@@ -137,10 +138,11 @@ ComputeProtectionKeyParms(
     return;
 }
 /* 7.6.2.3 ComputeOuterIntegrity() */
-/* The sensitive area parameter is a buffer that holds a space for the integrity value and the
-   marshaled sensitive area. The caller should skip over the area set aside for the integrity value
-   and compute the hash of the remainder of the object. The size field of sensitive is in
-   unmarshaled form and the sensitive area contents is an array of bytes. */
+/* The sensitive area parameter is a buffer that holds a space for the
+ * integrity value and the marshaled sensitive area. The caller should skip
+ * over the area set aside for the integrity value and compute the hash of the
+ * remainder of the object. The size field of sensitive is in unmarshaled form
+ * and the sensitive area contents is an array of bytes. */
 static void
 ComputeOuterIntegrity(
 		      TPM2B           *name,              // IN: the name of the object
@@ -186,7 +188,7 @@ static void
 ComputeInnerIntegrity(
 		      TPM_ALG_ID       hashAlg,       // IN: hash algorithm for inner wrap
 		      TPM2B           *name,          // IN: the name of the object
-		      UINT16           dataSize,      // IN: the size of sensitive data
+		      UINT32           dataSize,      // IN: the size of sensitive data
 		      BYTE            *sensitiveData, // IN: sensitive data
 		      TPM2B_DIGEST    *integrity      // OUT: inner integrity
 		      )
@@ -209,7 +211,7 @@ ComputeInnerIntegrity(
    for integrity hash.  It assume the sensitive data starts at address (innerBuffer + integrity
    size). This function integrity at the beginning of the inner buffer It returns the total size of
    buffer with the inner wrap */
-static UINT16
+static UINT32
 ProduceInnerIntegrity(
 		      TPM2B           *name,          // IN: the name of the object
 		      TPM_ALG_ID       hashAlg,       // IN: hash algorithm for inner wrap
@@ -222,10 +224,10 @@ ProduceInnerIntegrity(
 {
     BYTE            *sensitiveData; // pointer to the sensitive data
     TPM2B_DIGEST     integrity;
-    UINT16           integritySize;
+    UINT32           integritySize;
     BYTE            *buffer;        // Auxiliary buffer pointer
     // sensitiveData points to the beginning of sensitive data in innerBuffer
-    integritySize = sizeof(UINT16) + CryptHashGetDigestSize(hashAlg);
+    integritySize = sizeof(UINT32) + CryptHashGetDigestSize(hashAlg);
     sensitiveData = innerBuffer + integritySize;
     ComputeInnerIntegrity(hashAlg, name, dataSize, sensitiveData, &integrity);
     // Add integrity at the beginning of inner buffer
@@ -242,7 +244,7 @@ static TPM_RC
 CheckInnerIntegrity(
 		    TPM2B           *name,          // IN: the name of the object
 		    TPM_ALG_ID       hashAlg,       // IN: hash algorithm for inner wrap
-		    UINT16           dataSize,      // IN: the size of sensitive data, including the
+		    UINT32           dataSize,      // IN: the size of sensitive data, including the
 		    //     leading integrity buffer size
 		    BYTE            *innerBuffer    // IN/OUT: inner buffer with sensitive data in
 		    //     it
@@ -252,15 +254,15 @@ CheckInnerIntegrity(
     TPM2B_DIGEST    integrity;
     TPM2B_DIGEST    integrityToCompare;
     BYTE            *buffer;                // Auxiliary buffer pointer
-    INT32           size;
+    UINT32          size;
     // Unmarshal integrity
     buffer = innerBuffer;
-    size = (INT32)dataSize;
+    size = dataSize;
     result = TPM2B_DIGEST_Unmarshal(&integrity, &buffer, &size);
     if(result == TPM_RC_SUCCESS)
 	{
 	    // Compute integrity to compare
-	    ComputeInnerIntegrity(hashAlg, name, (UINT16)size, buffer,
+	    ComputeInnerIntegrity(hashAlg, name, size, buffer,
 				  &integrityToCompare);
 	    // Compare outer blob integrity
 	    if(!MemoryEqual2B(&integrity.b, &integrityToCompare.b))
@@ -270,8 +272,9 @@ CheckInnerIntegrity(
 }
 /* 7.6.3 Public Functions */
 /* 7.6.3.1 AdjustAuthSize() */
-/* This function will validate that the input authValue is no larger than the digestSize for the
-   nameAlg. It will then pad with zeros to the size of the digest. */
+/* This function will validate that the input authValue is no larger than the
+ * digestSize for the nameAlg. It will then pad with zeros to the size of the
+ * digest. */
 BOOL
 AdjustAuthSize(
 	       TPM2B_AUTH          *auth,          // IN/OUT: value to adjust
@@ -313,7 +316,7 @@ TPM_RC
 CreateChecks(
 	     OBJECT              *parentObject,
 	     TPMT_PUBLIC         *publicArea,
-	     UINT16               sensitiveDataSize
+	     UINT32               sensitiveDataSize
 	     )
 {
     TPMA_OBJECT          attributes = publicArea->objectAttributes;
@@ -364,16 +367,18 @@ CreateChecks(
     return result;
 }
 /* 7.6.3.4 SchemeChecks */
-/* This function is called by TPM2_LoadExternal() and PublicAttributesValidation(). This function
-   validates the schemes in the public area of an object. */
+/* This function is called by TPM2_LoadExternal() and PublicAttributesValidation().
+ * This function validates the schemes in the public area of an object. */
 /* Error Returns Meaning */
-/* TPM_RC_HASH non-duplicable storage key and its parent have different name algorithm */
+/* TPM_RC_HASH non-duplicable storage key and its parent have different name
+ * algorithm */
 /* TPM_RC_KDF incorrect KDF specified for decrypting keyed hash object */
 /* TPM_RC_KEY invalid key size values in an asymmetric key public area */
-/* TPM_RCS_SCHEME inconsistent attributes decrypt, sign, restricted and key's scheme ID; or hash
-   algorithm is inconsistent with the scheme ID for keyed hash object */
-/* TPM_RC_SYMMETRIC a storage key with no symmetric algorithm specified; or non-storage key with
-   symmetric algorithm different from TPM_ALG_NULL */
+/* TPM_RCS_SCHEME inconsistent attributes decrypt, sign, restricted and key's
+ * scheme ID; or hash algorithm is inconsistent with the scheme ID for keyed
+ * hash object */
+/* TPM_RC_SYMMETRIC a storage key with no symmetric algorithm specified; or
+ * non-storage key with symmetric algorithm different from TPM_ALG_NULL */
 TPM_RC
 SchemeChecks(
 	     OBJECT          *parentObject,  // IN: parent (null if primary seed)
@@ -550,18 +555,20 @@ SchemeChecks(
     return TPM_RC_SUCCESS;
 }
 /* 7.6.3.5 PublicAttributesValidation() */
-/* This function validates the values in the public area of an object. This function is used in the
-   processing of TPM2_Create(), TPM2_CreatePrimary(), TPM2_CreateLoaded(), TPM2_Load(),
-   TPM2_Import(), and TPM2_LoadExternal(). For TPM2_Import() this is only used if the new parent has
-   fixedTPM SET. For TPM2_LoadExternal(), this is not used for a public-only key */
+/* This function validates the values in the public area of an object. This
+ * function is used in the processing of TPM2_Create(), TPM2_CreatePrimary(),
+ * TPM2_CreateLoaded(), TPM2_Load(), TPM2_Import(), and TPM2_LoadExternal().
+ * For TPM2_Import() this is only used if the new parent has fixedTPM SET. For
+ * TPM2_LoadExternal(), this is not used for a public-only key */
 /* Error Returns Meaning */
-/* TPM_RC_ATTRIBUTES fixedTPM, fixedParent, or encryptedDuplication attributes are inconsistent
-   between themselves or with those of the parent object; inconsistent restricted, decrypt and sign
-   attributes; attempt to inject sensitive data for an asymmetric key; attempt to create a symmetric
-   cipher key that is not a decryption key */
+/* TPM_RC_ATTRIBUTES fixedTPM, fixedParent, or encryptedDuplication attributes
+ * are inconsistent between themselves or with those of the parent object;
+ * inconsistent restricted, decrypt and sign attributes; attempt to inject
+ * sensitive data for an asymmetric key; attempt to create a symmetric cipher
+ * key that is not a decryption key */
 /* TPM_RC_HASH nameAlg is TPM_ALG_NULL */
-/* TPM_RC_SIZE authPolicy size does not match digest size of the name algorithm in publicArea */
-/* other returns from SchemeChecks() */
+/* TPM_RC_SIZE authPolicy size does not match digest size of the name algorithm
+ * in publicArea other returns from SchemeChecks() */
 TPM_RC
 PublicAttributesValidation(
 			   OBJECT          *parentObject,  // IN: input parent object
@@ -716,17 +723,18 @@ GetSeedForKDF(
 	return &protector->sensitive.seedValue.b;
 }
 /* 7.6.3.8 ProduceOuterWrap() */
-/* This function produce outer wrap for a buffer containing the sensitive data. It requires the
-   sensitive data being marshaled to the outerBuffer, with the leading bytes reserved for integrity
-   hash.  If iv is used, iv space should be reserved at the beginning of the buffer.  It assumes the
-   sensitive data starts at address (outerBuffer + integrity size {+ iv size}). This function
-   performs: */
+/* This function produce outer wrap for a buffer containing the sensitive data.
+ * It requires the sensitive data being marshaled to the outerBuffer, with the
+ * leading bytes reserved for integrity hash.  If iv is used, iv space should
+ * be reserved at the beginning of the buffer.  It assumes the sensitive data
+ * starts at address (outerBuffer + integrity size {+ iv size}). This function
+ * performs: */
 /* a) Add IV before sensitive area if required */
-/* b) encrypt sensitive data, if iv is required, encrypt by iv.  otherwise, encrypted by a NULL
-   iv */
-/* c) add HMAC integrity at the beginning of the buffer It returns the total size of blob with outer
-   wrap */
-UINT16
+/* b) encrypt sensitive data, if iv is required, encrypt by iv.  otherwise,
+ * encrypted by a NULL iv */
+/* c) add HMAC integrity at the beginning of the buffer It returns the total
+ * size of blob with outer wrap */
+UINT32
 ProduceOuterWrap(
 		 OBJECT          *protector,     // IN: The handle of the object that provides
 		 //     protection.  For object, it is parent
@@ -738,7 +746,7 @@ ProduceOuterWrap(
 		 //     duplication blob. For non duplication
 		 //     blob, this parameter should be NULL
 		 BOOL             useIV,         // IN: indicate if an IV is used
-		 UINT16           dataSize,      // IN: the size of sensitive data, excluding the
+		 UINT32           dataSize,      // IN: the size of sensitive data, excluding the
 		 //     leading integrity buffer size or the
 		 //     optional iv size
 		 BYTE            *outerBuffer    // IN/OUT: outer buffer with sensitive data in
@@ -750,14 +758,14 @@ ProduceOuterWrap(
     TPM2B_SYM_KEY   symKey;
     TPM2B_IV        ivRNG;          // IV from RNG
     TPM2B_IV        *iv = NULL;
-    UINT16          ivSize = 0;     // size of iv area, including the size field
+    UINT32          ivSize = 0;     // size of iv area, including the size field
     BYTE            *sensitiveData; // pointer to the sensitive data
     TPM2B_DIGEST    integrity;
-    UINT16          integritySize;
+    UINT32          integritySize;
     BYTE            *buffer;        // Auxiliary buffer pointer
     // Compute the beginning of sensitive data.  The outer integrity should
     // always exist if this function is called to make an outer wrap
-    integritySize = sizeof(UINT16) + CryptHashGetDigestSize(hashAlg);
+    integritySize = sizeof(UINT32) + CryptHashGetDigestSize(hashAlg);
     sensitiveData = outerBuffer + integritySize;
     // If iv is used, adjust the pointer of sensitive data and add iv before it
     if(useIV)
@@ -765,7 +773,7 @@ ProduceOuterWrap(
 	    ivSize = GetIV2BSize(protector);
 	    // Generate IV from RNG.  The iv data size should be the total IV area
 	    // size minus the size of size field
-	    ivRNG.t.size = ivSize - sizeof(UINT16);
+	    ivRNG.t.size = ivSize - sizeof(UINT32);
 	    CryptRandomGenerate(ivRNG.t.size, ivRNG.t.buffer);
 	    // Marshal IV to buffer
 	    buffer = sensitiveData;
@@ -814,7 +822,7 @@ UnwrapOuter(
 	    //     duplication blob. For non duplication
 	    //     blob, this parameter should be NULL.
 	    BOOL             useIV,         // IN: indicates if an IV is used
-	    UINT16           dataSize,      // IN: size of sensitive data in outerBuffer,
+	    UINT32           dataSize,      // IN: size of sensitive data in outerBuffer,
 	    //     including the leading integrity buffer
 	    //     size, and an optional iv area
 	    BYTE            *outerBuffer    // IN/OUT: sensitive data
@@ -829,16 +837,16 @@ UnwrapOuter(
     BYTE            *sensitiveData;     // pointer to the sensitive data
     TPM2B_DIGEST    integrityToCompare;
     TPM2B_DIGEST    integrity;
-    INT32           size;
+    UINT32          size;
     // Unmarshal integrity
     sensitiveData = outerBuffer;
-    size = (INT32)dataSize;
+    size = (UINT32)dataSize;
     result = TPM2B_DIGEST_Unmarshal(&integrity, &sensitiveData, &size);
     if(result == TPM_RC_SUCCESS)
 	{
 	    // Compute integrity to compare
 	    ComputeOuterIntegrity(name, protector, hashAlg, seed,
-				  (UINT16)size, sensitiveData,
+				  size, sensitiveData,
 				  &integrityToCompare);
 	    // Compare outer blob integrity
 	    if(!MemoryEqual2B(&integrity.b, &integrityToCompare.b))
@@ -854,7 +862,7 @@ UnwrapOuter(
 			{
 			    // The input iv size for CFB must match the encryption algorithm
 			    // block size
-			    if(ivIn.t.size != CryptGetSymmetricBlockSize(symAlg, keyBits))
+			    if(ivIn.t.size != (UINT32)CryptGetSymmetricBlockSize(symAlg, keyBits))
 				result = TPM_RC_VALUE;
 			    else
 				iv = &ivIn;
@@ -867,13 +875,14 @@ UnwrapOuter(
     if(result == TPM_RC_SUCCESS)
 	CryptSymmetricDecrypt(sensitiveData, symAlg, keyBits,
 			      symKey.t.buffer, iv, TPM_ALG_CFB,
-			      (UINT16)size, sensitiveData);
+			      size, sensitiveData);
     return result;
 }
 /* 7.6.3.10 MarshalSensitive() */
-/* This function is used to marshal a sensitive area. Among other things, it adjusts the size of the
-   authValue to be no smaller than the digest of nameAlg Returns the size of the marshaled area. */
-static UINT16
+/* This function is used to marshal a sensitive area. Among other things, it
+ * adjusts the size of the authValue to be no smaller than the digest of
+ * nameAlg Returns the size of the marshaled area. */
+static UINT32
 MarshalSensitive(
 		 BYTE                *buffer,            // OUT: receiving buffer
 		 TPMT_SENSITIVE      *sensitive,         // IN: the sensitive area to marshal
@@ -882,19 +891,19 @@ MarshalSensitive(
 {
     BYTE                *sizeField = buffer;    	// saved so that size can be
     	                                                // marshaled after it is known
-    UINT16               retVal;
+    UINT32               retVal;
     // Pad the authValue if needed
     MemoryPad2B(&sensitive->authValue.b, CryptHashGetDigestSize(nameAlg));
-    buffer += 2;
+    buffer += 4;
     // Marshal the structure
     retVal = TPMT_SENSITIVE_Marshal(sensitive, &buffer, NULL);
     // Marshal the size
-    retVal = (UINT16)(retVal + UINT16_Marshal(&retVal, &sizeField, NULL));
+    retVal = (retVal + UINT32_Marshal(&retVal, &sizeField, NULL));
     return retVal;
 }
 /* 7.6.3.11 SensitiveToPrivate() */
-/* This function prepare the private blob for off the chip storage The operations in this
-   function: */
+/* This function prepare the private blob for off the chip storage. The
+ * operations in this function: */
 /* a) marshal TPM2B_SENSITIVE structure into the buffer of TPM2B_PRIVATE */
 /* b) apply encryption to the sensitive area. */
 /* c) apply outer integrity computation. */
@@ -904,17 +913,17 @@ SensitiveToPrivate(
 		   TPM2B           *name,          // IN: the name of the object
 		   OBJECT          *parent,        // IN: The parent object
 		   TPM_ALG_ID       nameAlg,       // IN: hash algorithm in public area.  This
-		   //     parameter is used when parentHandle is
-		   //     NULL, in which case the object is
-		   //     temporary.
+                                           //     parameter is used when parentHandle is
+                                           //     NULL, in which case the object is
+                                           //     temporary.
 		   TPM2B_PRIVATE   *outPrivate     // OUT: output private structure
 		   )
 {
     BYTE                *sensitiveData;     // pointer to the sensitive data
-    UINT16              dataSize;           // data blob size
+    UINT32              dataSize;           // data blob size
     TPMI_ALG_HASH       hashAlg;            // hash algorithm for integrity
-    UINT16              integritySize;
-    UINT16              ivSize;
+    UINT32              integritySize;
+    UINT32              ivSize;
     //
     pAssert(name != NULL && name->size != 0);
     // Find the hash algorithm for integrity computation
@@ -931,7 +940,7 @@ SensitiveToPrivate(
     // Starting of sensitive data without wrappers
     sensitiveData = outPrivate->t.buffer;
     // Compute the integrity size
-    integritySize = sizeof(UINT16) + CryptHashGetDigestSize(hashAlg);
+    integritySize = sizeof(UINT32) + CryptHashGetDigestSize(hashAlg);
     // Reserve space for integrity
     sensitiveData += integritySize;
     // Get iv size
@@ -940,20 +949,21 @@ SensitiveToPrivate(
     sensitiveData += ivSize;
     // Marshal the sensitive area including authValue size adjustments.
     dataSize = MarshalSensitive(sensitiveData, sensitive, nameAlg);
-    //Produce outer wrap, including encryption and HMAC
+    // Produce outer wrap, including encryption and HMAC
     outPrivate->t.size = ProduceOuterWrap(parent, name, hashAlg, NULL,
 					  TRUE, dataSize, outPrivate->t.buffer);
     return;
 }
 /* 7.6.3.12 PrivateToSensitive() */
-/* Unwrap a input private area.  Check the integrity, decrypt and retrieve data to a sensitive
-   structure. The operations in this function: */
+/* Unwrap a input private area.  Check the integrity, decrypt and retrieve data
+ * to a sensitive structure. The operations in this function: */
 /* a) check the integrity HMAC of the input private area */
 /* b) decrypt the private buffer */
 /* c) unmarshal TPMT_SENSITIVE structure into the buffer of TPMT_SENSITIVE */
 /* Error Returns Meaning */
 /* TPM_RCS_INTEGRITY if the private area integrity is bad */
-/* TPM_RC_SENSITIVE unmarshal errors while unmarshaling TPMS_ENCRYPT from input private */
+/* TPM_RC_SENSITIVE unmarshal errors while unmarshaling TPMS_ENCRYPT from input
+ * private */
 /* TPM_RCS_SIZE error during sensitive data unmarshaling */
 /* TPM_RCS_VALUE outer wrapper does not have an iV of the correct size */
 TPM_RC
@@ -974,13 +984,13 @@ PrivateToSensitive(
 {
     TPM_RC          result;
     BYTE            *buffer;
-    INT32           size;
+    UINT32          size;
     BYTE            *sensitiveData; // pointer to the sensitive data
-    UINT16          dataSize;
-    UINT16          dataSizeInput;
+    UINT32          dataSize;
+    UINT32          dataSizeInput;
     TPMI_ALG_HASH   hashAlg;        // hash algorithm for integrity
-    UINT16          integritySize;
-    UINT16          ivSize;
+    UINT32          integritySize;
+    UINT32          ivSize;
     //
     // Make sure that name is provided
     pAssert(name != NULL && name->size != 0);
@@ -1001,7 +1011,7 @@ PrivateToSensitive(
     if(result != TPM_RC_SUCCESS)
 	return result;
     // Compute the inner integrity size.
-    integritySize = sizeof(UINT16) + CryptHashGetDigestSize(hashAlg);
+    integritySize = sizeof(UINT32) + CryptHashGetDigestSize(hashAlg);
     // Get iv size
     ivSize = GetIV2BSize(parent);
     // The starting of sensitive data and data size without outer wrapper
@@ -1009,11 +1019,11 @@ PrivateToSensitive(
     dataSize = inPrivate->size - integritySize - ivSize;
     // Unmarshal input data size
     buffer = sensitiveData;
-    size = (INT32)dataSize;
-    result = UINT16_Unmarshal(&dataSizeInput, &buffer, &size);
+    size = (UINT32)dataSize;
+    result = UINT32_Unmarshal(&dataSizeInput, &buffer, &size);
     if(result == TPM_RC_SUCCESS)
 	{
-	    if((dataSizeInput + sizeof(UINT16)) != dataSize)
+	    if((dataSizeInput + sizeof(UINT32)) != dataSize)
 		result = TPM_RC_SENSITIVE;
 	    else
 		{
@@ -1076,7 +1086,7 @@ SensitiveToDuplicate(
 	    // Use self nameAlg as inner hash algorithm
 	    innerHash = nameAlg;
 	    // Adjust sensitive data pointer
-	    sensitiveData += sizeof(UINT16) + CryptHashGetDigestSize(innerHash);
+	    sensitiveData += sizeof(UINT32) + CryptHashGetDigestSize(innerHash);
 	}
     // Find out if outer wrap is required
     if(seed->size != 0)
@@ -1085,7 +1095,7 @@ SensitiveToDuplicate(
 	    // Use parent nameAlg as outer hash algorithm
 	    outerHash = ObjectGetNameAlg(parent);
 	    // Adjust sensitive data pointer
-	    sensitiveData += sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
+	    sensitiveData += sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
 	}
     // Marshal sensitive area
     dataSize = MarshalSensitive(sensitiveData, sensitive, nameAlg);
@@ -1098,7 +1108,7 @@ SensitiveToDuplicate(
 	    innerBuffer = outPrivate->t.buffer;
 	    // Skip outer integrity space
 	    if(doOuterWrap)
-		innerBuffer += sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
+		innerBuffer += sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
 	    dataSize = ProduceInnerIntegrity(name, innerHash, dataSize,
 					     innerBuffer);
 	    // Generate inner encryption key if needed
@@ -1112,7 +1122,7 @@ SensitiveToDuplicate(
 	    else
 		{
 		    // assume the input key size should matches the symmetric definition
-		    pAssert(innerSymKey->t.size == (symDef->keyBits.sym + 7) / 8);
+		    pAssert(innerSymKey->t.size == ((UINT32)symDef->keyBits.sym + 7) / 8);
 		}
 	    // Encrypt inner buffer in place
 	    CryptSymmetricEncrypt(innerBuffer, symDef->algorithm,
@@ -1165,10 +1175,10 @@ DuplicateToSensitive(
 {
     TPM_RC               result;
     BYTE                *buffer;
-    INT32                size;
+    UINT32               size;
     BYTE                *sensitiveData; // pointer to the sensitive data
-    UINT16               dataSize;
-    UINT16               dataSizeInput;
+    UINT32               dataSize;
+    UINT32               dataSizeInput;
     // Make sure that name is provided
     pAssert(name != NULL && name->size != 0);
     // Make sure symDef and innerSymKey are not NULL
@@ -1186,14 +1196,14 @@ DuplicateToSensitive(
 	    if(result != TPM_RC_SUCCESS)
 		return result;
 	    // Adjust sensitive data pointer and size
-	    sensitiveData += sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
-	    dataSize -= sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
+	    sensitiveData += sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
+	    dataSize -= sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
 	}
     // Find out if inner wrap is applied
     if(symDef->algorithm != TPM_ALG_NULL)
 	{
 	    // assume the input key size matches the symmetric definition
-	    pAssert(innerSymKey->size == (symDef->keyBits.sym + 7) / 8);
+	    pAssert(innerSymKey->size == ((UINT32)symDef->keyBits.sym + 7) / 8);
 	    // Decrypt inner buffer in place
 	    CryptSymmetricDecrypt(sensitiveData, symDef->algorithm,
 				  symDef->keyBits.sym, innerSymKey->buffer, NULL,
@@ -1203,16 +1213,16 @@ DuplicateToSensitive(
 	    if(result != TPM_RC_SUCCESS)
 		return result;
 	    // Adjust sensitive data pointer and size
-	    sensitiveData += sizeof(UINT16) + CryptHashGetDigestSize(nameAlg);
-	    dataSize -= sizeof(UINT16) + CryptHashGetDigestSize(nameAlg);
+	    sensitiveData += sizeof(UINT32) + CryptHashGetDigestSize(nameAlg);
+	    dataSize -= sizeof(UINT32) + CryptHashGetDigestSize(nameAlg);
 	}
     // Unmarshal input data size
     buffer = sensitiveData;
-    size = (INT32)dataSize;
-    result = UINT16_Unmarshal(&dataSizeInput, &buffer, &size);
+    size = (UINT32)dataSize;
+    result = UINT32_Unmarshal(&dataSizeInput, &buffer, &size);
     if(result == TPM_RC_SUCCESS)
 	{
-	    if((dataSizeInput + sizeof(UINT16)) != dataSize)
+	    if((dataSizeInput + sizeof(UINT32)) != dataSize)
 		result = TPM_RC_SIZE;
 	    else
 		{
@@ -1244,13 +1254,13 @@ SecretToCredential(
     BYTE                *buffer;        // Auxiliary buffer pointer
     BYTE                *sensitiveData; // pointer to the sensitive data
     TPMI_ALG_HASH        outerHash;     // The hash algorithm for outer wrap
-    UINT16               dataSize;      // data blob size
+    UINT32               dataSize;      // data blob size
     pAssert(secret != NULL && outIDObject != NULL);
     // use protector's name algorithm as outer hash
     outerHash = ObjectGetNameAlg(protector);
     // Marshal secret area to credential buffer, leave space for integrity
     sensitiveData = outIDObject->t.credential
-		    + sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
+		    + sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
     // Marshal secret area
     buffer = sensitiveData;
     dataSize = TPM2B_DIGEST_Marshal(secret, &buffer, NULL);
@@ -1281,10 +1291,10 @@ CredentialToSecret(
 {
     TPM_RC                   result;
     BYTE                    *buffer;
-    INT32                    size;
+    UINT32                   size;
     TPMI_ALG_HASH            outerHash;     // The hash algorithm for outer wrap
     BYTE                    *sensitiveData; // pointer to the sensitive data
-    UINT16                   dataSize;
+    UINT32                   dataSize;
     // use protector's name algorithm as outer hash
     outerHash = ObjectGetNameAlg(protector);
     // Unwrap outer, a TPM_RC_INTEGRITY error may be returned at this point
@@ -1294,12 +1304,12 @@ CredentialToSecret(
 	{
 	    // Compute the beginning of sensitive data
 	    sensitiveData = inIDObject->buffer
-			    + sizeof(UINT16) + CryptHashGetDigestSize(outerHash);
+			    + sizeof(UINT32) + CryptHashGetDigestSize(outerHash);
 	    dataSize = inIDObject->size
-		       - (sizeof(UINT16) + CryptHashGetDigestSize(outerHash));
+		       - (sizeof(UINT32) + CryptHashGetDigestSize(outerHash));
 	    // Unmarshal secret buffer to TPM2B_DIGEST structure
 	    buffer = sensitiveData;
-	    size = (INT32)dataSize;
+	    size = (UINT32)dataSize;
 	    result = TPM2B_DIGEST_Unmarshal(secret, &buffer, &size);
 	    // If there were no other unmarshaling errors, make sure that the
 	    // expected amount of data was recovered
@@ -1309,10 +1319,11 @@ CredentialToSecret(
     return result;
 }
 /* 7.6.3.17 MemoryRemoveTrailingZeros() */
-/* This function is used to adjust the length of an authorization value. It adjusts the size of the
-   TPM2B so that it does not include octets at the end of the buffer that contain zero. The function
-   returns the number of non-zero octets in the buffer. */
-UINT16
+/* This function is used to adjust the length of an authorization value. It
+ * adjusts the size of the TPM2B so that it does not include octets at the
+ * end of the buffer that contain zero. The function returns the number of
+ * non-zero octets in the buffer. */
+UINT32
 MemoryRemoveTrailingZeros(
 			  TPM2B_AUTH      *auth           // IN/OUT: value to adjust
 			  )
@@ -1332,7 +1343,7 @@ SetLabelAndContext(
 {
     TPMS_DERIVE              sensitiveValue;
     TPM_RC                   result;
-    INT32                    size;
+    UINT32                   size;
     BYTE                    *buff;
     //
     // Unmarshal a TPMS_DERIVE from the TPM2B_SENSITIVE_DATA buffer
@@ -1370,7 +1381,7 @@ UnmarshalToPublic(
 		  )
 {
     BYTE                *buffer = tIn->t.buffer;
-    INT32                size = tIn->t.size;
+    UINT32               size = tIn->t.size;
     TPM_RC               result;
     //
     // make sure that tOut is zeroed so that there are no remnants from previous

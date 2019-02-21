@@ -68,7 +68,7 @@ TPM2_NV_DefineSpace(
 		    )
 {
     TPMA_NV         attributes = in->publicInfo.nvPublic.attributes;
-    UINT16          nameSize;
+    UINT32          nameSize;
     nameSize = CryptHashGetDigestSize(in->publicInfo.nvPublic.nameAlg);
     // Input Validation
     // Checks not specific to type
@@ -311,7 +311,7 @@ TPM2_NV_Write(
     if(in->offset > nvIndex->publicArea.dataSize)
 	return TPM_RCS_VALUE + RC_NV_Write_offset;
     // Make sure that the selection is within the range of the Index
-    if(in->data.t.size > (nvIndex->publicArea.dataSize - in->offset))
+    if(in->data.t.size > ((UINT32)nvIndex->publicArea.dataSize - in->offset))
 	return TPM_RC_NV_RANGE;
     // If this index requires a full sized write, make sure that input range is
     // full sized.

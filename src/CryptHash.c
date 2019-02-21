@@ -371,9 +371,9 @@ CryptHashImportState(
 }
 /* 10.2.14.6 State Modification Functions */
 /* 10.2.14.6.1 HashEnd() */
-/* Local function to complete a hash that uses the hashDef instead of an algorithm ID. This function
-   is used to complete the hash and only return a partial digest. The return value is the size of
-   the data copied. */
+/* Local function to complete a hash that uses the hashDef instead of an
+ * algorithm ID. This function is used to complete the hash and only return a
+ * partial digest. The return value is the size of the data copied. */
 static UINT16
 HashEnd(
 	PHASH_STATE      hashState,     // IN: the hash state
@@ -520,9 +520,10 @@ CryptDigestUpdate2B(
     return;
 }
 /* 10.2.14.6.7 CryptHashEnd2B() */
-/* This function is the same as CryptCompleteHash() but the digest is placed in a TPM2B. This is the
-   most common use and this is provided for specification clarity. 'digest.size' should be set to
-   indicate the number of bytes to place in the buffer */
+/* This function is the same as CryptCompleteHash() but the digest is placed in
+ * a TPM2B. This is the most common use and this is provided for specification
+ * clarity. 'digest.size' should be set to indicate the number of bytes to
+ * place in the buffer */
 /* Return Values Meaning */
 /* >=0 the number of bytes placed in 'digest.buffer' */
 LIB_EXPORT UINT16

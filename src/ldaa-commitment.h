@@ -26,9 +26,4 @@ typedef struct {
 
 typedef ldaa_commitment2_t ldaa_commitment3_t;
 
-//typedef struct {
-//  vector_t *Chash;
-//  polynomial_matrix_t *R;
-//} ldaa_commitment_hash_t;
-
 #endif

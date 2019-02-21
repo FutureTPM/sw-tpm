@@ -34,24 +34,37 @@ CryptLDaaCommit(void);
 
 LIB_EXPORT TPM_RC
 CryptLDaaSignCommit(
-        // OUT: Result of commit 1
-        TPM2B_LDAA_C1 *c1_out,
-        // OUT: Result of commit 2
-        TPM2B_LDAA_C2 *c2_out,
-        // OUT: Result of commit 3
-        TPM2B_LDAA_C3 *c3_out,
+        // OUT: Result of commit
+        TPM2B_LDAA_COMMIT *c_out,
         // IN: Serialized private key
-        TPMT_SENSITIVE *sensitive,
+        TPMT_SENSITIVE    *sensitive,
+        // IN: commit selection
+        BYTE              *commit_sel,
+        // IN: sign state selection
+        BYTE              *sign_state_sel,
+        // IN: Serialized polynomial of the hash of the basename
+        TPM2B_LDAA_PBSN   *pbsn_serial,
+        // IN: Serialized error polynomial
+        TPM2B_LDAA_PE     *pe_serial,
         // IN: Serialized key
         TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
         // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt1_serial,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt2_serial,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT3 *issuer_bntt3_serial,
+        TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt_serial,
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn
         );
 
+LIB_EXPORT TPM_RC
+CryptLDaaCommitTokenLink(
+        // OUT: Serialized token link
+        TPM2B_LDAA_NYM *nym_serial,
+        // OUT: Serialized polynomial of the hash of the basename
+        TPM2B_LDAA_PBSN *pbsn_serial,
+        // OUT: Serialized error polynomial
+        TPM2B_LDAA_PE   *pe_serial,
+        // IN: Serialized private key
+        TPMT_SENSITIVE *sensitive,
+        // IN: Basename to be used in the commit
+        TPM2B_LDAA_BASENAME *bsn
+        );
 #endif

@@ -7,6 +7,15 @@
 #include "ldaa-sign-state.h"
 #include "ldaa-commitment.h"
 
+// TODO: All of these variables don't fit in the stack. Better yet, the
+// largest one doesn't fit the stack. This is a temporary solution.
+static ldaa_commitment1_t               commited1;      // 102.4KB + 65KB
+static ldaa_commitment2_t               commited2;      // 39.5MB + 65KB
+static ldaa_commitment3_t               commited3;      // 39.5MB + 65KB
+static ldaa_poly_matrix_ntt_B_t         issuer_b_ntt_1; // 25.6KB
+static ldaa_poly_matrix_ntt_B2_t        issuer_b_ntt_2; // 10MB
+static ldaa_poly_matrix_ntt_B3_t        issuer_b_ntt_3; // 10MB
+
 BOOL CryptLDaaInit(void) {
     return TRUE;
 }
@@ -90,7 +99,7 @@ static void CryptLDaaDeserializeIssuerBNTT2(
         ldaa_poly_matrix_ntt_B2_t *b_ntt,
         // IN: The public area parameter which contains the serialized
         // NTT matrix of B from the issuer
-        TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt) {
+        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt) {
     // Loop polynomial matrix
     // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
     // Loop rows
@@ -101,6 +110,38 @@ static void CryptLDaaDeserializeIssuerBNTT2(
                Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM+j)*4));
         }
     }
+}
+
+static void CryptLDaaSerializeCommit1(
+        // OUT: serialized commit
+        TPM2B_LDAA_COMMIT *commit_serial,
+        // IN: The public key in polynomial form
+        ldaa_poly_matrix_commit1_t *commit
+        ) {
+    for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
+        for (size_t j = 0; j < LDAA_N; j++) {
+            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * LDAA_N + j)*4),
+                    commit->coeffs[i].coeffs[j]);
+        }
+    }
+
+    commit_serial->t.size = LDAA_C1_LENGTH;
+}
+
+static void CryptLDaaSerializeCommit2(
+        // OUT: serialized commit
+        TPM2B_LDAA_COMMIT *commit_serial,
+        // IN: The public key in polynomial form
+        ldaa_poly_matrix_commit2_t *commit
+        ) {
+    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
+        for (size_t j = 0; j < LDAA_N; j++) {
+            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * LDAA_N + j)*4),
+                    commit->coeffs[i].coeffs[j]);
+        }
+    }
+
+    commit_serial->t.size = LDAA_C2_LENGTH;
 }
 
 static void CryptLDaaSerializePublicKey(
@@ -278,51 +319,27 @@ CryptLDaaCommit(void) {
 }
 
 LIB_EXPORT TPM_RC
-CryptLDaaSignCommit(
-        // OUT: Result of commit 1
-        TPM2B_LDAA_C1 *c1_out,
-        // OUT: Result of commit 2
-        TPM2B_LDAA_C2 *c2_out,
-        // OUT: Result of commit 3
-        TPM2B_LDAA_C3 *c3_out,
+CryptLDaaCommitTokenLink(
+        // OUT: Serialized token link
+        TPM2B_LDAA_NYM *nym_serial,
+        // OUT: Serialized polynomial of the hash of the basename
+        TPM2B_LDAA_PBSN *pbsn_serial,
+        // OUT: Serialized error polynomial
+        TPM2B_LDAA_PE   *pe_serial,
         // IN: Serialized private key
         TPMT_SENSITIVE *sensitive,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt1_serial,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT2 *issuer_bntt2_serial,
-        // IN: Serialized key
-        TPM2B_LDAA_ISSUER_BNTT3 *issuer_bntt3_serial,
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn
         ) {
-    size_t i, j, k;
-    ldaa_poly_t                      pe;
-    ldaa_poly_t                      nym;
-    ldaa_poly_matrix_xt_t            xt;
-    ldaa_poly_t                      pbsn;
-    HASH_STATE                       hash_state;
-    BYTE                             digest[SHA256_BLOCK_SIZE];
-    ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;
-    ldaa_poly_matrix_ntt_B_t         issuer_b_ntt_1;
-    ldaa_poly_matrix_ntt_B2_t        issuer_b_ntt_2;
-    ldaa_poly_matrix_ntt_B3_t        issuer_b_ntt_3;
-    ldaa_poly_matrix_commit1_t       C1[LDAA_C];
-    ldaa_poly_matrix_commit2_t       C2[LDAA_C];
-    ldaa_poly_matrix_commit3_t       C3[LDAA_C];
+    ldaa_poly_t           pe;
+    ldaa_poly_t           nym;
+    ldaa_poly_matrix_xt_t xt;
+    ldaa_poly_t           pbsn;
+    HASH_STATE            hash_state;
+    BYTE                  digest[SHA256_BLOCK_SIZE];
 
-    /* Deserialize keys */
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
-    CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
-    CryptLDaaDeserializeIssuerBNTT1(&issuer_b_ntt_1, issuer_bntt1_serial);
-    CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_2, issuer_bntt2_serial);
-    CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_3, issuer_bntt3_serial);
 
-    /* ********************************************************************* */
-    /* Token Link Calculation                                                */
-    /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     CryptHashStart(&hash_state, ALG_SHA256_VALUE);
     CryptDigestUpdate(&hash_state, bsn->t.size, bsn->t.buffer);
     CryptHashEnd(&hash_state, SHA256_BLOCK_SIZE, digest);
@@ -335,43 +352,88 @@ CryptLDaaSignCommit(
     }
     ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
     ldaa_poly_add(&nym, &nym, &pe);
-    /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-    /* Token Link Calculation                                                */
-    /* ********************************************************************* */
+
+    // Serialize All outputs
+    CryptLDaaSerializePublicKey(nym_serial, &nym);
+    CryptLDaaSerializePublicKey(pe_serial, &pe);
+    CryptLDaaSerializePublicKey(pbsn_serial, &pbsn);
+
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaSignCommit(
+        // OUT: Result of commit
+        TPM2B_LDAA_COMMIT *c_out,
+        // IN: Serialized private key
+        TPMT_SENSITIVE    *sensitive,
+        // IN: commit selection
+        BYTE              *commit_sel,
+        // IN: sign state selection
+        BYTE              *sign_state_sel,
+        // IN: Serialized polynomial of the hash of the basename
+        TPM2B_LDAA_PBSN   *pbsn_serial,
+        // IN: Serialized error polynomial
+        TPM2B_LDAA_PE     *pe_serial,
+        // IN: Serialized key
+        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt_serial,
+        // IN: Serialized key
+        TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt_serial,
+        // IN: Basename to be used in the commit
+        TPM2B_LDAA_BASENAME *bsn
+        ) {
+    ldaa_poly_t                      pe;   // 1KB
+    ldaa_poly_t                      pbsn; // 1KB
+    ldaa_poly_matrix_xt_t            xt;   // 24.5KB
+    ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
+
+    /* Deserialize keys */
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
+    CryptLDaaDeserializePublicKey(&pbsn, pbsn_serial);
+    CryptLDaaDeserializePublicKey(&pe, pe_serial);
+
+    switch(*commit_sel) {
+        case 1:
+            CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
+            CryptLDaaDeserializeIssuerBNTT1(&issuer_b_ntt_1, issuer_bntt_serial);
+            break;
+        case 2:
+            CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_2, issuer_bntt_serial);
+            break;
+        case 3:
+            CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_3, issuer_bntt_serial);
+            break;
+        default:
+            // This should never happen. The caller should verify the validity
+            // of the commit_sel variable.
+            return TPM_RC_FAILURE;
+    }
 
     /* ********************************************************************* */
-    /*                            Pi calculations                            */
+    /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
-    // TODO: Break up this for into a switch case where the user selects which
-    // commit to process?
-    for (i = 0; i < LDAA_C; i++) {
-        ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[i];
-        ldaa_commitment1_t commited1;
-        ldaa_commitment2_t commited2;
-        ldaa_commitment3_t commited3;
-
-        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
-        ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt_1);
-        ldaa_tpm_comm_2(ssi, &commited2, &issuer_b_ntt_2);
-        ldaa_tpm_comm_3(ssi, &commited3, &issuer_b_ntt_3);
-
-        ldaa_poly_matrix_commit1_t *c1 = &C1[i];
-        ldaa_poly_matrix_commit2_t *c2 = &C2[i];
-        ldaa_poly_matrix_commit2_t *c3 = &C3[i];
-        for (j = 0; j < LDAA_COMMIT1_LENGTH; j++) {
-            for (k = 0; k < LDAA_N; k++) {
-                c1->coeffs[j].coeffs[k] = commited1.C.coeffs[j].coeffs[k];
-            }
-        }
-        for (j = 0; j < LDAA_COMMIT2_LENGTH; j++) {
-            for (k = 0; k < LDAA_N; k++) {
-                c2->coeffs[j].coeffs[k] = commited2.C.coeffs[j].coeffs[k];
-                c3->coeffs[j].coeffs[k] = commited3.C.coeffs[j].coeffs[k];
-            }
-        }
+    ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
+    ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+    switch (*commit_sel) {
+        case 1:
+            ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt_1);
+            CryptLDaaSerializeCommit1(c_out, &commited1.C);
+            break;
+        case 2:
+            ldaa_tpm_comm_2(ssi, &commited2, &issuer_b_ntt_2);
+            CryptLDaaSerializeCommit2(c_out, &commited2.C);
+            break;
+        case 3:
+            ldaa_tpm_comm_3(ssi, &commited3, &issuer_b_ntt_3);
+            CryptLDaaSerializeCommit2(c_out, &commited3.C);
+            break;
+        default:
+            // This should never happen. The caller should verify the validity
+            // of the commit_sel variable.
+            return TPM_RC_FAILURE;
     }
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-    /*                            Pi calculations                            */
+    /*                           Theta T calculations                        */
     /* ********************************************************************* */
 
     return TPM_RC_SUCCESS;

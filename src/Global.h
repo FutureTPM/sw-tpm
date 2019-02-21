@@ -98,7 +98,7 @@ extern ALGORITHM_VECTOR     g_toTest;
 // These types are used to differentiate the two different size values used.
 //
 // NUMBYTES is used when a size is a number of bytes (usually a TPM2B)
-typedef UINT16  NUMBYTES;
+typedef UINT32  NUMBYTES;
 //*** Other Types
 // An AUTH_VALUE is a BYTE array containing a digest (TPMU_HA)
 typedef BYTE    AUTH_VALUE[sizeof(TPMU_HA)];
@@ -827,7 +827,7 @@ typedef struct state_reset_data
     //*****************************************************************************
     //         LDAA
     //*****************************************************************************
-    // This entire section uses in total 1 + 1 + 32 = 34B of memory.
+    // This entire section uses in total 1B + 1B + 32B + 16MB = 16MB of memory.
     //
     // This is a very simple first implementation of the commit mechanism.
     // There can only be one LDAA session active in the TPM, which is
@@ -855,8 +855,7 @@ typedef struct state_reset_data
     // the current session. A hash is used but it may not be the best solution
     // because it requires a lot of memory, in this case 32B.
     BYTE                ldaa_hash_private_key[SHA256_BLOCK_SIZE];
-    // Keep internal state of the sign process. This variable uses 16MB,
-    // doesn't fit in the stack.
+    // Keep internal state of the sign process. This variable uses 16MB.
     ldaa_sign_state_i_t sign_states_tpm[LDAA_C];
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
@@ -909,11 +908,11 @@ typedef struct _COMMAND_
     //   handle area of the command
     TPM_HANDLE       handles[MAX_HANDLE_NUM]; // the parsed handle values
     UINT32           sessionNum;        // the number of sessions found
-    INT32            parameterSize;     // starts out with the parsed command size
+    UINT32           parameterSize;     // starts out with the parsed command size
     // and is reduced and values are unmarshaled. Just before calling the command actions, this
     // should be zero.  After the command actions, this number should grow as values are marshaled
     // in to the response buffer.
-    INT32            authSize;          // this is initialized with the parsed size
+    UINT32           authSize;          // this is initialized with the parsed size
     // of authorizationSize field and should be zero when the authorizations are parsed.
     BYTE            *parameterBuffer;   // input to ExecuteCommand
     BYTE            *responseBuffer;    // input to ExecuteCommand
@@ -1095,7 +1094,7 @@ extern int               s_freeSessionSlots;
 #if defined IO_BUFFER_C || defined GLOBAL_C
 /* The value of s_actionIoAllocation is the number of UINT64 values allocated. It is used to set the
    pointer for the response structure.  */
-extern UINT64   s_actionIoBuffer[8192];      // action I/O buffer
+extern UINT64   s_actionIoBuffer[16384];      // action I/O buffer
 extern UINT32   s_actionIoAllocation;       // number of UIN64 allocated for the action input
 					    // structure
 #endif // MEMORY_LIB_C
