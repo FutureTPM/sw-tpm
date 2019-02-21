@@ -722,6 +722,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 #define CC_LDAA_Join                      (CC_YES && ALG_LDAA)
+#define CC_LDAA_CommitTokenLink           (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignCommit                (CC_YES && ALG_LDAA)
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
@@ -1115,6 +1116,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_LDAA_SignCommit
 #define TPM_CC_LDAA_SignCommit              (TPM_CC)(0x0000019F)
 #endif
+#if         CC_LDAA_CommitTokenLink
+#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x00000120)
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1147,7 +1151,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x0000019E
+#define TPM_CC_LAST                         0x00000120
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1283,6 +1287,7 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
                       + (ADD_FILL || CC_LDAA_Join)                            \
                       + (ADD_FILL || CC_LDAA_SignCommit)                      \
+                      + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
 					  )
 
 

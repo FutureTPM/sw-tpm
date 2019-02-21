@@ -4350,6 +4350,43 @@ LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
 #else
 #define _LDAA_SignCommitDataAddress 0
 #endif
+
+#if CC_LDAA_CommitTokenLink
+#include "LDaa_CommitTokenLink_fp.h"
+typedef TPM_RC  (LDAA_CommitTokenLink_Entry)(
+				    LDAA_CommitTokenLink_In  *in,
+				    LDAA_CommitTokenLink_Out *out
+				    );
+typedef const struct {
+    LDAA_CommitTokenLink_Entry *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[4];
+    BYTE            types[8];
+} LDAA_CommitTokenLink_COMMAND_DESCRIPTOR_t;
+LDAA_CommitTokenLink_COMMAND_DESCRIPTOR_t _LDAA_CommitTokenLinkData = {
+    /* entry  */          &TPM2_LDAA_CommitTokenLink,
+    /* inSize */          (UINT32)(sizeof(LDAA_CommitTokenLink_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_CommitTokenLink_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_CommitTokenLink_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_CommitTokenLink_In, sid)),
+                           (UINT32)(offsetof(LDAA_CommitTokenLink_In, bsn)),
+                           (UINT32)(offsetof(LDAA_CommitTokenLink_Out, pe)),
+                           (UINT32)(offsetof(LDAA_CommitTokenLink_Out, pbsn))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL,
+                           TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL,
+                           TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_CommitTokenLinkDataAddress (&_LDAA_CommitTokenLinkData)
+#else
+#define _LDAA_CommitTokenLinkDataAddress 0
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -4838,6 +4875,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_LDAA_SignCommit)
     (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommitDataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_CommitTokenLink)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_CommitTokenLinkDataAddress,
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */

@@ -699,7 +699,7 @@ TPM2_LDAA_SignCommit(
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter != 2 ||
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
         // Clear current state of the protocol
@@ -726,6 +726,62 @@ TPM2_LDAA_SignCommit(
 }
 #endif // ALG_LDAA
 #endif // CC_LDAA_SignCommit
+
+#if CC_LDAA_CommitTokenLink  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_CommitTokenLink_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_CommitTokenLink(
+		 LDAA_CommitTokenLink_In      *in,            // In: input parameter list
+		 LDAA_CommitTokenLink_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_BLOCK_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_BLOCK_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter != 2 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_FAILURE;
+    }
+
+    retVal = CryptLDaaCommitTokenLink(
+            // Outputs
+            &out->nym, &out->pbsn, &out->pe,
+            // Inputs
+            &ldaa_key->sensitive, &in->bsn);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_CommitTokenLink
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/

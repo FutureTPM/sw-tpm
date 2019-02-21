@@ -836,17 +836,30 @@ typedef struct state_reset_data
     UINT8               ldaa_sid;
     // This counter represents the current stage of the LDAA in the TPM.
     // 0 => No LDAA session active
+    //
     // 1 => Join session activated. Passing to the next stage requires
     // permission by the host. In this scenario the TPM expects the host to
     // call TPM2_LDAA_Commit with the correct SID. In the case where the SID
     // isn't valid the TPM resets the counter and clears the SID, forcing the
     // host to restart the LDAA protocol. If everything is OK the TPM
     // increments the counter.
+    //
     // 2 => Sign Proceed activated. The host has authorization to call the sign
-    // commit command which generates theta_t: TPM2_LDAA_SignCommit. After the
-    // success of the signature commitment of the TPM the counter is
-    // incremented once again.
-    // 3 => Sign Proceed: Generate Signature Based Proof. The final stage of
+    // commit token link command which generates nym, pe and pbsn:
+    // TPM2_LDAA_CommitTokenLink. After the token link has been processed
+    // successfully the counter is incremented once again.
+    //
+    // 3 - 26 => Sign Proceed Commit Processing activated. In this state the
+    // user is allowed to call the TPM2_LDAA_SignCommit function iteratively
+    // to process the necessary commits for the attestation. The order in which
+    // the commits are processed is up to the user, and it's their
+    // responsability to process all of the commits necessary, i.e., there is
+    // no logic to impede the user from processing the same commit over and
+    // over. In this state, the TPM relies on the user to be guided through
+    // the commit processing. At the end of the commit processing the state
+    // counter should be at 27.
+    //
+    // 27 => Sign Proceed: Generate Signature Based Proof. The final stage of
     // the TPM LDAA protocol can be executed by calling the final command:
     // TPM2_LDAA_SignProof. After completing the SignProof command successfully
     // the counter is reset and the SID is cleared.

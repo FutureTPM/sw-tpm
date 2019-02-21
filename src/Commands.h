@@ -476,6 +476,9 @@
 #if CC_LDAA_SignCommit
 #include "LDaa_SignCommit_fp.h"
 #endif
+#if CC_LDAA_CommitTokenLink
+#include "LDaa_CommitTokenLink_fp.h"
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
