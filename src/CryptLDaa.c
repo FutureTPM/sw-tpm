@@ -474,6 +474,7 @@ LIB_EXPORT TPM_RC
 CryptLDaaClearProtocolState(void) {
     gr.ldaa_sid = 0;
     gr.ldaa_commitCounter = 0;
+    gr.ldaa_commit_sign_state = 0;
     return TPM_RC_SUCCESS;
 }
 
@@ -578,10 +579,11 @@ CryptLDaaSignCommit(
     /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
-    // TODO: fill sign_state is only run once per sign_state_sel. Set one bit
-    // in a variable once the sign state has been processed for that
-    // sign_state_sel.
-    ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+    if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x0001) == 0) {
+        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+        gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
+    }
+
     switch (*commit_sel) {
         case 1:
             ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt_1);

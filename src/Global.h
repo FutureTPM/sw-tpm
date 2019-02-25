@@ -827,7 +827,8 @@ typedef struct state_reset_data
     //*****************************************************************************
     //         LDAA
     //*****************************************************************************
-    // This entire section uses in total 1B + 1B + 32B + 16MB = 16MB of memory.
+    // This entire section uses in total 1B + 1B + 32B + 4B + 16MB = 16MB of
+    // memory.
     //
     // This is a very simple first implementation of the commit mechanism.
     // There can only be one LDAA session active in the TPM, which is
@@ -872,6 +873,11 @@ typedef struct state_reset_data
     BYTE                ldaa_hash_private_key[SHA256_BLOCK_SIZE];
     // Keep internal state of the sign process. This variable uses 16MB.
     ldaa_sign_state_i_t sign_states_tpm[LDAA_C];
+    // Store already filled sign states. Each bit in this variables tells the
+    // TPM2_LDAA_SignCommit command if the sign state referenced by the user
+    // needs to be processed or was already processed in a prior call to the
+    // command.
+    UINT32              ldaa_commit_sign_state;
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;
