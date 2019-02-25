@@ -66,4 +66,8 @@ typedef struct {
   ldaa_poly_t coeffs[LDAA_K_COMM * 1];
 } ldaa_poly_matrix_R_t;
 
+void ldaa_poly_matrix_R_add(ldaa_poly_matrix_R_t *out,
+		    ldaa_poly_matrix_R_t *a,
+		    ldaa_poly_matrix_R_t *b);
+
 #endif

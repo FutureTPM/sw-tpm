@@ -212,13 +212,11 @@
 #define  MIN_EVICT_OBJECTS              7	/* for PC Client */
 #define  NUM_POLICY_PCR_GROUP           1
 #define  NUM_AUTHVALUE_PCR_GROUP        1
-//#define  MAX_CONTEXT_SIZE               4096
 #define  MAX_CONTEXT_SIZE               65536
 #define  MAX_DIGEST_BUFFER              1024
 #define  MAX_NV_INDEX_SIZE              2048
 #define  MAX_NV_BUFFER_SIZE             1024
 #define  MAX_CAP_BUFFER                 1024
-//#define  NV_MEMORY_SIZE                 32768
 #define  NV_MEMORY_SIZE                 20971520 // NV increase due to LDAA (20MB)
 #define  MIN_COUNTER_INDICES            8
 #define  NUM_STATIC_PCR                 16
@@ -724,6 +722,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define CC_LDAA_Join                      (CC_YES && ALG_LDAA)
 #define CC_LDAA_CommitTokenLink           (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignCommit                (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignProof                 (CC_YES && ALG_LDAA)
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1119,6 +1118,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_LDAA_CommitTokenLink
 #define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x00000120)
 #endif
+#if         CC_LDAA_SignProof
+#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x00000121)
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1151,7 +1153,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x00000120
+#define TPM_CC_LAST                         0x00000121
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1288,6 +1290,7 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_LDAA_Join)                            \
                       + (ADD_FILL || CC_LDAA_SignCommit)                      \
                       + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
+                      + (ADD_FILL || CC_LDAA_SignProof)                       \
 					  )
 
 

@@ -244,8 +244,10 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 #define TPM2B_LDAA_PBSN_P_UNMARSHAL (TPM2B_LDAA_PE_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
+#define TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL (TPM2B_LDAA_PBSN_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_SIGN_STATE_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_PBSN_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL)
 
 #else
 #define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
@@ -264,8 +266,10 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 #define TPM2B_LDAA_PBSN_P_UNMARSHAL (TPM2B_LDAA_PE_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
+#define TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL (TPM2B_LDAA_PBSN_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_LDAA_SIGN_STATE_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_PBSN_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL)
 
 
 #endif	/* TPM_NUVOTON */
@@ -370,7 +374,11 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_COMMIT_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_COMMIT_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_COMMIT_P_MARSHAL)
+#define TPM2B_LDAA_SIGN_STATE_P_MARSHAL (TPM2B_LDAA_COMMIT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_SIGN_STATE_Marshal,
+#define TPM2B_LDAA_SIGN_GROUP_P_MARSHAL (TPM2B_LDAA_SIGN_STATE_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_SIGN_GROUP_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL)
 
 #else
 
@@ -387,7 +395,11 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_COMMIT_P_MARSHAL (TPM2B_LDAA_NYM_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_COMMIT_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_COMMIT_P_MARSHAL)
+#define TPM2B_LDAA_SIGN_STATE_P_MARSHAL (TPM2B_LDAA_COMMIT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_SIGN_STATE_Marshal,
+#define TPM2B_LDAA_SIGN_GROUP_P_MARSHAL (TPM2B_LDAA_SIGN_STATE_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_LDAA_SIGN_GROUP_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4387,6 +4399,49 @@ LDAA_CommitTokenLink_COMMAND_DESCRIPTOR_t _LDAA_CommitTokenLinkData = {
 #else
 #define _LDAA_CommitTokenLinkDataAddress 0
 #endif
+
+#if CC_LDAA_SignProof
+#include "LDaa_SignProof_fp.h"
+typedef TPM_RC  (LDAA_SignProof_Entry)(
+				    LDAA_SignProof_In  *in,
+				    LDAA_SignProof_Out *out
+				    );
+typedef const struct {
+    LDAA_SignProof_Entry *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[7];
+    BYTE            types[11];
+} LDAA_SignProof_COMMAND_DESCRIPTOR_t;
+LDAA_SignProof_COMMAND_DESCRIPTOR_t _LDAA_SignProofData = {
+    /* entry  */          &TPM2_LDAA_SignProof,
+    /* inSize */          (UINT32)(sizeof(LDAA_SignProof_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_SignProof_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_SignProof_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignProof_In, sid)),
+                           (UINT32)(offsetof(LDAA_SignProof_In, R1)),
+                           (UINT32)(offsetof(LDAA_SignProof_In, R2)),
+                           (UINT32)(offsetof(LDAA_SignProof_In, sign_state_sel)),
+                           (UINT32)(offsetof(LDAA_SignProof_In, sign_state_type)),
+                           (UINT32)(offsetof(LDAA_SignProof_Out, R2)),
+                           (UINT32)(offsetof(LDAA_SignProof_Out, sign_group))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL,
+                           TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_LDAA_SIGN_STATE_P_MARSHAL,
+                           TPM2B_LDAA_SIGN_STATE_P_MARSHAL,
+                           TPM2B_LDAA_SIGN_GROUP_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_SignProofDataAddress (&_LDAA_SignProofData)
+#else
+#define _LDAA_SignProofDataAddress 0
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -4878,6 +4933,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_LDAA_CommitTokenLink)
     (COMMAND_DESCRIPTOR_t *)_LDAA_CommitTokenLinkDataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_SignProof)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignProofDataAddress,
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */

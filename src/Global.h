@@ -859,10 +859,12 @@ typedef struct state_reset_data
     // the commit processing. At the end of the commit processing the state
     // counter should be at 27.
     //
-    // 27 => Sign Proceed: Generate Signature Based Proof. The final stage of
-    // the TPM LDAA protocol can be executed by calling the final command:
-    // TPM2_LDAA_SignProof. After completing the SignProof command successfully
-    // the counter is reset and the SID is cleared.
+    // 27 - 34 => Sign Proceed: Generate Signature Based Proof. The final stage
+    // of the TPM LDAA protocol can be executed by calling the final command:
+    // TPM2_LDAA_SignProof. This command also features an incremental
+    // interface, thus the conditions from the SignCommit command also apply to
+    // the SignProof command. After completing the SignProof command
+    // successfully the counter is reset and the SID is cleared.
     UINT8               ldaa_commitCounter;
     // Variable used to tie the private key of the LDAA session to the SID of
     // the current session. A hash is used but it may not be the best solution

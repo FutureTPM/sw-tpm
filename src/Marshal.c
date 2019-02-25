@@ -1954,22 +1954,6 @@ TPMS_SIGNATURE_DILITHIUM_Marshal(TPMS_SIGNATURE_DILITHIUM *source, BYTE **buffer
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 
-/*****************************************************************************/
-/*                                LDAA Mods                                  */
-/*****************************************************************************/
-UINT32
-TPMS_SIGNATURE_LDAA_Marshal(TPMS_SIGNATURE_LDAA *source, BYTE **buffer, UINT32 *size)
-{
-    UINT32 written = 0;
-
-    written += TPMI_ALG_HASH_Marshal(&source->hash, buffer, size);
-    written += TPM2B_LDAA_SIGNED_MESSAGE_Marshal(&source->sig, buffer, size);
-    return written;
-}
-/*****************************************************************************/
-/*                                LDAA Mods                                  */
-/*****************************************************************************/
-
 /* Table 2:179 - Definition of TPMU_SIGNATURE Union (StructuresTable()) */
 UINT32
 TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, UINT32 *size, UINT32 selector)
@@ -1977,11 +1961,6 @@ TPMU_SIGNATURE_Marshal(TPMU_SIGNATURE *source, BYTE **buffer, UINT32 *size, UINT
     UINT32 written = 0;
 
     switch (selector) {
-#if ALG_LDAA
-      case TPM_ALG_LDAA:
-        written += TPMS_SIGNATURE_LDAA_Marshal(&source->ldaa, buffer, size);
-        break;
-#endif
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         written += TPMS_SIGNATURE_DILITHIUM_Marshal(&source->dilithium, buffer, size);
@@ -2578,14 +2557,6 @@ TPM2B_LDAA_SECRET_KEY_Marshal(TPM2B_LDAA_SECRET_KEY *source, BYTE **buffer, UINT
 }
 
 UINT32
-TPM2B_LDAA_SIGNED_MESSAGE_Marshal(TPM2B_LDAA_SIGNED_MESSAGE *source, BYTE **buffer, UINT32 *size)
-{
-    UINT32 written = 0;
-    written += TPM2B_Marshal(&source->b, buffer, size);
-    return written;
-}
-
-UINT32
 TPM2B_LDAA_BASENAME_ISSUER_Marshal(TPM2B_LDAA_BASENAME_ISSUER *source, BYTE **buffer, UINT32 *size)
 {
     UINT32 written = 0;
@@ -2603,6 +2574,22 @@ TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, UINT32
 
 UINT32
 TPM2B_LDAA_COMMIT_Marshal(TPM2B_LDAA_COMMIT *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT32
+TPM2B_LDAA_SIGN_STATE_Marshal(TPM2B_LDAA_SIGN_STATE *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT32
+TPM2B_LDAA_SIGN_GROUP_Marshal(TPM2B_LDAA_SIGN_GROUP *source, BYTE **buffer, UINT32 *size)
 {
     UINT32 written = 0;
     written += TPM2B_Marshal(&source->b, buffer, size);

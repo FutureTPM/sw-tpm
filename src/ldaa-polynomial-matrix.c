@@ -69,3 +69,13 @@ void ldaa_poly_matrix_commit2_add(ldaa_poly_matrix_commit2_t *out,
             ldaa_poly_add(&out->coeffs[i], &a->coeffs[i], &b->coeffs[i]);
     }
 }
+
+void ldaa_poly_matrix_R_add(ldaa_poly_matrix_R_t *out,
+		    ldaa_poly_matrix_R_t *a,
+		    ldaa_poly_matrix_R_t *b)
+{
+    size_t i;
+    for (i = 0; i < LDAA_K_COMM * 1; i++) {
+            ldaa_poly_add(&out->coeffs[i], &a->coeffs[i], &b->coeffs[i]);
+    }
+}

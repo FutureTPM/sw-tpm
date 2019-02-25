@@ -3958,26 +3958,6 @@ TPMS_SIGNATURE_DILITHIUM_Unmarshal(TPMS_SIGNATURE_DILITHIUM *target, BYTE **buff
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 
-/*****************************************************************************/
-/*                               LDAA Mods                                   */
-/*****************************************************************************/
-TPM_RC
-TPMS_SIGNATURE_LDAA_Unmarshal(TPMS_SIGNATURE_LDAA *target, BYTE **buffer, UINT32 *size)
-{
-    TPM_RC rc = TPM_RC_SUCCESS;
-
-    if (rc == TPM_RC_SUCCESS) {
-	rc = TPMI_ALG_HASH_Unmarshal(&target->hash, buffer, size, NO);
-    }
-    if (rc == TPM_RC_SUCCESS) {
-	rc = TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(&target->sig, buffer, size);
-    }
-    return rc;
-}
-/*****************************************************************************/
-/*                               LDAA Mods                                   */
-/*****************************************************************************/
-
 /* Table 171 - Definition of Types for {ECC} TPMS_SIGNATURE_ECC */
 
 TPM_RC
@@ -4045,11 +4025,6 @@ TPMU_SIGNATURE_Unmarshal(TPMU_SIGNATURE *target, BYTE **buffer, UINT32 *size, UI
 #if ALG_DILITHIUM
       case TPM_ALG_DILITHIUM:
         rc = TPMS_SIGNATURE_DILITHIUM_Unmarshal(&target->dilithium, buffer, size);
-        break;
-#endif
-#if ALG_LDAA
-      case TPM_ALG_LDAA:
-        rc = TPMS_SIGNATURE_LDAA_Unmarshal(&target->ldaa, buffer, size);
         break;
 #endif
 #if ALG_ECDSA
@@ -4974,17 +4949,6 @@ TPM2B_LDAA_BASENAME_ISSUER_Unmarshal(TPM2B_LDAA_BASENAME_ISSUER *target, BYTE **
 }
 
 TPM_RC
-TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(TPM2B_LDAA_SIGNED_MESSAGE *target, BYTE **buffer, UINT32 *size)
-{
-    TPM_RC rc = TPM_RC_SUCCESS;
-
-    if (rc == TPM_RC_SUCCESS) {
-        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
-    }
-    return rc;
-}
-
-TPM_RC
 TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, UINT32 *size)
 {
     TPM_RC rc = TPM_RC_SUCCESS;
@@ -4997,6 +4961,17 @@ TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer
 
 TPM_RC
 TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_LDAA_SIGN_STATE_Unmarshal(TPM2B_LDAA_SIGN_STATE *target, BYTE **buffer, UINT32 *size)
 {
     TPM_RC rc = TPM_RC_SUCCESS;
 

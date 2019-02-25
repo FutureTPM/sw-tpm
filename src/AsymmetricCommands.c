@@ -782,6 +782,69 @@ TPM2_LDAA_CommitTokenLink(
 }
 #endif // ALG_LDAA
 #endif // CC_LDAA_CommitTokenLink
+
+#if CC_LDAA_SignProof  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignProof_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignProof(
+		 LDAA_SignProof_In      *in,            // In: input parameter list
+		 LDAA_SignProof_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_BLOCK_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_BLOCK_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter < 27 || gr.ldaa_commitCounter > 34 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_FAILURE;
+    }
+
+    retVal = CryptLDaaSignProof(
+            // Outputs
+            &out->R1,
+            &out->R2,
+            &out->sign_group,
+            // Inputs
+            &in->R1,
+            &in->R2,
+            &in->sign_state_sel,
+            &in->sign_state_type);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 34)
+        retVal = CryptLDaaCommit();
+    else
+        retVal = CryptLDaaClearProtocolState();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignProof
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/

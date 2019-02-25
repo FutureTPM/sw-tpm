@@ -535,13 +535,9 @@ extern "C" {
     TPM_RC
     TPM2B_LDAA_ISSUER_AT_Unmarshal(TPM2B_LDAA_ISSUER_AT *target, BYTE **buffer, UINT32 *size);
     TPM_RC
-    TPM2B_LDAA_SIGNED_MESSAGE_Unmarshal(TPM2B_LDAA_SIGNED_MESSAGE *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
     TPMS_SIG_SCHEME_LDAA_Unmarshal(TPMS_SIG_SCHEME_LDAA *target, BYTE **buffer, UINT32 *size);
     TPM_RC
     TPMI_ALG_LDAA_SCHEME_Unmarshal(TPMI_ALG_LDAA_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
-    TPM_RC
-    TPMS_SIGNATURE_LDAA_Unmarshal(TPMS_SIGNATURE_LDAA *target, BYTE **buffer, UINT32 *size);
     TPM_RC
     TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, UINT32 *size);
     TPM_RC
@@ -550,6 +546,8 @@ extern "C" {
     TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, UINT32 *size);
     TPM_RC
     TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, UINT32 *size);
+    TPM_RC
+    TPM2B_LDAA_SIGN_STATE_Unmarshal(TPM2B_LDAA_SIGN_STATE *target, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

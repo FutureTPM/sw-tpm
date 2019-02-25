@@ -1134,14 +1134,6 @@ CryptGetSignHashAlg(
 	  case TPM_ALG_DILITHIUM:
 	    return auth->signature.dilithium.hash;
 #endif //TPM_ALG_DILITHIUM
-#if ALG_LDAA
-	    // If LDAA is supported
-#   if !defined TPM_ALG_LDAA
-#       error "LDAA is required for LDAA"
-#   endif
-	  case TPM_ALG_LDAA:
-	    return auth->signature.ldaa.hash;
-#endif //TPM_ALG_LDAA
 	  case TPM_ALG_HMAC:
 	    return auth->signature.hmac.hashAlg;
 	  default:

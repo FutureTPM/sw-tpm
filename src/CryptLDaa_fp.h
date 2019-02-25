@@ -67,4 +67,22 @@ CryptLDaaCommitTokenLink(
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn
         );
+
+LIB_EXPORT TPM_RC
+CryptLDaaSignProof(
+        // OUT: sign state R1
+        TPM2B_LDAA_SIGN_STATE   *R1_out_serial,
+        // OUT: sign state R2
+        TPM2B_LDAA_SIGN_STATE   *R2_out_serial,
+        // OUT: Sign Group
+        TPM2B_LDAA_SIGN_GROUP   *sign_group_serial,
+        // IN:  sign state R1
+        TPM2B_LDAA_SIGN_STATE   *R1_in_serial,
+        // IN:  sign state R2
+        TPM2B_LDAA_SIGN_STATE   *R2_in_serial,
+        // IN: sign state selection
+        BYTE                    *sign_state_sel,
+        // IN: Sign State type
+        BYTE                    *sign_state_type
+        );
 #endif

@@ -433,8 +433,6 @@ extern "C" {
     UINT32
     TPM2B_LDAA_PUBLIC_KEY_Marshal(TPM2B_LDAA_PUBLIC_KEY *source, BYTE **buffer, UINT32 *size);
     UINT32
-    TPMS_SIGNATURE_LDAA_Marshal(TPMS_SIGNATURE_LDAA *source, BYTE **buffer, UINT32 *size);
-    UINT32
     TPMS_SIG_SCHEME_LDAA_Marshal(TPMS_SIG_SCHEME_LDAA *source, BYTE **buffer, UINT32 *size);
     UINT32
     TPMI_ALG_LDAA_SCHEME_Marshal(TPMI_ALG_LDAA_SCHEME *source, BYTE **buffer, UINT32 *size);
@@ -443,11 +441,13 @@ extern "C" {
     UINT32
     TPMS_LDAA_PARMS_Marshal(TPMS_LDAA_PARMS *source, BYTE **buffer, UINT32 *size);
     UINT32
-    TPM2B_LDAA_SIGNED_MESSAGE_Marshal(TPM2B_LDAA_SIGNED_MESSAGE *source, BYTE **buffer, UINT32 *size);
-    UINT32
     TPM2B_LDAA_ISSUER_AT_Marshal(TPM2B_LDAA_ISSUER_AT *source, BYTE **buffer, UINT32 *size);
     UINT32
     TPM2B_LDAA_COMMIT_Marshal(TPM2B_LDAA_COMMIT *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_LDAA_SIGN_STATE_Marshal(TPM2B_LDAA_SIGN_STATE *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_LDAA_SIGN_GROUP_Marshal(TPM2B_LDAA_SIGN_GROUP *source, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/

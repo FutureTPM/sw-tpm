@@ -7,6 +7,10 @@
 #include "ldaa-sign-state.h"
 #include "ldaa-commitment.h"
 
+#define RES0 0
+#define RES1 1
+#define RES2 2
+
 // TODO: All of these variables don't fit in the stack. Better yet, the
 // largest one doesn't fit the stack. This is a temporary solution.
 static ldaa_commitment1_t               commited1;      // 102.4KB + 65KB
@@ -40,6 +44,167 @@ static inline UINT32 Bytes2Coeff(BYTE *in) {
     }
 
     return out;
+}
+
+static void CryptLDaaSerializeSignGroup(
+        // OUT: The serialized sign state
+        TPM2B_LDAA_SIGN_GROUP *sign_group_serial,
+        // IN: sign group
+        TPMU_LDAA_SIGN_GROUP  *sign_group,
+        // IN: type of sign group
+        UINT8                 *sign_state_type
+        ) {
+
+    switch (*sign_state_type) {
+        case RES0:
+            ///////////////////////////
+            // Serialize phi_x
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_1.phi_x[i].coeffs[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize varphi_e
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_1.varphi_e[i].coeffs[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize varphi_r_e
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_1.varphi_r_e[i].coeffs[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize phi_r
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_1.phi_r[i].coeffs[j]);
+                }
+            }
+            break;
+        case RES1:
+            ///////////////////////////
+            // Serialize phi
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_2.phi[i].v[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize varphi
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_2.varphi[i].v[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize v_e
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_2.v_e[i].coeffs[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize v
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_2.v[i].coeffs[j]);
+                }
+            }
+            break;
+        case RES2:
+            ///////////////////////////
+            // Serialize phi
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_3.phi[i].v[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize varphi
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_3.varphi[i].v[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize r_e
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_3.r_e[i].coeffs[j]);
+                }
+            }
+            ///////////////////////////
+            // Serialize r
+            ///////////////////////////
+            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
+                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+                            sign_group->res_3.r[i].coeffs[j]);
+                }
+            }
+            break;
+        default:
+            return;
+    }
+}
+
+static void CryptLDaaSerializeSignState(
+        // OUT: The serialized sign state
+        TPM2B_LDAA_SIGN_STATE *R_serial,
+        // In: sign state
+        ldaa_poly_matrix_R_t *R
+        ) {
+    // Loop polynomial matrix
+    for (size_t i = 0; i < LDAA_K_COMM; i++) {
+        // Loop coefficients of each polynomial
+        for (size_t j = 0; j < LDAA_N; j++) {
+            Coeff2Bytes((BYTE *)&R_serial->t.buffer+((i * LDAA_N + j)*4),
+                    R->coeffs[i].coeffs[j]);
+        }
+    }
+}
+
+static void CryptLDaaDeserializeSignState(
+        // OUT: deserialized sign state
+        ldaa_poly_matrix_R_t *R,
+        // IN: The serialized sign state
+        TPM2B_LDAA_SIGN_STATE *R_serial
+        ) {
+    // Loop polynomial matrix
+    for (size_t i = 0; i < LDAA_K_COMM; i++) {
+        // Loop coefficients of each polynomial
+        for (size_t j = 0; j < LDAA_N; j++) {
+           R->coeffs[i].coeffs[j] =
+               Bytes2Coeff((BYTE*) &R_serial->t.buffer+((i*LDAA_N+j)*4));
+        }
+    }
 }
 
 static void CryptLDaaDeserializeIssuerAT(
@@ -413,6 +578,9 @@ CryptLDaaSignCommit(
     /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
+    // TODO: fill sign_state is only run once per sign_state_sel. Set one bit
+    // in a variable once the sign state has been processed for that
+    // sign_state_sel.
     ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
     switch (*commit_sel) {
         case 1:
@@ -435,6 +603,140 @@ CryptLDaaSignCommit(
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
     /*                           Theta T calculations                        */
     /* ********************************************************************* */
+
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaSignProof(
+        // OUT: sign state R1
+        TPM2B_LDAA_SIGN_STATE   *R1_out_serial,
+        // OUT: sign state R2
+        TPM2B_LDAA_SIGN_STATE   *R2_out_serial,
+        // OUT: Sign Group
+        TPM2B_LDAA_SIGN_GROUP   *sign_group_serial,
+        // IN:  sign state R1
+        TPM2B_LDAA_SIGN_STATE   *R1_in_serial,
+        // IN:  sign state R2
+        TPM2B_LDAA_SIGN_STATE   *R2_in_serial,
+        // IN: sign state selection
+        BYTE                    *sign_state_sel,
+        // IN: Sign State type
+        BYTE                    *sign_state_type
+        ) {
+    ldaa_poly_matrix_R_t   R1, R2;     // 64kB each
+    TPMU_LDAA_SIGN_GROUP   sign_group; // 1.2MB
+    size_t                 j, jj;
+
+    /* Deserialize objects */
+    CryptLDaaDeserializeSignState(&R1, R1_in_serial);
+    CryptLDaaDeserializeSignState(&R2, R2_in_serial);
+
+    ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
+
+    switch (*sign_state_type) {
+        case RES0:
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                for (jj = 0; jj < LDAA_M; jj++) {
+                    ldaa_integer_matrix_t phi_xij;
+                    ldaa_integer_matrix_copy(&ssi->x[jj * LDAA_LOG_BETA + j], &phi_xij);
+                    ldaa_integer_matrix_permute(&phi_xij, &ssi->phi[j]);
+
+                    ldaa_integer_matrix_copy(&phi_xij,
+                            &sign_group.res_1.phi_x[j * LDAA_M + jj]);
+                }
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_t varphi_ej;
+                ldaa_integer_matrix_copy(&ssi->e[j], &varphi_ej);
+                ldaa_integer_matrix_permute(&varphi_ej, &ssi->varphi[j]);
+
+                ldaa_integer_matrix_copy(&varphi_ej,
+                        &sign_group.res_1.varphi_e[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_t varphi_rej;
+                ldaa_integer_matrix_copy(&ssi->re[j], &varphi_rej);
+                ldaa_integer_matrix_permute(&varphi_rej, &ssi->varphi[j]);
+
+                ldaa_integer_matrix_copy(&varphi_rej,
+                        &sign_group.res_1.varphi_r_e[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                for (jj = 0; jj < LDAA_M; jj++) {
+                    ldaa_integer_matrix_t phi_rij;
+                    ldaa_integer_matrix_copy(&ssi->r[jj * LDAA_LOG_BETA + j], &phi_rij);
+                    ldaa_integer_matrix_permute(&phi_rij, &ssi->phi[j]);
+
+                    ldaa_integer_matrix_copy(&phi_rij,
+                            &sign_group.res_1.phi_r[j * LDAA_M + jj]);
+                }
+            }
+
+            // R1 = R2 from Host
+            // R2 = R3 from Host
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R2);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3);
+            break;
+
+        case RES1:
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_2.phi[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_2.varphi[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_copy(&ssi->ve[j], &sign_group.res_2.v_e[j]);
+            }
+
+            for (j = 0; j < LDAA_M * LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_copy(&ssi->v[j], &sign_group.res_2.v[j]);
+            }
+
+            // R1 = R1 from Host
+            // R2 = R3 from Host
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3);
+            break;
+
+        case RES2:
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_3.phi[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_3.varphi[j]);
+            }
+
+            for (j = 0; j < LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_copy(&ssi->re[j], &sign_group.res_3.r_e[j]);
+            }
+
+            for (j = 0; j < LDAA_M * LDAA_LOG_BETA; j++) {
+                ldaa_integer_matrix_copy(&ssi->r[j], &sign_group.res_3.r[j]);
+            }
+
+            // R1 = R1 from Host
+            // R2 = R2 from Host
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R2);
+            break;
+
+        default:
+            return TPM_RC_FAILURE;
+    }
+
+    /* Serialize objects */
+    CryptLDaaSerializeSignState(R1_out_serial, &R1);
+    CryptLDaaSerializeSignState(R2_out_serial, &R2);
+    CryptLDaaSerializeSignGroup(sign_group_serial, &sign_group,
+            sign_state_type);
 
     return TPM_RC_SUCCESS;
 }

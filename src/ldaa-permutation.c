@@ -52,3 +52,10 @@ void ldaa_permutation_embed(ldaa_permutation_t *this, ldaa_poly_t *ps)
         }
     }
 }
+
+void ldaa_permutation_copy(ldaa_permutation_t *this, ldaa_permutation_t *other)
+{
+    for (size_t i = 0; i < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; i++) {
+        other->v[i] = this->v[i];
+    }
+}
