@@ -646,7 +646,7 @@ TPM2_LDAA_Join(
         CryptHashBlock(ALG_SHA256_VALUE,
                 ldaa_key->sensitive.sensitive.ldaa.t.size,
                 ldaa_key->sensitive.sensitive.ldaa.t.buffer,
-                SHA256_BLOCK_SIZE,
+                SHA256_DIGEST_SIZE,
                 gr.ldaa_hash_private_key);
     }
 
@@ -678,22 +678,22 @@ TPM2_LDAA_SignCommit(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     OBJECT  *ldaa_key;
-    BYTE     digest[SHA256_BLOCK_SIZE];
+    BYTE     digest[SHA256_DIGEST_SIZE];
 
     // Input Validation
     ldaa_key = HandleToObject(in->key_handle);
 
     // Input key must be an LDAA key
     if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
-        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+        return TPM_RCS_KEY + RC_LDAA_SignCommit_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
             ldaa_key->sensitive.sensitive.ldaa.t.size,
             ldaa_key->sensitive.sensitive.ldaa.t.buffer,
-            SHA256_BLOCK_SIZE,
+            SHA256_DIGEST_SIZE,
             digest);
 
     // Fail if the private key passed is different than the tied key to
@@ -701,7 +701,7 @@ TPM2_LDAA_SignCommit(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -739,22 +739,22 @@ TPM2_LDAA_CommitTokenLink(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     OBJECT  *ldaa_key;
-    BYTE     digest[SHA256_BLOCK_SIZE];
+    BYTE     digest[SHA256_DIGEST_SIZE];
 
     // Input Validation
     ldaa_key = HandleToObject(in->key_handle);
 
     // Input key must be an LDAA key
     if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
-        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+        return TPM_RCS_KEY + RC_LDAA_CommitTokenLink_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_CommitTokenLink_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
             ldaa_key->sensitive.sensitive.ldaa.t.size,
             ldaa_key->sensitive.sensitive.ldaa.t.buffer,
-            SHA256_BLOCK_SIZE,
+            SHA256_DIGEST_SIZE,
             digest);
 
     // Fail if the private key passed is different than the tied key to
@@ -762,7 +762,7 @@ TPM2_LDAA_CommitTokenLink(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter != 2 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -795,22 +795,22 @@ TPM2_LDAA_SignProof(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     OBJECT  *ldaa_key;
-    BYTE     digest[SHA256_BLOCK_SIZE];
+    BYTE     digest[SHA256_DIGEST_SIZE];
 
     // Input Validation
     ldaa_key = HandleToObject(in->key_handle);
 
     // Input key must be an LDAA key
     if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
-        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+        return TPM_RCS_KEY + RC_LDAA_SignProof_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
             ldaa_key->sensitive.sensitive.ldaa.t.size,
             ldaa_key->sensitive.sensitive.ldaa.t.buffer,
-            SHA256_BLOCK_SIZE,
+            SHA256_DIGEST_SIZE,
             digest);
 
     // Fail if the private key passed is different than the tied key to
@@ -818,7 +818,7 @@ TPM2_LDAA_SignProof(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 27 || gr.ldaa_commitCounter > 34 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -840,6 +840,53 @@ TPM2_LDAA_SignProof(
         retVal = CryptLDaaCommit();
     else
         retVal = CryptLDaaClearProtocolState();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignProof
+
+#if CC_LDAA_SignProceed  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignProceed_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignProceed(
+		 LDAA_SignProceed_In      *in            // In: input parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignProceed_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignProceed_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter != 1 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    retVal = CryptLDaaCommit();
 
     return retVal;
 }

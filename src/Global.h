@@ -870,7 +870,7 @@ typedef struct state_reset_data
     // Variable used to tie the private key of the LDAA session to the SID of
     // the current session. A hash is used but it may not be the best solution
     // because it requires a lot of memory, in this case 32B.
-    BYTE                ldaa_hash_private_key[SHA256_BLOCK_SIZE];
+    BYTE                ldaa_hash_private_key[SHA256_DIGEST_SIZE];
     // Keep internal state of the sign process. This variable uses 16MB.
     ldaa_sign_state_i_t sign_states_tpm[LDAA_C];
     // Store already filled sign states. Each bit in this variables tells the

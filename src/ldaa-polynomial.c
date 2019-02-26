@@ -432,7 +432,7 @@ void ldaa_poly_from_hash(
 
     for (i = 0; i < LDAA_N; i++) {
         do {
-            if (bits_consumed + logq >= (SHA256_BLOCK_SIZE * 8)) return;
+            if (bits_consumed + logq >= (SHA256_DIGEST_SIZE * 8)) return;
 
             pi = digest[bits_consumed / 8] >> (bits_consumed % 8);
             k = 8 - (bits_consumed % 8);

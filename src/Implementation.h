@@ -723,6 +723,7 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define CC_LDAA_CommitTokenLink           (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignCommit                (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignProof                 (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignProceed               (CC_YES && ALG_LDAA)
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1121,6 +1122,9 @@ typedef UINT32                              TPM_CC;
 #if         CC_LDAA_SignProof
 #define TPM_CC_LDAA_SignProof               (TPM_CC)(0x000001A1)
 #endif
+#if         CC_LDAA_SignProceed
+#define TPM_CC_LDAA_SignProceed             (TPM_CC)(0x000001A2)
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1153,7 +1157,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x00000121
+#define TPM_CC_LAST                         0x000001A2
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1291,6 +1295,7 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_LDAA_SignCommit)                      \
                       + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
                       + (ADD_FILL || CC_LDAA_SignProof)                       \
+                      + (ADD_FILL || CC_LDAA_SignProceed)                     \
 					  )
 
 

@@ -482,6 +482,9 @@
 #if CC_LDAA_SignProof
 #include "LDaa_SignProof_fp.h"
 #endif
+#if CC_LDAA_SignProceed
+#include "LDaa_SignProceed_fp.h"
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/

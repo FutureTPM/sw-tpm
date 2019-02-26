@@ -431,7 +431,7 @@ CryptLDaaJoin(
     ldaa_poly_matrix_xt_t  xt;
     ldaa_poly_t            pbsn;
     HASH_STATE             hash_state;
-    BYTE                   digest[SHA256_BLOCK_SIZE];
+    BYTE                   digest[SHA256_DIGEST_SIZE];
 
     /* Deserialize keys */
     CryptLDaaDeserializePublicKey(&ut, &publicArea->unique.ldaa);
@@ -442,7 +442,7 @@ CryptLDaaJoin(
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     CryptHashStart(&hash_state, ALG_SHA256_VALUE);
     CryptDigestUpdate(&hash_state, bsn_I->t.size, bsn_I->t.buffer);
-    CryptHashEnd(&hash_state, SHA256_BLOCK_SIZE, digest);
+    CryptHashEnd(&hash_state, SHA256_DIGEST_SIZE, digest);
     ldaa_poly_from_hash(&pbsn, digest);
 
     ldaa_poly_sample_z(&pe);
@@ -513,13 +513,13 @@ CryptLDaaCommitTokenLink(
     ldaa_poly_matrix_xt_t xt;
     ldaa_poly_t           pbsn;
     HASH_STATE            hash_state;
-    BYTE                  digest[SHA256_BLOCK_SIZE];
+    BYTE                  digest[SHA256_DIGEST_SIZE];
 
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
 
     CryptHashStart(&hash_state, ALG_SHA256_VALUE);
     CryptDigestUpdate(&hash_state, bsn->t.size, bsn->t.buffer);
-    CryptHashEnd(&hash_state, SHA256_BLOCK_SIZE, digest);
+    CryptHashEnd(&hash_state, SHA256_DIGEST_SIZE, digest);
     ldaa_poly_from_hash(&pbsn, digest);
 
     ldaa_poly_sample_z(&pe);

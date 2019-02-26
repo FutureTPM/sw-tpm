@@ -4442,6 +4442,35 @@ LDAA_SignProof_COMMAND_DESCRIPTOR_t _LDAA_SignProofData = {
 #else
 #define _LDAA_SignProofDataAddress 0
 #endif
+
+#if CC_LDAA_SignProceed
+#include "LDaa_SignProceed_fp.h"
+typedef TPM_RC  (LDAA_SignProceed_Entry)(
+				    LDAA_SignProceed_In  *in
+				    );
+typedef const struct {
+    LDAA_SignProceed_Entry *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[1];
+    BYTE            types[4];
+} LDAA_SignProceed_COMMAND_DESCRIPTOR_t;
+LDAA_SignProceed_COMMAND_DESCRIPTOR_t _LDAA_SignProceedData = {
+    /* entry  */          &TPM2_LDAA_SignProceed,
+    /* inSize */          (UINT32)(sizeof(LDAA_SignProceed_In)),
+    /* outSize */         0,
+    /* offsetOfTypes */   offsetof(LDAA_SignProceed_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignProceed_In, sid))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           END_OF_LIST,
+                           END_OF_LIST}
+};
+#define _LDAA_SignProceedDataAddress (&_LDAA_SignProceedData)
+#else
+#define _LDAA_SignProceedDataAddress 0
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -4936,6 +4965,9 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_LDAA_SignProof)
     (COMMAND_DESCRIPTOR_t *)_LDAA_SignProofDataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_SignProceed)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignProceedDataAddress,
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */

@@ -469,6 +469,9 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_LDAA_SignProof)
     TPMA_CC_INITIALIZER(0x01A1, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+#if (PAD_LIST  || CC_LDAA_SignProceed)
+    TPMA_CC_INITIALIZER(0x01A2, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
@@ -1013,6 +1016,10 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_LDAA_SignProof)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignProof              *  // 0x01A1
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignProceed)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignProceed            *  // 0x01A2
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
 #endif
 /*****************************************************************************/
