@@ -28,19 +28,19 @@ BOOL CryptLDaaStartup(void) {
     return TRUE;
 }
 
-/* Serialize coefficient to Little Endian */
+/* Serialize coefficient to Big Endian */
 static inline void Coeff2Bytes(BYTE *out, UINT32 in) {
     for (size_t i = 0; i < 4; i++) {
-        out[i] = (BYTE) (0xff & (in >> (i * 8)));
+        out[i] = (BYTE) (0xff & (in >> (24 - i * 8)));
     }
 }
 
-/* Deserialize bytes in Little Endian to coefficients */
+/* Deserialize bytes in Big Endian to coefficients */
 static inline UINT32 Bytes2Coeff(BYTE *in) {
     UINT32 out = 0;
 
     for (size_t i = 0; i < 4; i++) {
-        out |= ((UINT32) in[i]) << (i * 8);
+        out |= ((UINT32) in[i]) << (24 - i * 8);
     }
 
     return out;
@@ -381,7 +381,6 @@ CryptLDaaGenerateKey(
     ldaa_poly_matrix_xt_t      xt;
     ldaa_poly_matrix_xt_t      at;
     ldaa_poly_matrix_ut_t      prod;
-    ldaa_poly_t                ut;
 
     pAssert(ldaaKey != NULL);
 
@@ -402,11 +401,10 @@ CryptLDaaGenerateKey(
         prod.coeffs[0].coeffs[i] = 0;
     }
     ldaa_poly_matrix_product(&prod, &at, &xt);
-    MemoryCopy(&ut.coeffs, &prod.coeffs[0].coeffs, LDAA_N);
 
     // Serialization is simply splitting each coefficient into 4 bytes and
     // inserting into the buffer.
-    CryptLDaaSerializePublicKey(&publicArea->unique.ldaa, &ut);
+    CryptLDaaSerializePublicKey(&publicArea->unique.ldaa, &prod.coeffs[0]);
     CryptLDaaSerializeSecretKey(&sensitive->sensitive.ldaa, &xt);
 
     retVal = TPM_RC_SUCCESS;

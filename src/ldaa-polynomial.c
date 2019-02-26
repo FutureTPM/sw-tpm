@@ -354,7 +354,8 @@ void ldaa_poly_sample_z(ldaa_poly_t *this)
     size_t i;
 
     for (i = 0; i < LDAA_N; i++) {
-        this->coeffs[i] = ldaa_sample_z(0, LDAA_S);
+        INT32 x = ldaa_sample_z(0, LDAA_S);
+        this->coeffs[i] = (x < 0 ? LDAA_Q : 0) + x;
     }
 }
 

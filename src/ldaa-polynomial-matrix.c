@@ -26,7 +26,7 @@ void ldaa_poly_matrix_product(ldaa_poly_matrix_ut_t *out,
     size_t k;
 
     ldaa_poly_t prod;
-    for (k = 0; k < LDAA_N; k++) {
+    for (k = 0; k < LDAA_M; k++) {
         ldaa_poly_mul(&prod, &a->coeffs[k], &b->coeffs[k]);
         ldaa_poly_add(&out->coeffs[0], &out->coeffs[0], &prod);
     }

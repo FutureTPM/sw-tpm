@@ -1266,6 +1266,9 @@ TPMI_ALG_SIG_SCHEME_Unmarshal(TPMI_ALG_SIG_SCHEME *target, BYTE **buffer, UINT32
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
 #endif
+#if ALG_LDAA
+	  case TPM_ALG_LDAA:
+#endif
 #if ALG_ECDSA
 	  case TPM_ALG_ECDSA:
 #endif
