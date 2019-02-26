@@ -23,7 +23,7 @@ typedef struct {
 #define RC_LDAA_SignCommit_commit_sel	  (TPM_RC_P + TPM_RC_7)
 #define RC_LDAA_SignCommit_sign_state_sel (TPM_RC_P + TPM_RC_8)
 #define RC_LDAA_SignCommit_pe             (TPM_RC_P + TPM_RC_9)
-#define RC_LDAA_SignCommit_pbsn           (TPM_RC_P + TPM_RC_10)
+#define RC_LDAA_SignCommit_pbsn           (TPM_RC_P + TPM_RC_A)
 
 typedef struct {
     UINT8                   sid;   // Session ID

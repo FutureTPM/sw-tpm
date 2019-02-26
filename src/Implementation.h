@@ -1116,10 +1116,10 @@ typedef UINT32                              TPM_CC;
 #define TPM_CC_LDAA_SignCommit              (TPM_CC)(0x0000019F)
 #endif
 #if         CC_LDAA_CommitTokenLink
-#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x00000120)
+#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x000001A0)
 #endif
 #if         CC_LDAA_SignProof
-#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x00000121)
+#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x000001A1)
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
