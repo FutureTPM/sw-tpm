@@ -470,15 +470,28 @@ CryptLDaaJoin(
 
 LIB_EXPORT TPM_RC
 CryptLDaaClearProtocolState(void) {
-    gr.ldaa_sid = 0;
     gr.ldaa_commitCounter = 0;
+    gr.ldaa_sid = 0;
     gr.ldaa_commit_sign_state = 0;
+    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
+    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
     return TPM_RC_SUCCESS;
 }
 
 LIB_EXPORT TPM_RC
 CryptLDaaCommit(void) {
     gr.ldaa_commitCounter++;
+
+    printf("LDAA state:\n");
+    printf("\tcommit counter = %hhd\n", gr.ldaa_commitCounter);
+    printf("\tsid = %hhd\n", gr.ldaa_sid);
+    printf("\tcommit sign state = %08x\n", gr.ldaa_commit_sign_state);
+    printf("\tHash Private Key = \n\t\t");
+    for (size_t i = 0; i < 32; i++) {
+        printf("%02x", gr.ldaa_hash_private_key[i]);
+    }
+    printf("\n");
+
     return TPM_RC_SUCCESS;
 }
 

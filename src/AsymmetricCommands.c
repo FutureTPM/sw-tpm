@@ -638,7 +638,7 @@ TPM2_LDAA_Join(
     if (gr.ldaa_commitCounter != 0) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
-        return TPM_RC_FAILURE;
+        return TPM_RC_NO_RESULT;
     } else {
         // Store protocol SID
         gr.ldaa_sid = in->sid;
@@ -704,7 +704,7 @@ TPM2_LDAA_SignCommit(
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
-        return TPM_RC_FAILURE;
+        return TPM_RC_NO_RESULT;
     }
 
     retVal = CryptLDaaSignCommit(
@@ -765,7 +765,7 @@ TPM2_LDAA_CommitTokenLink(
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
-        return TPM_RC_FAILURE;
+        return TPM_RC_NO_RESULT;
     }
 
     retVal = CryptLDaaCommitTokenLink(
@@ -821,7 +821,7 @@ TPM2_LDAA_SignProof(
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_BLOCK_SIZE)) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
-        return TPM_RC_FAILURE;
+        return TPM_RC_NO_RESULT;
     }
 
     retVal = CryptLDaaSignProof(

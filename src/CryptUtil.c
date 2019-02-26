@@ -441,6 +441,20 @@ CryptStartup(
 	    MemorySet(gr.commitArray, 0, sizeof(gr.commitArray));
 	}
 #endif // TPM_ALG_ECC
+#if ALG_LDAA
+    // Don't directly check for SU_RESET because that is the default
+    if(OK && (type != SU_RESTART) && (type != SU_RESUME))
+	{
+	    // If the shutdown was orderly, then the values recovered from NV will
+	    // be OK to use.
+	    // Reset the counter and commit array
+	    gr.ldaa_commitCounter = 0;
+	    gr.ldaa_sid = 0;
+	    gr.ldaa_commit_sign_state = 0;
+	    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
+	    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
+	}
+#endif // TPM_ALG_LDAA
     return OK;
 }
 /* 10.2.6.6 Algorithm-Independent Functions */
