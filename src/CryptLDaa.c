@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 Luís Fiolhais, Paulo Martins, Leonel Sousa (INESC-ID)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #include "Tpm.h"
 #include "CryptLDaa_fp.h"
 #include "ldaa-params.h"
@@ -7,18 +30,21 @@
 #include "ldaa-sign-state.h"
 #include "ldaa-commitment.h"
 
+typedef union {
+    ldaa_commitment1_t         commited1;      // 102.4KB + 65KB
+    ldaa_commitment2_t         commited2;      // 39.5MB + 65KB
+    ldaa_commitment3_t         commited3;      // 39.5MB + 65KB
+} LDAA_LOCAL_COMMITS;
+
+typedef union {
+    ldaa_poly_matrix_ntt_B_t   issuer_b_ntt_1; // 25.6KB
+    ldaa_poly_matrix_ntt_B2_t  issuer_b_ntt_2; // 10MB
+    ldaa_poly_matrix_ntt_B3_t  issuer_b_ntt_3; // 10MB
+} LDAA_LOCAL_B_NTT;
+
 #define RES0 0
 #define RES1 1
 #define RES2 2
-
-// TODO: All of these variables don't fit in the stack. Better yet, the
-// largest one doesn't fit the stack. This is a temporary solution.
-static ldaa_commitment1_t               commited1;      // 102.4KB + 65KB
-static ldaa_commitment2_t               commited2;      // 39.5MB + 65KB
-static ldaa_commitment3_t               commited3;      // 39.5MB + 65KB
-static ldaa_poly_matrix_ntt_B_t         issuer_b_ntt_1; // 25.6KB
-static ldaa_poly_matrix_ntt_B2_t        issuer_b_ntt_2; // 10MB
-static ldaa_poly_matrix_ntt_B3_t        issuer_b_ntt_3; // 10MB
 
 BOOL CryptLDaaInit(void) {
     return TRUE;
@@ -563,6 +589,8 @@ CryptLDaaSignCommit(
     ldaa_poly_t                      pbsn; // 1KB
     ldaa_poly_matrix_xt_t            xt;   // 24.5KB
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
+    static LDAA_LOCAL_COMMITS        ldaa_commits; // 39.5MB + 65KB
+    static LDAA_LOCAL_B_NTT          ldaa_b_ntt;   // 10MB
 
     /* Deserialize keys */
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
@@ -572,13 +600,16 @@ CryptLDaaSignCommit(
     switch(*commit_sel) {
         case 1:
             CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
-            CryptLDaaDeserializeIssuerBNTT1(&issuer_b_ntt_1, issuer_bntt_serial);
+            CryptLDaaDeserializeIssuerBNTT1(&ldaa_b_ntt.issuer_b_ntt_1,
+                    issuer_bntt_serial);
             break;
         case 2:
-            CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_2, issuer_bntt_serial);
+            CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_2,
+                    issuer_bntt_serial);
             break;
         case 3:
-            CryptLDaaDeserializeIssuerBNTT2(&issuer_b_ntt_3, issuer_bntt_serial);
+            CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_3,
+                    issuer_bntt_serial);
             break;
         default:
             // This should never happen. The caller should verify the validity
@@ -590,23 +621,26 @@ CryptLDaaSignCommit(
     /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
-    if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x0001) == 0) {
+    if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
         ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
         gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
     }
 
     switch (*commit_sel) {
         case 1:
-            ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt, &commited1, &issuer_b_ntt_1);
-            CryptLDaaSerializeCommit1(c_out, &commited1.C);
+            ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt,
+                    &ldaa_commits.commited1, &ldaa_b_ntt.issuer_b_ntt_1);
+            CryptLDaaSerializeCommit1(c_out, &ldaa_commits.commited1.C);
             break;
         case 2:
-            ldaa_tpm_comm_2(ssi, &commited2, &issuer_b_ntt_2);
-            CryptLDaaSerializeCommit2(c_out, &commited2.C);
+            ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2,
+                    &ldaa_b_ntt.issuer_b_ntt_2);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C);
             break;
         case 3:
-            ldaa_tpm_comm_3(ssi, &commited3, &issuer_b_ntt_3);
-            CryptLDaaSerializeCommit2(c_out, &commited3.C);
+            ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3,
+                    &ldaa_b_ntt.issuer_b_ntt_3);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C);
             break;
         default:
             // This should never happen. The caller should verify the validity
