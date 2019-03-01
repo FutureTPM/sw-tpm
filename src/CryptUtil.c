@@ -1846,7 +1846,7 @@ CryptValidateKeys(
                         return TPM_RCS_SIZE + blameSensitive; /* Kyber768 */
                     break;
                 case TPM_KYBER_SECURITY_4:
-                    if (sensitive->sensitive.kyber.t.size == 3168)
+                    if (sensitive->sensitive.kyber.t.size != 3168)
                         return TPM_RCS_SIZE + blameSensitive; /* Kyber1024 */
                     break;
                 default:
