@@ -92,6 +92,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_1.phi_x[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size = LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize varphi_e
             ///////////////////////////
@@ -101,6 +102,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_1.varphi_e[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize varphi_r_e
             ///////////////////////////
@@ -110,6 +112,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_1.varphi_r_e[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize phi_r
             ///////////////////////////
@@ -119,6 +122,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_1.phi_r[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             break;
         case RES1:
             ///////////////////////////
@@ -130,6 +134,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_2.phi[i].v[j]);
                 }
             }
+            sign_group_serial->t.size = LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize varphi
             ///////////////////////////
@@ -139,6 +144,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_2.varphi[i].v[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize v_e
             ///////////////////////////
@@ -148,6 +154,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_2.v_e[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize v
             ///////////////////////////
@@ -157,6 +164,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_2.v[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             break;
         case RES2:
             ///////////////////////////
@@ -168,6 +176,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_3.phi[i].v[j]);
                 }
             }
+            sign_group_serial->t.size = LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize varphi
             ///////////////////////////
@@ -177,6 +186,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_3.varphi[i].v[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize r_e
             ///////////////////////////
@@ -186,6 +196,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_3.r_e[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             ///////////////////////////
             // Serialize r
             ///////////////////////////
@@ -195,6 +206,7 @@ static void CryptLDaaSerializeSignGroup(
                             sign_group->res_3.r[i].coeffs[j]);
                 }
             }
+            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
             break;
         default:
             return;
@@ -215,6 +227,8 @@ static void CryptLDaaSerializeSignState(
                     R->coeffs[i].coeffs[j]);
         }
     }
+
+    R_serial->t.size = LDAA_K_COMM * LDAA_N * 4;
 }
 
 static void CryptLDaaDeserializeSignState(
