@@ -87,7 +87,7 @@ decompose_extend_w(ldaa_poly_t *p, ldaa_integer_matrix_t *pdecomp)
 void fold_embed(ldaa_integer_matrix_t *vs, ldaa_poly_t *res) {
     UINT64 xs[LDAA_N];
     size_t i, j;
-    size_t shift_amount = 0;
+    const UINT8 shift_amount[LDAA_LOG_BETA] = {0, 1, 2, 3, 4, 5, 6, 7};
 
     for (i = 0; i < LDAA_N; i++) {
         xs[i] = 0;
@@ -97,10 +97,8 @@ void fold_embed(ldaa_integer_matrix_t *vs, ldaa_poly_t *res) {
         ldaa_integer_matrix_t *vi = &vs[i];
 
         for (j = 0; j < LDAA_N; j++) {
-            xs[j] += (vi->coeffs[j] << shift_amount);
+            xs[j] += (vi->coeffs[j] << (shift_amount[i] & 0x1f));
         }
-
-        shift_amount += LDAA_LOG_W;
     }
 
     for (j = 0; j < LDAA_N; j++) {
@@ -110,8 +108,8 @@ void fold_embed(ldaa_integer_matrix_t *vs, ldaa_poly_t *res) {
 
 void embed_1(ldaa_integer_matrix_t *v, ldaa_poly_t *ps)
 {
-    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
-    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    const size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    const size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
     size_t i, j;
 
     for (i = 0; i < numpols; i++) {

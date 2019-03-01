@@ -1018,7 +1018,7 @@ typedef struct {
 #define MAX_LDAA_PUBLIC_KEY_SIZE   (LDAA_PUBLIC_KEY_LENGTH * 4UL)
 #define MAX_LDAA_SECRET_KEY_SIZE   (LDAA_SECRET_KEY_LENGTH * 4UL)
 #define MAX_LDAA_ISSUER_BNTT_SIZE  (LDAA_ISSUER_BNTT2_LENGTH * 4UL) // Largest case
-#define MAX_LDAA_COMMIT_SIZE       (LDAA_C3_LENGTH * 4UL) // Largest case
+#define MAX_LDAA_COMMIT_SIZE       (LDAA_C3_LENGTH) // Largest case
 
 typedef union {
     struct {

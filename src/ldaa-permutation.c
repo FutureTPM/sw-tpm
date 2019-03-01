@@ -40,8 +40,8 @@ void ldaa_permutation_perm_sample_u(ldaa_permutation_perm_t *this)
 
 void ldaa_permutation_embed(ldaa_permutation_t *this, ldaa_poly_t *ps)
 {
-    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
-    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    const size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    const size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
     size_t i, j;
 
     for (i = 0; i < numpols; i++) {

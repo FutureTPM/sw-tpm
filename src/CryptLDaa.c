@@ -451,7 +451,6 @@ CryptLDaaJoin(
         // IN: secret area to fetch the secret key
         TPMT_SENSITIVE *sensitive
         ) {
-    ldaa_poly_t            ut;
     ldaa_poly_t            pe;
     ldaa_poly_t            nym;
     ldaa_poly_matrix_xt_t  xt;
@@ -459,8 +458,9 @@ CryptLDaaJoin(
     HASH_STATE             hash_state;
     BYTE                   digest[SHA256_DIGEST_SIZE];
 
+    MemorySet(&pbsn.coeffs, 0, LDAA_N * sizeof(UINT32));
+
     /* Deserialize keys */
-    CryptLDaaDeserializePublicKey(&ut, &publicArea->unique.ldaa);
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
 
     /* ********************************************************************* */
@@ -473,9 +473,6 @@ CryptLDaaJoin(
 
     ldaa_poly_sample_z(&pe);
 
-    for (size_t i = 0; i < LDAA_N; i++) {
-        nym.coeffs[i] = 0;
-    }
     ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
     ldaa_poly_add(&nym, &nym, &pe);
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
@@ -494,20 +491,7 @@ CryptLDaaJoin(
     return TPM_RC_SUCCESS;
 }
 
-LIB_EXPORT TPM_RC
-CryptLDaaClearProtocolState(void) {
-    gr.ldaa_commitCounter = 0;
-    gr.ldaa_sid = 0;
-    gr.ldaa_commit_sign_state = 0;
-    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
-    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
-    return TPM_RC_SUCCESS;
-}
-
-LIB_EXPORT TPM_RC
-CryptLDaaCommit(void) {
-    gr.ldaa_commitCounter++;
-
+static void print_ldaa_state(void) {
     printf("LDAA state:\n");
     printf("\tcommit counter = %hhd\n", gr.ldaa_commitCounter);
     printf("\tsid = %hhd\n", gr.ldaa_sid);
@@ -517,6 +501,24 @@ CryptLDaaCommit(void) {
         printf("%02x", gr.ldaa_hash_private_key[i]);
     }
     printf("\n");
+}
+
+
+LIB_EXPORT TPM_RC
+CryptLDaaClearProtocolState(void) {
+    gr.ldaa_commitCounter = 0;
+    gr.ldaa_sid = 0;
+    gr.ldaa_commit_sign_state = 0;
+    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
+    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
+    print_ldaa_state();
+    return TPM_RC_SUCCESS;
+}
+
+LIB_EXPORT TPM_RC
+CryptLDaaCommit(void) {
+    gr.ldaa_commitCounter++;
+    print_ldaa_state();
 
     return TPM_RC_SUCCESS;
 }
@@ -540,6 +542,8 @@ CryptLDaaCommitTokenLink(
     ldaa_poly_t           pbsn;
     HASH_STATE            hash_state;
     BYTE                  digest[SHA256_DIGEST_SIZE];
+
+    MemorySet(&pbsn.coeffs, 0, LDAA_N * sizeof(UINT32));
 
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
 
@@ -622,9 +626,12 @@ CryptLDaaSignCommit(
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
     if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
+        printf("Updating LDAA state\n");
+        print_ldaa_state();
         ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
         gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
     }
+    print_ldaa_state();
 
     switch (*commit_sel) {
         case 1:

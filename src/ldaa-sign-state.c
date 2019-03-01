@@ -66,14 +66,15 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
        ldaa_poly_matrix_ntt_B_t *BNTT)
 {
     size_t i, j;
-    size_t w = (1<<LDAA_LOG_W);
-    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
-    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    const size_t w = (1<<LDAA_LOG_W);
+    const size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    const size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    ldaa_poly_t ps[numpols];
 
     ldaa_poly_matrix_comm1_t comm;
 
     // Zero commit matrix
-    for (i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
+    for (i = 0; i < LDAA_COMMIT1_LENGTH - 1; i++) {
         for (j = 0; j < LDAA_N; j++) {
             comm.coeffs[i].coeffs[j] = 0;
         }
@@ -120,7 +121,6 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
     /* entries 3..3+3*LDAA_LOG_BETA-1 */
 
     for (i = 0; i < LDAA_LOG_BETA; i++) {
-        ldaa_poly_t ps[numpols];
         ldaa_permutation_embed(&s->phi[i], ps);
         ldaa_poly_matrix_comm1_set_v_entries(&comm, 3 + i*(2*w-1), 0, ps, 2*w-1);
     }
@@ -130,7 +130,6 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
 
     /* entries 3+9*LDAA_LOG_BETA..3+12*LDAA_LOG_BETA-1 */
     for (i = 0; i < LDAA_LOG_BETA; i++) {
-        ldaa_poly_t ps[numpols];
         ldaa_permutation_embed(&s->varphi[i], ps);
         ldaa_poly_matrix_comm1_set_v_entries(&comm,
                 3 + 3*(2*w-1)*LDAA_LOG_BETA + i*(2*w-1),
@@ -151,30 +150,30 @@ void ldaa_tpm_comm_2(ldaa_sign_state_i_t *s,
         ldaa_poly_matrix_ntt_B2_t *BNTT)
 {
     size_t i, j;
-    size_t w = (1<<LDAA_LOG_W);
+    const size_t w = (1<<LDAA_LOG_W);
 
-    ldaa_poly_matrix_comm2_t comm;
+    static ldaa_poly_matrix_comm2_t comm;
     // Zero commit matrix
-    for (i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
+    for (i = 0; i < LDAA_COMMIT2_LENGTH - 1; i++) {
         for (j = 0; j < LDAA_N; j++) {
             comm.coeffs[i].coeffs[j] = 0;
         }
     }
 
-    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
-    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
-    size_t row_size = (2*w-1)*(3*LDAA_M + 2*LDAA_M*LDAA_L);
+    const size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    const size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    const size_t row_size = (2*w-1)*(3*LDAA_M + 2*LDAA_M*LDAA_L);
+    ldaa_integer_matrix_t r;
+    ldaa_poly_t pr[numpols];
     for (i = 0; i < LDAA_LOG_BETA; i++) {
         /* entries row_size * i..row_size * i + 3*LDAA_M-1 */
         for (j = 0; j < LDAA_M; j++) {
-            ldaa_integer_matrix_t rji;
-            ldaa_integer_matrix_copy(&s->r[j * LDAA_LOG_BETA + i], &rji);
-            ldaa_integer_matrix_permute(&rji, &s->phi[i]);
+            ldaa_integer_matrix_copy(&s->r[j * LDAA_LOG_BETA + i], &r);
+            ldaa_integer_matrix_permute(&r, &s->phi[i]);
 
-            ldaa_poly_t prji[numpols];
-            embed_1(&rji, prji);
+            embed_1(&r, pr);
             ldaa_poly_matrix_comm2_set_v_entries(&comm,
-                    i*row_size + j*(2*w-1), 0, prji, 2*w-1);
+                    i*row_size + j*(2*w-1), 0, pr, 2*w-1);
         }
         /* entries row_size * i + 3*LDAA_M..row_size * i + 6*LDAA_M-1 set by host */
         /* entries row_size * i + 6*LDAA_M..row_size * i + 9*LDAA_M-1 set by host */
@@ -183,14 +182,12 @@ void ldaa_tpm_comm_2(ldaa_sign_state_i_t *s,
 
     /* entries row_size * LDAA_LOG_BETA..row_size * LDAA_LOG_BETA + 3*LDAA_LOG_BETA-1 */
     for (i = 0; i < LDAA_LOG_BETA; i++) {
-        ldaa_integer_matrix_t rei;
-        ldaa_integer_matrix_copy(&s->re[i], &rei);
-        ldaa_integer_matrix_permute(&rei, &s->varphi[i]);
+        ldaa_integer_matrix_copy(&s->re[i], &r);
+        ldaa_integer_matrix_permute(&r, &s->varphi[i]);
 
-        ldaa_poly_t prei[numpols];
-        embed_1(&rei, prei);
+        embed_1(&r, pr);
         ldaa_poly_matrix_comm2_set_v_entries(&comm,
-                row_size * LDAA_LOG_BETA + i*(2*w-1), 0, prei, 2*w-1);
+                row_size * LDAA_LOG_BETA + i*(2*w-1), 0, pr, 2*w-1);
     }
     /* entry row_size *LDAA_LOG_BETA + 3*LDAA_LOG_BETA filled by host */
 
@@ -208,19 +205,19 @@ void ldaa_tpm_comm_3(ldaa_sign_state_i_t *s,
         ldaa_poly_matrix_ntt_B3_t *BNTT)
 {
     size_t i, j;
-    size_t w = (1ULL<<LDAA_LOG_W);
+    const size_t w = (1ULL<<LDAA_LOG_W);
 
-    ldaa_poly_matrix_comm3_t comm;
+    static ldaa_poly_matrix_comm3_t comm;
     // Zero commit matrix
-    for (i = 0; i < LDAA_COMMIT3_LENGTH; i++) {
+    for (i = 0; i < LDAA_COMMIT3_LENGTH - 1; i++) {
         for (j = 0; j < LDAA_N; j++) {
             comm.coeffs[i].coeffs[j] = 0;
         }
     }
 
-    size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
-    size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
-    size_t row_size = (2*w-1)*(3*LDAA_M + 2*LDAA_M*LDAA_L);
+    const size_t m = (2*(1<<LDAA_LOG_W)-1)*LDAA_N;
+    const size_t numpols = (m + ((LDAA_N - (m % LDAA_N)) % LDAA_N)) / LDAA_N;
+    const size_t row_size = (2*w-1)*(3*LDAA_M + 2*LDAA_M*LDAA_L);
     for (i = 0; i < LDAA_LOG_BETA; i++) {
         /* entries row_size * i..row_size * i + 3*LDAA_M-1 */
         for (j = 0; j < LDAA_M; j++) {

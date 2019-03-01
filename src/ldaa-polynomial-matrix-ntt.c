@@ -44,7 +44,7 @@ void ldaa_poly_matrix_ntt_R_commit_from_canonical(ldaa_poly_matrix_ntt_R_commit_
 			   ldaa_poly_matrix_R_commit_t *a)
 {
     size_t i;
-    for (i = 0; i < LDAA_LOG_BETA; i++) {
+    for (i = 0; i < LDAA_K_COMM; i++) {
         this->coeffs[i] = a->coeffs[i];
     }
 }

@@ -21,9 +21,7 @@ void ldaa_poly_matrix_commit1_product_ntt_1(ldaa_poly_matrix_commit1_t *this,
     ldaa_poly_matrix_ntt_R_commit_from_canonical(&b, ba);
     ldaa_poly_matrix_ntt_commit1_prod_t prod;
     // Zero prod
-    for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
-        prod.coeffs[i] = 0;
-    }
+    MemorySet(&prod.coeffs, 0, LDAA_COMMIT1_LENGTH * sizeof(UINT32));
     ldaa_poly_matrix_ntt_commit1_product(&prod, a, &b);
 
     ldaa_poly_matrix_commit1_prod_from_ntt(this, &prod);

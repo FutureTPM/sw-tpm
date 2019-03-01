@@ -59,10 +59,10 @@ static void compute_commitment_2(ldaa_poly_matrix_ntt_B2_t *B,
 		   ldaa_poly_matrix_comm2_t *S,
            ldaa_commitment2_t *commited)
 {
-    ldaa_poly_matrix_commit2_t prod;
+    static ldaa_poly_matrix_commit2_t prod;
     ldaa_poly_matrix_commit2_product_ntt_1(&prod, B, R);
 
-    ldaa_poly_matrix_commit2_t S2;
+    static ldaa_poly_matrix_commit2_t S2;
     // Append S rows to S2
     for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         if (i == 0) {

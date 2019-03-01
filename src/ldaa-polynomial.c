@@ -297,16 +297,14 @@ UINT32 ldaa_reduce(UINT64 x)
 
 static void bit_swap(UINT32 *xs)
 {
-    size_t logn = 1;
-    size_t i, j;
-
-    while ((LDAA_N >> (logn+1)) != 0)
-        logn++;
+    const UINT64 logn = 8;
+    UINT8 j;
+    UINT16 i;
 
     for (i = 0; i < LDAA_N; i++) {
-        size_t itarget = 0;
+        UINT8 itarget = 0;
         for (j = 0; j < logn; j++) {
-            size_t bit = (i >> j) & 1;
+            UINT64 bit = (i >> j) & 1;
             itarget |= bit << (logn - 1 - j);
         }
 
@@ -320,28 +318,28 @@ static void bit_swap(UINT32 *xs)
 
 static void ntt_plain(UINT32 *xs, const UINT32 *ws)
 {
-    size_t N, i, j;
-    size_t h = 0;
+    UINT8 N, i, j;
+    UINT16 h = 0;
 
     bit_swap(xs);
 
     for (N = LDAA_N/2; N > 0; N /= 2) {
-        size_t k = LDAA_N / N;
+        UINT16 k = LDAA_N / N;
         /* UINT32 wN = powm(w, N, LDAA_Q); */
 
         for (i = 0; i < N; i++) {
             /* UINT32 wi = 1; */
             for (j = 0; j < k/2; j++) {
                 UINT32 wi = ws[h++];
-                UINT32 yek = xs[i * k + j];
-                UINT32 yok = xs[i * k + k/2 + j];
+                UINT32 yek = xs[(UINT8)(i * k + j)];
+                UINT32 yok = xs[(UINT8)(i * k + k/2 + j)];
                 yok = ldaa_reduce((UINT64)yok * wi);
 
-                xs[i * k + j] = yek + yok;
-                if (xs[i * k + j] >= LDAA_Q)
-                    xs[i * k + j] -= LDAA_Q;
+                xs[(UINT8)(i * k + j)] = yek + yok;
+                if (xs[(UINT8)(i * k + j)] >= LDAA_Q)
+                    xs[(UINT8)(i * k + j)] -= LDAA_Q;
 
-                xs[i * k + k/2 + j] = (yek < yok ? LDAA_Q : 0) + yek - yok;
+                xs[(UINT8)(i * k + k/2 + j)] = (yek < yok ? LDAA_Q : 0) + yek - yok;
 
                 /* wi = reduce((UINT64)wi * wN); */
             }
@@ -375,8 +373,8 @@ void ldaa_poly_mul(ldaa_poly_t *out, ldaa_poly_t *a, ldaa_poly_t *b)
 {
     size_t i;
     UINT32 b1[LDAA_N];
-    memcpy(b1, b->coeffs, LDAA_N * sizeof(UINT32));
-    memmove(out->coeffs, a->coeffs, LDAA_N * sizeof(UINT32));
+    MemoryCopy(b1, b->coeffs, LDAA_N * sizeof(UINT32));
+    MemoryCopy(out->coeffs, a->coeffs, LDAA_N * sizeof(UINT32));
 
     ldaa_poly_ntt(out->coeffs);
     ldaa_poly_ntt(b1);
@@ -425,12 +423,12 @@ void ldaa_poly_from_hash(
         BYTE *digest
         ) {
     size_t bits_consumed = 0;
-    size_t i, j, k;
+    size_t j, k;
     UINT32 pi;
     UINT32 logq = ceillog2(LDAA_Q);
     UINT32 mask = (1ULL << logq)-1;
 
-    for (i = 0; i < LDAA_N; i++) {
+    for (size_t i = 0; i < LDAA_N; i++) {
         do {
             if (bits_consumed + logq >= (SHA256_DIGEST_SIZE * 8)) return;
 
