@@ -13,7 +13,7 @@ typedef struct {
 } ldaa_poly_matrix_ntt_B_t;
 
 typedef struct {
-  UINT32 coeffs[LDAA_ISSUER_BNTT2_LENGTH];
+  ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH * LDAA_K_COMM];
 } ldaa_poly_matrix_ntt_B2_t;
 
 typedef ldaa_poly_matrix_ntt_B2_t ldaa_poly_matrix_ntt_B3_t;
@@ -33,7 +33,7 @@ typedef struct {
 } ldaa_poly_matrix_ntt_commit1_prod_t;
 
 typedef struct {
-  UINT32 coeffs[LDAA_COMMIT2_LENGTH * 1];
+  ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH * 1];
 } ldaa_poly_matrix_ntt_commit2_prod_t;
 
 void ldaa_poly_matrix_ntt_R_commit_from_canonical(ldaa_poly_matrix_ntt_R_t *this,
@@ -45,5 +45,5 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
 		    ldaa_poly_matrix_ntt_B2_t *a,
-		    ldaa_poly_matrix_ntt_R_commit_t *b);
+		    ldaa_poly_matrix_ntt_R_t *b);
 #endif

@@ -1017,7 +1017,7 @@ typedef struct {
 #include "ldaa-polynomial-matrix.h"
 #define MAX_LDAA_PUBLIC_KEY_SIZE   (LDAA_PUBLIC_KEY_LENGTH * 4UL)
 #define MAX_LDAA_SECRET_KEY_SIZE   (LDAA_SECRET_KEY_LENGTH * 4UL)
-#define MAX_LDAA_ISSUER_BNTT_SIZE  (LDAA_ISSUER_BNTT2_LENGTH * 4UL) // Largest case
+#define MAX_LDAA_ISSUER_BNTT_SIZE  (900 * LDAA_K_COMM * LDAA_N * 4UL) // Largest case
 #define MAX_LDAA_COMMIT_SIZE       (LDAA_C3_LENGTH) // Largest case
 
 typedef union {

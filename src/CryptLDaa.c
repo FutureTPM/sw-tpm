@@ -32,14 +32,14 @@
 
 typedef union {
     ldaa_commitment1_t         commited1;      // 102.4KB + 65KB
-    ldaa_commitment2_t         commited2;      // 39.5MB + 65KB
-    ldaa_commitment3_t         commited3;      // 39.5MB + 65KB
+    ldaa_commitment2_t         commited2;      // 1MB + 65KB
+    ldaa_commitment3_t         commited3;      // 1MB + 65KB
 } LDAA_LOCAL_COMMITS;
 
 typedef union {
-    ldaa_poly_matrix_ntt_B_t   issuer_b_ntt_1; // 25.6KB
-    ldaa_poly_matrix_ntt_B2_t  issuer_b_ntt_2; // 10MB
-    ldaa_poly_matrix_ntt_B3_t  issuer_b_ntt_3; // 10MB
+    ldaa_poly_matrix_ntt_B_t   issuer_b_ntt_1; // 6.5MB total
+    ldaa_poly_matrix_ntt_B2_t  issuer_b_ntt_2; // 60MB per 900 lines of the matrix
+    ldaa_poly_matrix_ntt_B3_t  issuer_b_ntt_3; // 60MB per 900 lines of the matrix
 } LDAA_LOCAL_B_NTT;
 
 #define RES0 0
@@ -307,14 +307,18 @@ static void CryptLDaaDeserializeIssuerBNTT2(
         // IN: The public area parameter which contains the serialized
         // NTT matrix of B from the issuer
         TPM2B_LDAA_ISSUER_BNTT *issuer_bntt) {
-    // Loop polynomial matrix
+    // Polynomial matrix
     // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
+    // what is actually looped is
+    // (900 * LDAA_LOG_BETA) x LDAA_K_COMM
     // Loop rows
-    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
+    for (size_t i = 0; i < 900; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
-           b_ntt->coeffs[i * LDAA_K_COMM + j] =
-               Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM+j)*4));
+            for (size_t k = 0; k < LDAA_N; k++) {
+               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
+                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM*LDAA_N+j*LDAA_N+k)*4));
+            }
         }
     }
 }
@@ -610,7 +614,7 @@ CryptLDaaSignCommit(
     ldaa_poly_matrix_xt_t            xt;   // 24.5KB
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
     static LDAA_LOCAL_COMMITS        ldaa_commits; // 39.5MB + 65KB
-    static LDAA_LOCAL_B_NTT          ldaa_b_ntt;   // 10MB
+    static LDAA_LOCAL_B_NTT          ldaa_b_ntt;   // 60MB
 
     /* Deserialize keys */
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
@@ -624,10 +628,12 @@ CryptLDaaSignCommit(
                     issuer_bntt_serial);
             break;
         case 2:
+            // Only receives 900 lines of the total 38617
             CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_2,
                     issuer_bntt_serial);
             break;
         case 3:
+            // Only receives 900 lines of the total 38617
             CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_3,
                     issuer_bntt_serial);
             break;
@@ -641,13 +647,14 @@ CryptLDaaSignCommit(
     /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
-    if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
-        printf("Updating LDAA state\n");
-        print_ldaa_state();
-        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
-        gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
-    }
-    print_ldaa_state();
+    //if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
+    //    printf("Updating LDAA state\n");
+    //    print_ldaa_state();
+    //    ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+    ldaa_fill_sign_state_tpm_fixed(ssi);
+    //    gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
+    //}
+    //print_ldaa_state();
 
     switch (*commit_sel) {
         case 1:
@@ -657,12 +664,12 @@ CryptLDaaSignCommit(
             break;
         case 2:
             ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2,
-                    &ldaa_b_ntt.issuer_b_ntt_2);
+                    &ldaa_b_ntt.issuer_b_ntt_2, sign_state_sel);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C);
             break;
         case 3:
             ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3,
-                    &ldaa_b_ntt.issuer_b_ntt_3);
+                    &ldaa_b_ntt.issuer_b_ntt_3, sign_state_sel);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C);
             break;
         default:

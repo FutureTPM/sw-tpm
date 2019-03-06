@@ -4361,6 +4361,100 @@ LDAA_SignCommit1_COMMAND_DESCRIPTOR_t _LDAA_SignCommit1Data = {
 #define _LDAA_SignCommit1DataAddress 0
 #endif
 
+#if CC_LDAA_SignCommit2
+#include "LDaa_SignCommit2_fp.h"
+typedef TPM_RC  (LDAA_SignCommit2_Entry)(
+				    LDAA_SignCommit2_In  *in,
+				    LDAA_SignCommit2_Out *out
+				    );
+typedef const struct {
+    LDAA_SignCommit2_Entry *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[9];
+    BYTE            types[13];
+} LDAA_SignCommit2_COMMAND_DESCRIPTOR_t;
+LDAA_SignCommit2_COMMAND_DESCRIPTOR_t _LDAA_SignCommit2Data = {
+    /* entry  */          &TPM2_LDAA_SignCommit2,
+    /* inSize */          (UINT32)(sizeof(LDAA_SignCommit2_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_SignCommit2_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_SignCommit2_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit2_In, sid)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, bsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, issuer_bntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, sign_state_sel)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, pe)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, pbsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_Out, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_Out, commit))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
+                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_PE_P_UNMARSHAL,
+                           TPM2B_LDAA_PBSN_P_UNMARSHAL,
+                           END_OF_LIST,
+                           UINT8_P_MARSHAL,
+                           UINT8_P_MARSHAL,
+                           TPM2B_LDAA_COMMIT_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_SignCommit2DataAddress (&_LDAA_SignCommit2Data)
+#else
+#define _LDAA_SignCommit2DataAddress 0
+#endif
+
+#if CC_LDAA_SignCommit3
+#include "LDaa_SignCommit3_fp.h"
+typedef TPM_RC  (LDAA_SignCommit3_Entry)(
+				    LDAA_SignCommit3_In  *in,
+				    LDAA_SignCommit3_Out *out
+				    );
+typedef const struct {
+    LDAA_SignCommit3_Entry *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[9];
+    BYTE            types[13];
+} LDAA_SignCommit3_COMMAND_DESCRIPTOR_t;
+LDAA_SignCommit3_COMMAND_DESCRIPTOR_t _LDAA_SignCommit3Data = {
+    /* entry  */          &TPM2_LDAA_SignCommit3,
+    /* inSize */          (UINT32)(sizeof(LDAA_SignCommit3_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_SignCommit3_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_SignCommit3_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit3_In, sid)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, bsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, issuer_bntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, sign_state_sel)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, pe)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, pbsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_Out, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_Out, commit))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
+                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
+                           UINT8_P_UNMARSHAL,
+                           TPM2B_LDAA_PE_P_UNMARSHAL,
+                           TPM2B_LDAA_PBSN_P_UNMARSHAL,
+                           END_OF_LIST,
+                           UINT8_P_MARSHAL,
+                           UINT8_P_MARSHAL,
+                           TPM2B_LDAA_COMMIT_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _LDAA_SignCommit3DataAddress (&_LDAA_SignCommit3Data)
+#else
+#define _LDAA_SignCommit3DataAddress 0
+#endif
+
 #if CC_LDAA_CommitTokenLink
 #include "LDaa_CommitTokenLink_fp.h"
 typedef TPM_RC  (LDAA_CommitTokenLink_Entry)(
@@ -4966,6 +5060,12 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_LDAA_SignProceed)
     (COMMAND_DESCRIPTOR_t *)_LDAA_SignProceedDataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_SignCommit2)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommit2DataAddress,
+#endif
+#if (PAD_LIST || CC_LDAA_SignCommit3)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommit3DataAddress,
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */

@@ -476,6 +476,12 @@
 #if CC_LDAA_SignCommit1
 #include "LDaa_SignCommit1_fp.h"
 #endif
+#if CC_LDAA_SignCommit2
+#include "LDaa_SignCommit2_fp.h"
+#endif
+#if CC_LDAA_SignCommit3
+#include "LDaa_SignCommit3_fp.h"
+#endif
 #if CC_LDAA_CommitTokenLink
 #include "LDaa_CommitTokenLink_fp.h"
 #endif

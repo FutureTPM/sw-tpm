@@ -827,8 +827,8 @@ typedef struct state_reset_data
     //*****************************************************************************
     //         LDAA
     //*****************************************************************************
-    // This entire section uses in total 1B + 1B + 32B + 4B + 16MB = 16MB of
-    // memory.
+    // This entire section uses in total 1B + 1B + 1B + 32B + 4B + 16MB = 16MB
+    // of memory.
     //
     // This is a very simple first implementation of the commit mechanism.
     // There can only be one LDAA session active in the TPM, which is
@@ -878,6 +878,10 @@ typedef struct state_reset_data
     // needs to be processed or was already processed in a prior call to the
     // command.
     UINT32              ldaa_commit_sign_state;
+    // Check if secret randomness for commit 2 and 3 has already been processed
+    // for the given sign state
+    UINT8               ldaa_r_commit_2;
+    UINT8               ldaa_r_commit_3;
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;

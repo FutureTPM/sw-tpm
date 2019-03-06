@@ -90,13 +90,21 @@ static void compute_commitment_2(ldaa_poly_matrix_ntt_B2_t *B,
 }
 
 void ldaa_commit_scheme_commit_2(ldaa_poly_matrix_comm2_t *S,
-        ldaa_commitment2_t *commited, ldaa_poly_matrix_ntt_B2_t *BNTT)
+        ldaa_commitment2_t *commited, ldaa_poly_matrix_ntt_B2_t *BNTT,
+        ldaa_poly_matrix_R_t *already_processed_R,
+        BOOL r_already_processed)
 {
     ldaa_poly_matrix_R_commit_t R;
     size_t i;
 
-    for (i = 0; i < LDAA_K_COMM; i++) {
-        R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2);
+    if (!r_already_processed) {
+        for (i = 0; i < LDAA_K_COMM; i++) {
+            R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2);
+        }
+    } else {
+        for (i = 0; i < LDAA_K_COMM; i++) {
+            R.coeffs[i] = already_processed_R->coeffs[i].coeffs[0];
+        }
     }
 
     compute_commitment_2(BNTT, &R, S, commited);

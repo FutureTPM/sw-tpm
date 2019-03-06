@@ -722,6 +722,8 @@ typedef  UINT16             TPM_ECC_CURVE;
 #define CC_LDAA_Join                      (CC_YES && ALG_LDAA)
 #define CC_LDAA_CommitTokenLink           (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignCommit1               (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit2               (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit3               (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignProof                 (CC_YES && ALG_LDAA)
 #define CC_LDAA_SignProceed               (CC_YES && ALG_LDAA)
 /*****************************************************************************/
@@ -1125,6 +1127,12 @@ typedef UINT32                              TPM_CC;
 #if         CC_LDAA_SignProceed
 #define TPM_CC_LDAA_SignProceed             (TPM_CC)(0x000001A2)
 #endif
+#if         CC_LDAA_SignCommit2
+#define TPM_CC_LDAA_SignCommit2             (TPM_CC)(0x000001A3)
+#endif
+#if         CC_LDAA_SignCommit3
+#define TPM_CC_LDAA_SignCommit3             (TPM_CC)(0x000001A4)
+#endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
@@ -1157,7 +1165,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x000001A2
+#define TPM_CC_LAST                         0x000001A4
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1293,6 +1301,8 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
                       + (ADD_FILL || CC_LDAA_Join)                            \
                       + (ADD_FILL || CC_LDAA_SignCommit1)                     \
+                      + (ADD_FILL || CC_LDAA_SignCommit2)                     \
+                      + (ADD_FILL || CC_LDAA_SignCommit3)                     \
                       + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
                       + (ADD_FILL || CC_LDAA_SignProof)                       \
                       + (ADD_FILL || CC_LDAA_SignProceed)                     \

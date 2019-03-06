@@ -472,6 +472,12 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_LDAA_SignProceed)
     TPMA_CC_INITIALIZER(0x01A2, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+#if (PAD_LIST  || CC_LDAA_SignCommit2)
+    TPMA_CC_INITIALIZER(0x01A3, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit3)
+    TPMA_CC_INITIALIZER(0x01A4, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
@@ -1020,6 +1026,14 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_LDAA_SignProceed)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignProceed            *  // 0x01A2
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit2)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit2            *  // 0x01A3
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit3)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit3            *  // 0x01A4
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
 #endif
 /*****************************************************************************/
