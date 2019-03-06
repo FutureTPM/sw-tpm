@@ -293,8 +293,10 @@ static void CryptLDaaDeserializeIssuerBNTT1(
     for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
-           b_ntt->coeffs[i * LDAA_K_COMM + j] =
-               Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM+j)*4));
+            for (size_t k = 0; k < LDAA_N; k++) {
+               b_ntt->coeffs[i * LDAA_K_COMM + j].coeffs[k] =
+                   Bytes2Coeff((BYTE*) &issuer_bntt->t.buffer+((i*LDAA_K_COMM*LDAA_N+j*LDAA_N+k)*4));
+            }
         }
     }
 }

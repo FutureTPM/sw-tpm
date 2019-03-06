@@ -666,14 +666,14 @@ TPM2_LDAA_Join(
 #endif // ALG_LDAA
 #endif // CC_LDAA_Join
 
-#if CC_LDAA_SignCommit  // Conditional expansion of this file
+#if CC_LDAA_SignCommit1  // Conditional expansion of this file
 #include "Tpm.h"
-#include "LDaa_SignCommit_fp.h"
+#include "LDaa_SignCommit1_fp.h"
 #if ALG_LDAA
 TPM_RC
-TPM2_LDAA_SignCommit(
-		 LDAA_SignCommit_In      *in,            // In: input parameter list
-		 LDAA_SignCommit_Out     *out            // OUT: output parameter list
+TPM2_LDAA_SignCommit1(
+		 LDAA_SignCommit1_In      *in,            // In: input parameter list
+		 LDAA_SignCommit1_Out     *out            // OUT: output parameter list
 		 )
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
@@ -685,9 +685,9 @@ TPM2_LDAA_SignCommit(
 
     // Input key must be an LDAA key
     if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
-        return TPM_RCS_KEY + RC_LDAA_SignCommit_key_handle;
+        return TPM_RCS_KEY + RC_LDAA_SignCommit1_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
-        return TPM_RCS_SCHEME + RC_LDAA_SignCommit_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -707,12 +707,14 @@ TPM2_LDAA_SignCommit(
         return TPM_RC_NO_RESULT;
     }
 
+    UINT8 commit_sel = 1;
+
     retVal = CryptLDaaSignCommit(
             // Outputs
             &out->commit,
             // Inputs
             &ldaa_key->sensitive,
-            &in->commit_sel, &in->sign_state_sel,
+            &commit_sel, &in->sign_state_sel,
             &in->pbsn, &in->pe,
             &in->issuer_at_ntt,
             &in->issuer_bntt,
@@ -725,7 +727,7 @@ TPM2_LDAA_SignCommit(
     return retVal;
 }
 #endif // ALG_LDAA
-#endif // CC_LDAA_SignCommit
+#endif // CC_LDAA_SignCommit1
 
 #if CC_LDAA_CommitTokenLink  // Conditional expansion of this file
 #include "Tpm.h"

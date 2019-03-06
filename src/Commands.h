@@ -473,8 +473,8 @@
 #if CC_LDAA_Join
 #include "LDaa_Join_fp.h"
 #endif
-#if CC_LDAA_SignCommit
-#include "LDaa_SignCommit_fp.h"
+#if CC_LDAA_SignCommit1
+#include "LDaa_SignCommit1_fp.h"
 #endif
 #if CC_LDAA_CommitTokenLink
 #include "LDaa_CommitTokenLink_fp.h"

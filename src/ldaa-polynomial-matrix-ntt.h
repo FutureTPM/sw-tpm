@@ -8,10 +8,8 @@ typedef struct {
   ldaa_poly_ntt_t coeffs[LDAA_M];
 } ldaa_poly_matrix_ntt_issuer_at_t;
 
-// All Bs are polynomial matrices but only the first order coefficient is set
-// to a value different than zero. Thus, we store only the first coefficient.
 typedef struct {
-  UINT32 coeffs[LDAA_ISSUER_BNTT_LENGTH];
+  ldaa_poly_t coeffs[LDAA_ISSUER_BNTT_LENGTH];
 } ldaa_poly_matrix_ntt_B_t;
 
 typedef struct {
@@ -31,19 +29,19 @@ typedef struct {
 } ldaa_poly_matrix_ntt_R_commit_t;
 
 typedef struct {
-  UINT32 coeffs[LDAA_COMMIT1_LENGTH * 1];
+  ldaa_poly_t coeffs[LDAA_COMMIT1_LENGTH * 1];
 } ldaa_poly_matrix_ntt_commit1_prod_t;
 
 typedef struct {
   UINT32 coeffs[LDAA_COMMIT2_LENGTH * 1];
 } ldaa_poly_matrix_ntt_commit2_prod_t;
 
-void ldaa_poly_matrix_ntt_R_commit_from_canonical(ldaa_poly_matrix_ntt_R_commit_t *this,
+void ldaa_poly_matrix_ntt_R_commit_from_canonical(ldaa_poly_matrix_ntt_R_t *this,
 			   ldaa_poly_matrix_R_commit_t *a);
 
 void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *this,
 		    ldaa_poly_matrix_ntt_B_t *a,
-		    ldaa_poly_matrix_ntt_R_commit_t *b);
+		    ldaa_poly_matrix_ntt_R_t *b);
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
 		    ldaa_poly_matrix_ntt_B2_t *a,

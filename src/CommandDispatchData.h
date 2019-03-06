@@ -4312,43 +4312,41 @@ LDAA_Join_COMMAND_DESCRIPTOR_t _LDAA_JoinData = {
 #define _LDAA_JoinDataAddress 0
 #endif
 
-#if CC_LDAA_SignCommit
-#include "LDaa_SignCommit_fp.h"
-typedef TPM_RC  (LDAA_SignCommit_Entry)(
-				    LDAA_SignCommit_In  *in,
-				    LDAA_SignCommit_Out *out
+#if CC_LDAA_SignCommit1
+#include "LDaa_SignCommit1_fp.h"
+typedef TPM_RC  (LDAA_SignCommit1_Entry)(
+				    LDAA_SignCommit1_In  *in,
+				    LDAA_SignCommit1_Out *out
 				    );
 typedef const struct {
-    LDAA_SignCommit_Entry *entry;
+    LDAA_SignCommit1_Entry *entry;
     UINT32          inSize;
     UINT32          outSize;
     UINT32          offsetOfTypes;
-    UINT32          paramOffsets[11];
-    BYTE            types[15];
-} LDAA_SignCommit_COMMAND_DESCRIPTOR_t;
-LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
-    /* entry  */          &TPM2_LDAA_SignCommit,
-    /* inSize */          (UINT32)(sizeof(LDAA_SignCommit_In)),
-    /* outSize */         (UINT32)(sizeof(LDAA_SignCommit_Out)),
-    /* offsetOfTypes */   offsetof(LDAA_SignCommit_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit_In, sid)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, ssid)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, bsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, issuer_at_ntt)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, issuer_bntt)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, commit_sel)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, sign_state_sel)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, pe)),
-                           (UINT32)(offsetof(LDAA_SignCommit_In, pbsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit_Out, ssid)),
-                           (UINT32)(offsetof(LDAA_SignCommit_Out, commit))},
+    UINT32          paramOffsets[10];
+    BYTE            types[14];
+} LDAA_SignCommit1_COMMAND_DESCRIPTOR_t;
+LDAA_SignCommit1_COMMAND_DESCRIPTOR_t _LDAA_SignCommit1Data = {
+    /* entry  */          &TPM2_LDAA_SignCommit1,
+    /* inSize */          (UINT32)(sizeof(LDAA_SignCommit1_In)),
+    /* outSize */         (UINT32)(sizeof(LDAA_SignCommit1_Out)),
+    /* offsetOfTypes */   offsetof(LDAA_SignCommit1_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit1_In, sid)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, bsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, issuer_at_ntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, issuer_bntt)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, sign_state_sel)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, pe)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, pbsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_Out, ssid)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_Out, commit))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
-                           UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_PE_P_UNMARSHAL,
                            TPM2B_LDAA_PBSN_P_UNMARSHAL,
@@ -4358,9 +4356,9 @@ LDAA_SignCommit_COMMAND_DESCRIPTOR_t _LDAA_SignCommitData = {
                            TPM2B_LDAA_COMMIT_P_MARSHAL,
                            END_OF_LIST}
 };
-#define _LDAA_SignCommitDataAddress (&_LDAA_SignCommitData)
+#define _LDAA_SignCommit1DataAddress (&_LDAA_SignCommit1Data)
 #else
-#define _LDAA_SignCommitDataAddress 0
+#define _LDAA_SignCommit1DataAddress 0
 #endif
 
 #if CC_LDAA_CommitTokenLink
@@ -4957,8 +4955,8 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_LDAA_Join)
     (COMMAND_DESCRIPTOR_t *)_LDAA_JoinDataAddress,
 #endif
-#if (PAD_LIST || CC_LDAA_SignCommit)
-    (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommitDataAddress,
+#if (PAD_LIST || CC_LDAA_SignCommit1)
+    (COMMAND_DESCRIPTOR_t *)_LDAA_SignCommit1DataAddress,
 #endif
 #if (PAD_LIST || CC_LDAA_CommitTokenLink)
     (COMMAND_DESCRIPTOR_t *)_LDAA_CommitTokenLinkDataAddress,
