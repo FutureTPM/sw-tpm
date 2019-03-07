@@ -33,6 +33,7 @@ typedef struct {
     BYTE                       sign_state_sel;
     TPM2B_LDAA_PE              pe;
     TPM2B_LDAA_PBSN            pbsn;
+    BYTE                       offset;
 } LDAA_SignCommit3_In;
 
 #define RC_LDAA_SignCommit3_key_handle	   (TPM_RC_P + TPM_RC_1)
@@ -43,6 +44,7 @@ typedef struct {
 #define RC_LDAA_SignCommit3_sign_state_sel (TPM_RC_P + TPM_RC_6)
 #define RC_LDAA_SignCommit3_pe             (TPM_RC_P + TPM_RC_7)
 #define RC_LDAA_SignCommit3_pbsn           (TPM_RC_P + TPM_RC_8)
+#define RC_LDAA_SignCommit3_offset         (TPM_RC_P + TPM_RC_9)
 
 typedef struct {
     UINT8                   sid;   // Session ID

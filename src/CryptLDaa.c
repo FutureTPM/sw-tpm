@@ -306,13 +306,15 @@ static void CryptLDaaDeserializeIssuerBNTT2(
         ldaa_poly_matrix_ntt_B2_t *b_ntt,
         // IN: The public area parameter which contains the serialized
         // NTT matrix of B from the issuer
-        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt) {
+        TPM2B_LDAA_ISSUER_BNTT *issuer_bntt,
+        // IN: Number of lines to deserialize
+        size_t n_lines) {
     // Polynomial matrix
     // (4 + 4 * (2 * (1 << LDAA_LOG_W) - 1) * LDAA_LOG_BETA) x LDAA_K_COMM
     // what is actually looped is
     // (900 * LDAA_LOG_BETA) x LDAA_K_COMM
     // Loop rows
-    for (size_t i = 0; i < 900; i++) {
+    for (size_t i = 0; i < n_lines; i++) {
         // Loop columns
         for (size_t j = 0; j < LDAA_K_COMM; j++) {
             for (size_t k = 0; k < LDAA_N; k++) {
@@ -343,16 +345,18 @@ static void CryptLDaaSerializeCommit2(
         // OUT: serialized commit
         TPM2B_LDAA_COMMIT *commit_serial,
         // IN: The public key in polynomial form
-        ldaa_poly_matrix_commit2_t *commit
+        ldaa_poly_matrix_commit2_t *commit,
+        // IN: Number of lines of the commit result to serialize
+        size_t n_lines
         ) {
-    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
+    for (size_t i = 0; i < n_lines; i++) {
         for (size_t j = 0; j < LDAA_N; j++) {
             Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * LDAA_N + j)*4),
                     commit->coeffs[i].coeffs[j]);
         }
     }
 
-    commit_serial->t.size = LDAA_C2_LENGTH;
+    commit_serial->t.size = n_lines * LDAA_N * sizeof(UINT32);
 }
 
 static void CryptLDaaSerializePublicKey(
@@ -513,7 +517,7 @@ CryptLDaaJoin(
 
 static void print_ldaa_state(void) {
     printf("LDAA state:\n");
-    printf("\tcommit counter = %hhd\n", gr.ldaa_commitCounter);
+    printf("\tcommit counter = %hd\n", gr.ldaa_commitCounter);
     printf("\tsid = %hhd\n", gr.ldaa_sid);
     printf("\tcommit sign state = %08x\n", gr.ldaa_commit_sign_state);
     printf("\tHash Private Key = \n\t\t");
@@ -529,6 +533,8 @@ CryptLDaaClearProtocolState(void) {
     gr.ldaa_commitCounter = 0;
     gr.ldaa_sid = 0;
     gr.ldaa_commit_sign_state = 0;
+    gr.ldaa_r_commit_2 = 0;
+    gr.ldaa_r_commit_3 = 0;
     MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
     MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
     print_ldaa_state();
@@ -607,7 +613,9 @@ CryptLDaaSignCommit(
         // IN: Serialized key
         TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt_serial,
         // IN: Basename to be used in the commit
-        TPM2B_LDAA_BASENAME *bsn
+        TPM2B_LDAA_BASENAME *bsn,
+        // IN: Offset to process the Commit 2 and 3
+        UINT8               *in_offset
         ) {
     ldaa_poly_t                      pe;   // 1KB
     ldaa_poly_t                      pbsn; // 1KB
@@ -615,6 +623,7 @@ CryptLDaaSignCommit(
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
     static LDAA_LOCAL_COMMITS        ldaa_commits; // 39.5MB + 65KB
     static LDAA_LOCAL_B_NTT          ldaa_b_ntt;   // 60MB
+    size_t n_lines = issuer_bntt_serial->t.size / (LDAA_K_COMM * LDAA_N * sizeof(UINT32));
 
     /* Deserialize keys */
     CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
@@ -630,12 +639,12 @@ CryptLDaaSignCommit(
         case 2:
             // Only receives 900 lines of the total 38617
             CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_2,
-                    issuer_bntt_serial);
+                    issuer_bntt_serial, n_lines);
             break;
         case 3:
             // Only receives 900 lines of the total 38617
             CryptLDaaDeserializeIssuerBNTT2(&ldaa_b_ntt.issuer_b_ntt_3,
-                    issuer_bntt_serial);
+                    issuer_bntt_serial, n_lines);
             break;
         default:
             // This should never happen. The caller should verify the validity
@@ -647,14 +656,14 @@ CryptLDaaSignCommit(
     /*                          Theta T calculations                         */
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
-    //if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
-    //    printf("Updating LDAA state\n");
-    //    print_ldaa_state();
-    //    ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
-    ldaa_fill_sign_state_tpm_fixed(ssi);
-    //    gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
-    //}
-    //print_ldaa_state();
+    if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
+        printf("Updating LDAA state\n");
+        print_ldaa_state();
+        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+    //ldaa_fill_sign_state_tpm_fixed(ssi);
+        gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
+    }
+    print_ldaa_state();
 
     switch (*commit_sel) {
         case 1:
@@ -662,16 +671,20 @@ CryptLDaaSignCommit(
                     &ldaa_commits.commited1, &ldaa_b_ntt.issuer_b_ntt_1);
             CryptLDaaSerializeCommit1(c_out, &ldaa_commits.commited1.C);
             break;
-        case 2:
+        case 2: {
+            size_t offset = (size_t) *in_offset;
             ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2,
-                    &ldaa_b_ntt.issuer_b_ntt_2, sign_state_sel);
-            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C);
+                    &ldaa_b_ntt.issuer_b_ntt_2, sign_state_sel, n_lines, offset);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C, n_lines);
             break;
-        case 3:
+                }
+        case 3: {
+            size_t offset = (size_t) *in_offset;
             ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3,
-                    &ldaa_b_ntt.issuer_b_ntt_3, sign_state_sel);
-            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C);
+                    &ldaa_b_ntt.issuer_b_ntt_3, sign_state_sel, n_lines, offset);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C, n_lines);
             break;
+                }
         default:
             // This should never happen. The caller should verify the validity
             // of the commit_sel variable.

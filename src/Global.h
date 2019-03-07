@@ -827,7 +827,7 @@ typedef struct state_reset_data
     //*****************************************************************************
     //         LDAA
     //*****************************************************************************
-    // This entire section uses in total 1B + 1B + 1B + 32B + 4B + 16MB = 16MB
+    // This entire section uses in total 1B + 2B + 1B + 32B + 4B + 16MB = 16MB
     // of memory.
     //
     // This is a very simple first implementation of the commit mechanism.
@@ -850,7 +850,7 @@ typedef struct state_reset_data
     // TPM2_LDAA_CommitTokenLink. After the token link has been processed
     // successfully the counter is incremented once again.
     //
-    // 3 - 26 => Sign Proceed Commit Processing activated. In this state the
+    // 3 - 698 => Sign Proceed Commit Processing activated. In this state the
     // user is allowed to call the TPM2_LDAA_SignCommit function iteratively
     // to process the necessary commits for the attestation. The order in which
     // the commits are processed is up to the user, and it's their
@@ -858,15 +858,15 @@ typedef struct state_reset_data
     // no logic to impede the user from processing the same commit over and
     // over. In this state, the TPM relies on the user to be guided through
     // the commit processing. At the end of the commit processing the state
-    // counter should be at 27.
+    // counter should be at 696.
     //
-    // 27 - 34 => Sign Proceed: Generate Signature Based Proof. The final stage
+    // 699 - 706 => Sign Proceed: Generate Signature Based Proof. The final stage
     // of the TPM LDAA protocol can be executed by calling the final command:
     // TPM2_LDAA_SignProof. This command also features an incremental
     // interface, thus the conditions from the SignCommit command also apply to
     // the SignProof command. After completing the SignProof command
     // successfully the counter is reset and the SID is cleared.
-    UINT8               ldaa_commitCounter;
+    UINT16              ldaa_commitCounter;
     // Variable used to tie the private key of the LDAA session to the SID of
     // the current session. A hash is used but it may not be the best solution
     // because it requires a lot of memory, in this case 32B.

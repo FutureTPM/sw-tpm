@@ -45,5 +45,6 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
 		    ldaa_poly_matrix_ntt_B2_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b);
+		    ldaa_poly_matrix_ntt_R_t *b,
+            size_t n_lines);
 #endif

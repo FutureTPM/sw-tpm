@@ -74,7 +74,9 @@ CryptLDaaSignCommit(
         // IN: Serialized key
         TPM2B_LDAA_ISSUER_BNTT  *issuer_bntt_serial,
         // IN: Basename to be used in the commit
-        TPM2B_LDAA_BASENAME *bsn
+        TPM2B_LDAA_BASENAME *bsn,
+        // IN: Offset to process the Commit 2 and 3
+        UINT8               *in_offset
         );
 
 LIB_EXPORT TPM_RC

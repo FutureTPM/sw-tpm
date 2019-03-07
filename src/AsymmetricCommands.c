@@ -699,7 +699,7 @@ TPM2_LDAA_SignCommit1(
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
@@ -718,7 +718,7 @@ TPM2_LDAA_SignCommit1(
             &in->pbsn, &in->pe,
             &in->issuer_at_ntt,
             &in->issuer_bntt,
-            &in->bsn);
+            &in->bsn, NULL);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -762,7 +762,7 @@ TPM2_LDAA_SignCommit2(
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
@@ -781,7 +781,7 @@ TPM2_LDAA_SignCommit2(
             &in->pbsn, &in->pe,
             NULL,
             &in->issuer_bntt,
-            &in->bsn);
+            &in->bsn, &in->offset);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -825,7 +825,7 @@ TPM2_LDAA_SignCommit3(
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
@@ -844,7 +844,7 @@ TPM2_LDAA_SignCommit3(
             &in->pbsn, &in->pe,
             NULL,
             &in->issuer_bntt,
-            &in->bsn);
+            &in->bsn, &in->offset);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -944,7 +944,7 @@ TPM2_LDAA_SignProof(
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 27 || gr.ldaa_commitCounter > 34 ||
+    if (gr.ldaa_commitCounter < 699 || gr.ldaa_commitCounter > 706 ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
         // Clear current state of the protocol
@@ -964,7 +964,7 @@ TPM2_LDAA_SignProof(
             &in->sign_state_type);
 
     // Run Commit command
-    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 34)
+    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 706)
         retVal = CryptLDaaCommit();
     else
         retVal = CryptLDaaClearProtocolState();

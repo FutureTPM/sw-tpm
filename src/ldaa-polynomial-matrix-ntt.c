@@ -28,12 +28,13 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
 		    ldaa_poly_matrix_ntt_B2_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b)
+		    ldaa_poly_matrix_ntt_R_t *b,
+            size_t n_lines)
 {
     size_t i, j, k, l;
     UINT32 prod;
 
-    for (i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
+    for (i = 0; i < n_lines; i++) {
         for (j = 0; j < 1; j++) {
             for (k = 0; k < LDAA_K_COMM; k++) {
                 for (l = 0; l < LDAA_N; l++) {
