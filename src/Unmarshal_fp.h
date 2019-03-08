@@ -492,8 +492,10 @@ extern "C" {
     TPMS_KYBER_PARMS_Unmarshal(TPMS_KYBER_PARMS *target, BYTE **buffer, UINT32 *size);
     LIB_EXPORT TPM_RC
     TPMT_KYBER_SCHEME_Unmarshal(TPMT_KYBER_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMI_ALG_KYBER_SCHEME_Unmarshal(TPMI_ALG_KYBER_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
+    LIB_EXPORT TPM_RC
+    TPM2B_KYBER_ENCRYPT_Unmarshal(TPM2B_KYBER_ENCRYPT *target, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                                Kyber Mods                                 */
     /*****************************************************************************/
@@ -501,23 +503,23 @@ extern "C" {
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
-    TPM_RC
+    LIB_EXPORT TPM_RC
     DILITHIUM_Mode_Unmarshal(BYTE *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_DILITHIUM_PUBLIC_KEY_Unmarshal(TPM2B_DILITHIUM_PUBLIC_KEY *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_DILITHIUM_SECRET_KEY_Unmarshal(TPM2B_DILITHIUM_SECRET_KEY *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_DILITHIUM_SIGNED_MESSAGE_Unmarshal(TPM2B_DILITHIUM_SIGNED_MESSAGE *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMS_SIG_SCHEME_DILITHIUM_Unmarshal(TPMS_SIG_SCHEME_DILITHIUM *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMS_SIGNATURE_DILITHIUM_Unmarshal(TPMS_SIGNATURE_DILITHIUM *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMS_DILITHIUM_PARMS_Unmarshal(TPMS_DILITHIUM_PARMS *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMT_DILITHIUM_SCHEME_Unmarshal(TPMT_DILITHIUM_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMI_ALG_DILITHIUM_SCHEME_Unmarshal(TPMI_ALG_DILITHIUM_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
     /*****************************************************************************/
     /*                             Dilithium Mods                                */
@@ -526,27 +528,27 @@ extern "C" {
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
     /*****************************************************************************/
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_PUBLIC_KEY_Unmarshal(TPM2B_LDAA_PUBLIC_KEY *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_SECRET_KEY_Unmarshal(TPM2B_LDAA_SECRET_KEY *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_BASENAME_ISSUER_Unmarshal(TPM2B_LDAA_BASENAME_ISSUER *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_ISSUER_AT_Unmarshal(TPM2B_LDAA_ISSUER_AT *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMS_SIG_SCHEME_LDAA_Unmarshal(TPMS_SIG_SCHEME_LDAA *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMI_ALG_LDAA_SCHEME_Unmarshal(TPMI_ALG_LDAA_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPMT_LDAA_SCHEME_Unmarshal(TPMT_LDAA_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, UINT32 *size);
-    TPM_RC
+    LIB_EXPORT TPM_RC
     TPM2B_LDAA_SIGN_STATE_Unmarshal(TPM2B_LDAA_SIGN_STATE *target, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */

@@ -481,6 +481,12 @@ const TPMA_CC    s_ccAttr [] = {
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
+#if (PAD_LIST  || CC_KYBER_Encrypt)
+    TPMA_CC_INITIALIZER(0x01A5, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_KYBER_Decrypt)
+    TPMA_CC_INITIALIZER(0x01A6, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     TPMA_CC_INITIALIZER(0x0000, 0, 0, 0, 0, 0, 0, 1, 0),
@@ -1039,6 +1045,15 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
+#if (PAD_LIST  || CC_KYBER_Encrypt)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Encrypt               *  // 0x01A5
+			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_KYBER_Decrypt)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Decrypt               *  // 0x01A6
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     (COMMAND_ATTRIBUTES)(CC_Vendor_TCG_Test             *  // 0x0000
 			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),

@@ -2503,6 +2503,14 @@ TPM2B_KYBER_CIPHER_TEXT_Marshal(TPM2B_KYBER_CIPHER_TEXT *source, BYTE **buffer, 
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;
 }
+
+UINT32
+TPM2B_KYBER_ENCRYPT_Marshal(TPM2B_KYBER_ENCRYPT *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/

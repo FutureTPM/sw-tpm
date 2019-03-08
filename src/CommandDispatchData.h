@@ -234,7 +234,9 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Unmarshal,
 #define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
-#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+#define TPM2B_KYBER_ENCRYPT_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_ENCRYPT_Unmarshal,
+#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_ENCRYPT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
 #define TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
@@ -256,7 +258,9 @@ const UNMARSHAL_t UnmarshalArray[] = {
     // PARAMETER_LAST_TYPE is the end of the command parameter list.
 #define TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_KYBER_SHARED_KEY_Unmarshal,
-#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+#define TPM2B_KYBER_ENCRYPT_P_UNMARSHAL (TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_KYBER_ENCRYPT_Unmarshal,
+#define TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL (TPM2B_KYBER_ENCRYPT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_BASENAME_ISSUER_Unmarshal,
 #define TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL (TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_ISSUER_ATNTT_Unmarshal,
@@ -368,7 +372,9 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_KYBER_CIPHER_TEXT_Marshal,
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+#define TPM2B_KYBER_ENCRYPT_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_ENCRYPT_Marshal,
+#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_ENCRYPT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
@@ -389,7 +395,9 @@ const MARSHAL_t MarshalArray[] = {
     // RESPONSE_PARAMETER_LAST_TYPE is the end of the response parameter list.
 #define TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_KYBER_PUBLIC_KEY_Marshal,
-#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+#define TPM2B_KYBER_ENCRYPT_P_MARSHAL (TPM2B_KYBER_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_KYBER_ENCRYPT_Marshal,
+#define TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL (TPM2B_KYBER_ENCRYPT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
 #define TPM2B_LDAA_NYM_P_MARSHAL (TPM2B_LDAA_PUBLIC_KEY_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Marshal,
@@ -4191,6 +4199,68 @@ Kyber_Dec_COMMAND_DESCRIPTOR_t _Kyber_DecData = {
 #define _KYBER_DecDataAddress 0
 #endif
 
+#if CC_KYBER_Encrypt
+#include "Kyber_Encrypt_fp.h"
+typedef TPM_RC  (Kyber_Encrypt_Entry)(
+				    Kyber_Encrypt_In  *in,
+				    Kyber_Encrypt_Out *out
+				    );
+typedef const struct {
+    Kyber_Encrypt_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} Kyber_Encrypt_COMMAND_DESCRIPTOR_t;
+Kyber_Encrypt_COMMAND_DESCRIPTOR_t _Kyber_EncryptData = {
+    /* entry  */          &TPM2_Kyber_Encrypt,
+    /* inSize */          (UINT32)(sizeof(Kyber_Encrypt_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_Encrypt_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_Encrypt_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(Kyber_Encrypt_In, message))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
+               END_OF_LIST,
+               TPM2B_KYBER_ENCRYPT_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _KYBER_EncryptDataAddress (&_Kyber_EncryptData)
+#else
+#define _KYBER_EncryptDataAddress 0
+#endif
+
+#if CC_KYBER_Decrypt
+#include "Kyber_Decrypt_fp.h"
+typedef TPM_RC  (Kyber_Decrypt_Entry)(
+				    Kyber_Decrypt_In  *in,
+				    Kyber_Decrypt_Out *out
+				    );
+typedef const struct {
+    Kyber_Decrypt_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} Kyber_Decrypt_COMMAND_DESCRIPTOR_t;
+Kyber_Decrypt_COMMAND_DESCRIPTOR_t _Kyber_DecryptData = {
+    /* entry  */          &TPM2_Kyber_Decrypt,
+    /* inSize */          (UINT32)(sizeof(Kyber_Decrypt_In)),
+    /* outSize */         (UINT32)(sizeof(Kyber_Decrypt_Out)),
+    /* offsetOfTypes */   offsetof(Kyber_Decrypt_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(Kyber_Decrypt_In, message))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_KYBER_ENCRYPT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_MAX_BUFFER_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _KYBER_DecryptDataAddress (&_Kyber_DecryptData)
+#else
+#define _KYBER_DecryptDataAddress 0
+#endif
+
 #if CC_KYBER_2Phase_KEX
 #include "Kyber_2Phase_KEX_fp.h"
 typedef TPM_RC  (Kyber_2Phase_KEX_Entry)(
@@ -5074,6 +5144,12 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
+#if (PAD_LIST || CC_KYBER_Encrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_EncryptDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_Decrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
+#endif
 
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,

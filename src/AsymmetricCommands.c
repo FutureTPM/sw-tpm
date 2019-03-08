@@ -595,6 +595,90 @@ TPM2_Kyber_3Phase_KEX(
 }
 #endif // ALG_KYBER
 #endif // CC_KYBER_3Phase_KEX
+
+#if CC_KYBER_Encrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_Encrypt_fp.h"
+#include "kyber-params.h"
+#if ALG_KYBER
+TPM_RC
+TPM2_Kyber_Encrypt(
+		 Kyber_Encrypt_In      *in,            // In: input parameter list
+		 Kyber_Encrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a Kyber key
+    if(key_handle->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(key_handle->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+
+    retVal = CryptKyberEncrypt(&out->outData, key_handle, &in->message.b);
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_Encrypt
+
+#if CC_KYBER_Decrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_Decrypt_fp.h"
+#include "kyber-params.h"
+#if ALG_KYBER
+TPM_RC
+TPM2_Kyber_Decrypt(
+		 Kyber_Decrypt_In      *in,            // In: input parameter list
+		 Kyber_Decrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a Kyber key
+    if(key_handle->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(key_handle->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+
+    retVal = CryptKyberDecrypt(&out->outData.b, key_handle, &in->message);
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_Decrypt
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/

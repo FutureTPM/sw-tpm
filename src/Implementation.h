@@ -710,6 +710,8 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 #define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
+#define CC_KYBER_Encrypt                  (CC_YES && ALG_KYBER)
+#define CC_KYBER_Decrypt                  (CC_YES && ALG_KYBER)
 #define CC_KYBER_2Phase_KEX               (CC_YES && ALG_KYBER)
 #define CC_KYBER_3Phase_KEX               (CC_YES && ALG_KYBER)
 /*****************************************************************************/
@@ -1105,6 +1107,12 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_3Phase_KEX
 #define TPM_CC_KYBER_3Phase_KEX             (TPM_CC)(0x0000019D)
 #endif
+#if         CC_KYBER_Encrypt
+#define TPM_CC_KYBER_Encrypt                (TPM_CC)(0x000001A5)
+#endif
+#if         CC_KYBER_Decrypt
+#define TPM_CC_KYBER_Decrypt                (TPM_CC)(0x000001A6)
+#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
@@ -1165,7 +1173,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x000001A4
+#define TPM_CC_LAST                         0x000001A6
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1297,6 +1305,8 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
+                      + (ADD_FILL || CC_KYBER_Encrypt)                        \
+                      + (ADD_FILL || CC_KYBER_Decrypt)                        \
                       + (ADD_FILL || CC_KYBER_2Phase_KEX)                     \
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
                       + (ADD_FILL || CC_LDAA_Join)                            \

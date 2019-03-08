@@ -457,6 +457,12 @@
 #if CC_KYBER_Dec
 #include "Kyber_Dec_fp.h"
 #endif
+#if CC_KYBER_Encrypt
+#include "Kyber_Encrypt_fp.h"
+#endif
+#if CC_KYBER_Decrypt
+#include "Kyber_Decrypt_fp.h"
+#endif
 #if CC_KYBER_2Phase_KEX
 #include "Kyber_2Phase_KEX_fp.h"
 #endif

@@ -396,6 +396,8 @@ extern "C" {
     TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, UINT32 *size);
     UINT32
     TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_KYBER_ENCRYPT_Marshal(TPM2B_KYBER_ENCRYPT *source, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                                Kyber Mods                                 */
     /*****************************************************************************/
