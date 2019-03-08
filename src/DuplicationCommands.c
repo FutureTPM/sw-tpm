@@ -71,7 +71,7 @@ TPM2_Duplicate(
 {
     TPM_RC                  result = TPM_RC_SUCCESS;
     TPMT_SENSITIVE          sensitive;
-    UINT16                  innerKeySize = 0; // encrypt key size for inner wrap
+    UINT32                  innerKeySize = 0; // encrypt key size for inner wrap
     OBJECT                  *object;
     OBJECT                  *newParent;
     TPM2B_DATA              data;
@@ -158,7 +158,7 @@ TPM2_Rewrap(
 {
     TPM_RC                  result = TPM_RC_SUCCESS;
     TPM2B_DATA              data;               // symmetric key
-    UINT16                  hashSize = 0;
+    UINT32                  hashSize = 0;
     TPM2B_PRIVATE           privateBlob;        // A temporary private blob
     // to transit between old
     // and new wrappers
@@ -187,7 +187,7 @@ TPM2_Rewrap(
 	    if(result != TPM_RC_SUCCESS)
 		return RcSafeAddToResult(result, RC_Rewrap_inDuplicate);
 	    // Copy unwrapped data to temporary variable, remove the integrity field
-	    hashSize = sizeof(UINT16) +
+	    hashSize = sizeof(UINT32) +
 		       CryptHashGetDigestSize(oldParent->publicArea.nameAlg);
 	    privateBlob.t.size = in->inDuplicate.t.size - hashSize;
 	    pAssert(privateBlob.t.size <= sizeof(privateBlob.t.buffer));
@@ -215,7 +215,7 @@ TPM2_Rewrap(
 	    if(result != TPM_RC_SUCCESS)
 		return result;
 	    // Copy temporary variable to output, reserve the space for integrity
-	    hashSize = sizeof(UINT16) +
+	    hashSize = sizeof(UINT32) +
 		       CryptHashGetDigestSize(newParent->publicArea.nameAlg);
 	    // Make sure that everything fits into the output buffer
 	    // Note: this is mostly only an issue if there was no outer wrapper on
@@ -262,7 +262,7 @@ TPM2_Import(
     TPMT_SENSITIVE           sensitive;
     TPM2B_NAME               name;
     TPMA_OBJECT              attributes;
-    UINT16                   innerKeySize = 0;       // encrypt key size for inner
+    UINT32                   innerKeySize = 0;       // encrypt key size for inner
     // wrapper
     // Input Validation
     // to save typing

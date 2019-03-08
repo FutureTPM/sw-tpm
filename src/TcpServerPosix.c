@@ -87,7 +87,9 @@
 
 #ifndef __IGNORE_STATE__
 static UINT32 ServerVersion = 1;
-#define MAX_BUFFER 1048576
+#define MAX_BUFFER 67108863 // IO Buffers are now 67MB due to LDAA.
+                            // This buffer size is subject to change. Do not
+                            // rely on it.
 char InputBuffer[MAX_BUFFER];       //The input data buffer for the simulator.
 char OutputBuffer[MAX_BUFFER];      //The output data buffer for the simulator.
 
@@ -114,9 +116,9 @@ CreateSocket(
 {
     struct		sockaddr_storage MyAddress;
     int			opt;
-    
+
     int res;
-    
+
     // create listening socket
     *listenSocket = socket(domain, SOCK_STREAM, 0);
     if(*listenSocket == -1)
@@ -127,7 +129,7 @@ CreateSocket(
 	    printf("Ignore the IPv6 warning if the platform doesn't support IPv6\n");
 	    return -1;
 	}
-    
+
     // bind the listening socket to the specified port, any address (0s)
     memset((char *)&MyAddress, 0, sizeof(MyAddress));
 
@@ -174,7 +176,7 @@ CreateSocket(
 	    printf("Bind error.  Error is  %d %s\n", errno, strerror(errno));
 	    return -1;
 	}
-    
+
     // listen/wait for server connections
     res= listen(*listenSocket,3);
     if(res != 0)
@@ -184,7 +186,7 @@ CreateSocket(
             printf("Listen error.  Error is %d %s\n", errno, strerror(errno));
 	    return -1;
 	}
-    
+
     return 0;
 }
 
@@ -199,7 +201,7 @@ PlatformServer(
     BOOL                 ok = TRUE;
     // UINT32               length = 0; kgold - unused
     UINT32               Command;
-    
+
     for(;;)
 	{
 	    ok = ReadBytes(s, (char*) &Command, 4);
@@ -213,51 +215,51 @@ PlatformServer(
 		  case TPM_SIGNAL_POWER_ON:
 		    _rpc__Signal_PowerOn(FALSE);
 		    break;
-		    
+
 		  case TPM_SIGNAL_POWER_OFF:
 		    _rpc__Signal_PowerOff();
 		    break;
-		    
+
 		  case TPM_SIGNAL_RESET:
 		    _rpc__Signal_PowerOn(TRUE);
 		    break;
-		    
+
 		  case TPM_SIGNAL_PHYS_PRES_ON:
 		    _rpc__Signal_PhysicalPresenceOn();
 		    break;
-		    
+
 		  case TPM_SIGNAL_PHYS_PRES_OFF:
 		    _rpc__Signal_PhysicalPresenceOff();
 		    break;
-		    
+
 		  case TPM_SIGNAL_CANCEL_ON:
 		    _rpc__Signal_CancelOn();
 		    break;
-		    
+
 		  case TPM_SIGNAL_CANCEL_OFF:
 		    _rpc__Signal_CancelOff();
 		    break;
-		    
+
 		  case TPM_SIGNAL_NV_ON:
 		    _rpc__Signal_NvOn();
 		    break;
-		    
+
 		  case TPM_SIGNAL_NV_OFF:
 		    _rpc__Signal_NvOff();
 		    break;
-		    
+
 		  case TPM_SESSION_END:
 		    // Client signaled end-of-session
 		    return TRUE;
-		    
+
 		  case TPM_STOP:
 		    // Client requested the simulator to exit
 		    return FALSE;
-		    
+
 		  case TPM_TEST_FAILURE_MODE:
 		    _rpc__ForceFailureMode();
 		    break;
-		    
+
 		  case TPM_GET_COMMAND_RESPONSE_SIZES:
 		    ok = WriteVarBytes(s, (char *)&CommandResponseSizes,
 				       sizeof(CommandResponseSizes));
@@ -265,7 +267,7 @@ PlatformServer(
 		    if(!ok)
 			return TRUE;
 		    break;
-		    
+
 		  default:
 		    printf("Unrecognized platform interface command %08x\n", Command);
 		    WriteUINT32(s, 1);
@@ -312,7 +314,7 @@ PlatformSvcRoutine(
     if ((nSock == 2) && (listenSocket[1] > maxListenSocket)) {
         maxListenSocket = listenSocket[1];
     }
-   
+
     // Loop accepting connections one-by-one until we are killed or asked to stop
     // Note the platform service is single-threaded so we don't listen for a new
     // connection until the prior connection drops.
@@ -352,7 +354,7 @@ PlatformSvcRoutine(
 		    return -1;
 		};
 	    printf("Platform IPv%d client accepted\n", ipver);
-	    
+
 	    // normal behavior on client disconnection is to wait for a new
 	    // client to connect
 	    continueServing = PlatformServer(serverSocket);
@@ -361,7 +363,7 @@ PlatformSvcRoutine(
 	}
     }
     while(continueServing);
-    
+
     return 0;
 }
 
@@ -402,7 +404,7 @@ PlatformSignalService(
 	    printf("Thread Creation failed\n");
 	    return -1;
 	}
-    
+
     return 0;
 
 
@@ -425,7 +427,7 @@ RegularCommandService(
     int                  nSock = 0;
     socklen_t            length[2];
     BOOL 		continueServing;
-    
+
     if (CreateSocket(*PortNumber, &listenSocket[nSock], &length[nSock],
 		     AF_INET) == 0) {
         nSock++;
@@ -443,7 +445,7 @@ RegularCommandService(
     if (nSock == 2 && listenSocket[1] > maxListenSocket) {
         maxListenSocket = listenSocket[1];
     }
-    
+
     // Loop accepting connections one-by-one until we are killed or asked to stop
     // Note the TPM command service is single-threaded so we don't listen for
     // a new connection until the prior connection drops.
@@ -459,11 +461,11 @@ RegularCommandService(
 	    do {
 	        res = select(maxListenSocket + 1, &sockSet, NULL, NULL, NULL);
 	    } while ((res == -1) && (errno == EINTR));
-	    if (res == -1) {                                      
+	    if (res == -1) {
 	        printf("TPM command server select error.  Error is %d %s\n", errno,
-		       strerror(errno));                             
-	        return -1;                                        
-	    }                                                     
+		       strerror(errno));
+	        return -1;
+	    }
 
 	    for (i = 0; i < nSock; i++) {
 	        int ipver = IPVER(length[i]);
@@ -481,7 +483,7 @@ RegularCommandService(
 			return -1;
 		    };
 	        printf("Command IPv%d client accepted\n", ipver);
-	    
+
 	        // normal behavior on client disconnection is to wait for a new
 	        // client to connect
 	        continueServing = TpmServer(serverSocket);
@@ -490,7 +492,7 @@ RegularCommandService(
 	    }
 	}
     while(continueServing);
-    
+
     return 0;
 }
 
@@ -506,7 +508,7 @@ StartTcpServer(
 	       )
 {
     int                  res;
-    
+
     // Start Platform Signal Processing Service
     res = PlatformSignalService(PortNumberPlatform);
     if (res != 0)
@@ -514,7 +516,7 @@ StartTcpServer(
 	    printf("PlatformSignalService failed\n");
 	    return res;
 	}
-    
+
     // Start Regular/DRTM TPM command service
     res = RegularCommandService(PortNumber);
     if (res != 0)
@@ -522,7 +524,7 @@ StartTcpServer(
 	    printf("RegularCommandService failed\n");
 	    return res;
 	}
-    
+
     return 0;
 }
 
@@ -539,7 +541,7 @@ ReadBytes(
 {
     int                  res;
     int                  numGot = 0;
-    
+
     while(numGot<NumBytes)
 	{
 	    res = read(s, buffer+numGot, NumBytes-numGot);
@@ -609,7 +611,7 @@ ReadVarBytes(
 {
     int                  length;
     BOOL                 res;
-    
+
     res = ReadBytes(s, (char*) &length, 4);
     if(!res) return res;
     length = ntohl(length);
@@ -638,7 +640,7 @@ WriteVarBytes(
 {
     UINT32               netLength = htonl(BytesToSend);
     BOOL res;
-    
+
     res = WriteBytes(s, (char*) &netLength, 4);
     if(!res) return res;
     res = WriteBytes(s, buffer, BytesToSend);
@@ -662,7 +664,7 @@ TpmServer(
     int                  clientVersion;
     _IN_BUFFER           InBuffer;
     _OUT_BUFFER          OutBuffer;
-    
+
     for(;;)
 	{
 	    ok = ReadBytes(s, (char*) &Command, 4);
@@ -677,11 +679,11 @@ TpmServer(
 		  case TPM_SIGNAL_HASH_START:
 		    _rpc__Signal_Hash_Start();
 		    break;
-		    
+
 		  case TPM_SIGNAL_HASH_END:
 		    _rpc__Signal_HashEnd();
 		    break;
-		    
+
 		  case TPM_SIGNAL_HASH_DATA:
 		    ok = ReadVarBytes(s, InputBuffer, &length, MAX_BUFFER);
 		    if(!ok) return TRUE;
@@ -689,12 +691,12 @@ TpmServer(
 		    InBuffer.BufferSize = length;
 		    _rpc__Signal_Hash_Data(InBuffer);
 		    break;
-		    
+
 		  case TPM_SEND_COMMAND:
 		    ok = ReadBytes(s, (char*) &locality, 1);
 		    if(!ok)
 			return TRUE;
-		    
+
 		    ok = ReadVarBytes(s, InputBuffer, &length, MAX_BUFFER);
 		    if(!ok)
 			return TRUE;
@@ -710,7 +712,7 @@ TpmServer(
 			    memcpy(&CommandResponseSizes.largestCommand,
 				   &InputBuffer[6], sizeof(UINT32));
 			}
-		    
+
 		    _rpc__Send_Command(locality, InBuffer, &OutBuffer);
 		    // record the number of bytes in the response if it is the largest
 		    // we have seen so far.
@@ -727,7 +729,7 @@ TpmServer(
 		    if(!ok)
 			return TRUE;
 		    break;
-		    
+
 		  case TPM_REMOTE_HANDSHAKE:
 		    ok = ReadBytes(s, (char*)&clientVersion, 4);
 		    if(!ok)
@@ -741,18 +743,18 @@ TpmServer(
 		    ok &= WriteUINT32(s,
 				      tpmInRawMode | tpmPlatformAvailable | tpmSupportsPP);
 		    break;
-		    
+
 		  case TPM_SET_ALTERNATIVE_RESULT:
 		    ok = ReadBytes(s, (char*)&result, 4);
 		    if(!ok)
 			return TRUE;
 		    // Alternative result is not applicable to the simulator.
 		    break;
-		    
+
 		  case TPM_SESSION_END:
 		    // Client signaled end-of-session
 		    return TRUE;
-		    
+
 		  case TPM_STOP:
 		    // Client requested the simulator to exit
 		    return FALSE;

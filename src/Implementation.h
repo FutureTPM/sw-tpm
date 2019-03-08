@@ -208,18 +208,16 @@
 #define  CONTEXT_COUNTER                UINT64
 #define  MAX_LOADED_SESSIONS            3
 #define  MAX_SESSION_NUM                3
-#define  MAX_LOADED_OBJECTS             3
+#define  MAX_LOADED_OBJECTS             5 // Kyber needs a larger number
 #define  MIN_EVICT_OBJECTS              7	/* for PC Client */
 #define  NUM_POLICY_PCR_GROUP           1
 #define  NUM_AUTHVALUE_PCR_GROUP        1
-//#define  MAX_CONTEXT_SIZE               4096
-#define  MAX_CONTEXT_SIZE               8192
+#define  MAX_CONTEXT_SIZE               63176704
 #define  MAX_DIGEST_BUFFER              1024
 #define  MAX_NV_INDEX_SIZE              2048
 #define  MAX_NV_BUFFER_SIZE             1024
 #define  MAX_CAP_BUFFER                 1024
-//#define  NV_MEMORY_SIZE                 32768
-#define  NV_MEMORY_SIZE                 65536 // NV increase due to regression tests
+#define  NV_MEMORY_SIZE                 20971520 // NV increase due to LDAA (20MB)
 #define  MIN_COUNTER_INDICES            8
 #define  NUM_STATIC_PCR                 16
 #define  MAX_ALG_LIST_SIZE              64
@@ -227,8 +225,8 @@
 #define  CONTEXT_ENCRYPT_ALGORITHM      AES
 #define  NV_CLOCK_UPDATE_INTERVAL       12
 #define  NUM_POLICY_PCR                 1
-#define  MAX_COMMAND_SIZE               8192
-#define  MAX_RESPONSE_SIZE              8192
+#define  MAX_COMMAND_SIZE               67108863
+#define  MAX_RESPONSE_SIZE              67108863
 #define  ORDERLY_BITS                   8
 #define  MAX_SYM_DATA                   128
 #define  MAX_RNG_ENTROPY_SIZE           64
@@ -295,6 +293,13 @@
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+#define  ALG_LDAA                       ALG_YES
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 /* From TCG Algorithm Registry: Table 2 - Definition of TPM_ALG_ID Constants */
 typedef UINT16                          TPM_ALG_ID;
 #define     ALG_ERROR_VALUE             0x0000
@@ -455,6 +460,17 @@ typedef  UINT8             TPM_DILITHIUM_MODE;
 #define  TPM_DILITHIUM_MODE_3    (TPM_DILITHIUM_MODE)(0x03)
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+#define     ALG_LDAA_VALUE              0x002C
+#if         ALG_LDAA
+#define TPM_ALG_LDAA                    (TPM_ALG_ID)(ALG_LDAA_VALUE)
+#endif   // ALG_LDAA
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
 /*****************************************************************************/
 
 #define     ALG_CMAC_VALUE              0x003F
@@ -694,10 +710,26 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 #define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
+#define CC_KYBER_Encrypt                  (CC_YES && ALG_KYBER)
+#define CC_KYBER_Decrypt                  (CC_YES && ALG_KYBER)
 #define CC_KYBER_2Phase_KEX               (CC_YES && ALG_KYBER)
 #define CC_KYBER_3Phase_KEX               (CC_YES && ALG_KYBER)
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#define CC_LDAA_Join                      (CC_YES && ALG_LDAA)
+#define CC_LDAA_CommitTokenLink           (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit1               (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit2               (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignCommit3               (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignProof                 (CC_YES && ALG_LDAA)
+#define CC_LDAA_SignProceed               (CC_YES && ALG_LDAA)
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
 #ifdef TPM_NUVOTON
@@ -1075,8 +1107,42 @@ typedef UINT32                              TPM_CC;
 #if         CC_KYBER_3Phase_KEX
 #define TPM_CC_KYBER_3Phase_KEX             (TPM_CC)(0x0000019D)
 #endif
+#if         CC_KYBER_Encrypt
+#define TPM_CC_KYBER_Encrypt                (TPM_CC)(0x000001A5)
+#endif
+#if         CC_KYBER_Decrypt
+#define TPM_CC_KYBER_Decrypt                (TPM_CC)(0x000001A6)
+#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if         CC_LDAA_Join
+#define TPM_CC_LDAA_Join                    (TPM_CC)(0x0000019E)
+#endif
+#if         CC_LDAA_SignCommit1
+#define TPM_CC_LDAA_SignCommit1             (TPM_CC)(0x0000019F)
+#endif
+#if         CC_LDAA_CommitTokenLink
+#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x000001A0)
+#endif
+#if         CC_LDAA_SignProof
+#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x000001A1)
+#endif
+#if         CC_LDAA_SignProceed
+#define TPM_CC_LDAA_SignProceed             (TPM_CC)(0x000001A2)
+#endif
+#if         CC_LDAA_SignCommit2
+#define TPM_CC_LDAA_SignCommit2             (TPM_CC)(0x000001A3)
+#endif
+#if         CC_LDAA_SignCommit3
+#define TPM_CC_LDAA_SignCommit3             (TPM_CC)(0x000001A4)
+#endif
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
 #define CC_VEND                             0x20000000
@@ -1107,7 +1173,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x0000019D
+#define TPM_CC_LAST                         0x000001A6
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1239,8 +1305,17 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
                       + (ADD_FILL || CC_KYBER_Enc)                            \
                       + (ADD_FILL || CC_KYBER_Dec)                            \
+                      + (ADD_FILL || CC_KYBER_Encrypt)                        \
+                      + (ADD_FILL || CC_KYBER_Decrypt)                        \
                       + (ADD_FILL || CC_KYBER_2Phase_KEX)                     \
                       + (ADD_FILL || CC_KYBER_3Phase_KEX)                     \
+                      + (ADD_FILL || CC_LDAA_Join)                            \
+                      + (ADD_FILL || CC_LDAA_SignCommit1)                     \
+                      + (ADD_FILL || CC_LDAA_SignCommit2)                     \
+                      + (ADD_FILL || CC_LDAA_SignCommit3)                     \
+                      + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
+                      + (ADD_FILL || CC_LDAA_SignProof)                       \
+                      + (ADD_FILL || CC_LDAA_SignProceed)                     \
 					  )
 
 
@@ -1306,9 +1381,18 @@ typedef TPM2B_MAX_HASH_BLOCK    TPM2B_HASH_BLOCK;
 #   define ALG_DILITHIUM       NO
 #endif
 /*****************************************************************************/
-/*                                Kyber Mods                                 */
+/*                             Dilithium Mods                                */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
+#ifndef ALG_LDAA
+#   define ALG_LDAA        NO
+#endif
+/*****************************************************************************/
+/*                                LDAA Mods                                  */
+/*****************************************************************************/
 #ifndef ALG_AES
 #   define ALG_AES         NO
 #endif

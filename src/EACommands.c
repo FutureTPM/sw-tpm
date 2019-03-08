@@ -515,7 +515,7 @@ TPM2_PolicyLocality(
     // because both input and existing locality setting have been validated.
     buffer = prevSetting;
     TPMA_LOCALITY_Unmarshal(&session->commandLocality, &buffer,
-			    (INT32 *)&marshalSize);
+			    &marshalSize);
     return TPM_RC_SUCCESS;
 }
 #endif // CC_PolicyLocality
@@ -556,7 +556,7 @@ TPM2_PolicyNV(
 	    if(in->offset > nvIndex->publicArea.dataSize)
 		return TPM_RCS_VALUE + RC_PolicyNV_offset;
 	    // Valid NV data size should not be smaller than input operandB size
-	    if((nvIndex->publicArea.dataSize - in->offset) < in->operandB.t.size)
+	    if(((UINT32)nvIndex->publicArea.dataSize - in->offset) < in->operandB.t.size)
 		return TPM_RCS_SIZE + RC_PolicyNV_operandB;
 	    // Get NV data.  The size of NV data equals the input operand B size
 	    NvGetIndexData(nvIndex, locator, in->offset, in->operandB.t.size, nvBuffer);
@@ -886,7 +886,7 @@ TPM2_PolicyAuthorize(
     HASH_STATE               hashState;
     TPMT_TK_VERIFIED         ticket;
     TPM_ALG_ID               hashAlg;
-    UINT16                   digestSize;
+    UINT32                   digestSize;
     // Input Validation
     // Get pointer to the session structure
     session = SessionGet(in->policySession);
@@ -1119,7 +1119,7 @@ TPM2_PolicyAuthorizeNV(
     TPMT_HA                  policyInNv;
     BYTE                     nvTemp[sizeof(TPMT_HA)];
     BYTE                    *buffer = nvTemp;
-    INT32                    size;
+    UINT32                   size;
     // Input Validation
     // Get pointer to the session structure
     session = SessionGet(in->policySession);

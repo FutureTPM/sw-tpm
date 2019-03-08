@@ -672,7 +672,7 @@ DRBG_Generate(
 	{
 	    KDF_STATE       *kdf = (KDF_STATE *)state;
 	    UINT32           counter = (UINT32)kdf->counter;
-	    INT32            bytesLeft = randomSize;
+	    UINT32           bytesLeft = randomSize;
 	    if(random == NULL)
 		return 0;
 	    // If the number of bytes to be returned would put the generator

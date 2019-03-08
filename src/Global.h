@@ -89,6 +89,7 @@ _NORMAL_WARNING_LEVEL_
 #include "CryptTest.h"
 #include "TpmError.h"
 #include "NV.h"
+#include "ldaa-sign-state.h"
 //** Defines and Types
 //*** Crypto Self-Test Values
 extern ALGORITHM_VECTOR     g_implementedAlgorithms;
@@ -97,7 +98,7 @@ extern ALGORITHM_VECTOR     g_toTest;
 // These types are used to differentiate the two different size values used.
 //
 // NUMBYTES is used when a size is a number of bytes (usually a TPM2B)
-typedef UINT16  NUMBYTES;
+typedef UINT32  NUMBYTES;
 //*** Other Types
 // An AUTH_VALUE is a BYTE array containing a digest (TPMU_HA)
 typedef BYTE    AUTH_VALUE[sizeof(TPMU_HA)];
@@ -822,6 +823,66 @@ typedef struct state_reset_data
     // power of 2 (8, 16, 32, 64, etc.) and no greater than 64K.
     BYTE                 commitArray[16];   // The default reset value is {0}.
 #endif // ALG_ECC
+#if ALG_LDAA
+    //*****************************************************************************
+    //         LDAA
+    //*****************************************************************************
+    // This entire section uses in total 1B + 2B + 1B + 32B + 4B + 16MB = 16MB
+    // of memory.
+    //
+    // This is a very simple first implementation of the commit mechanism.
+    // There can only be one LDAA session active in the TPM, which is
+    // identified by its SID (a future implementation must support multiple
+    // active LDAA sessions and check more than the SID for a valid entry).
+    UINT8               ldaa_sid;
+    // This counter represents the current stage of the LDAA in the TPM.
+    // 0 => No LDAA session active
+    //
+    // 1 => Join session activated. Passing to the next stage requires
+    // permission by the host. In this scenario the TPM expects the host to
+    // call TPM2_LDAA_Commit with the correct SID. In the case where the SID
+    // isn't valid the TPM resets the counter and clears the SID, forcing the
+    // host to restart the LDAA protocol. If everything is OK the TPM
+    // increments the counter.
+    //
+    // 2 => Sign Proceed activated. The host has authorization to call the sign
+    // commit token link command which generates nym, pe and pbsn:
+    // TPM2_LDAA_CommitTokenLink. After the token link has been processed
+    // successfully the counter is incremented once again.
+    //
+    // 3 - 698 => Sign Proceed Commit Processing activated. In this state the
+    // user is allowed to call the TPM2_LDAA_SignCommit function iteratively
+    // to process the necessary commits for the attestation. The order in which
+    // the commits are processed is up to the user, and it's their
+    // responsability to process all of the commits necessary, i.e., there is
+    // no logic to impede the user from processing the same commit over and
+    // over. In this state, the TPM relies on the user to be guided through
+    // the commit processing. At the end of the commit processing the state
+    // counter should be at 696.
+    //
+    // 699 - 706 => Sign Proceed: Generate Signature Based Proof. The final stage
+    // of the TPM LDAA protocol can be executed by calling the final command:
+    // TPM2_LDAA_SignProof. This command also features an incremental
+    // interface, thus the conditions from the SignCommit command also apply to
+    // the SignProof command. After completing the SignProof command
+    // successfully the counter is reset and the SID is cleared.
+    UINT16              ldaa_commitCounter;
+    // Variable used to tie the private key of the LDAA session to the SID of
+    // the current session. A hash is used but it may not be the best solution
+    // because it requires a lot of memory, in this case 32B.
+    BYTE                ldaa_hash_private_key[SHA256_DIGEST_SIZE];
+    // Keep internal state of the sign process. This variable uses 16MB.
+    ldaa_sign_state_i_t sign_states_tpm[LDAA_C];
+    // Store already filled sign states. Each bit in this variables tells the
+    // TPM2_LDAA_SignCommit command if the sign state referenced by the user
+    // needs to be processed or was already processed in a prior call to the
+    // command.
+    UINT32              ldaa_commit_sign_state;
+    // Check if secret randomness for commit 2 and 3 has already been processed
+    // for the given sign state
+    UINT8               ldaa_r_commit_2;
+    UINT8               ldaa_r_commit_3;
+#endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;
 /* 5.10.12 NV Layout */
@@ -872,11 +933,11 @@ typedef struct _COMMAND_
     //   handle area of the command
     TPM_HANDLE       handles[MAX_HANDLE_NUM]; // the parsed handle values
     UINT32           sessionNum;        // the number of sessions found
-    INT32            parameterSize;     // starts out with the parsed command size
+    UINT32           parameterSize;     // starts out with the parsed command size
     // and is reduced and values are unmarshaled. Just before calling the command actions, this
     // should be zero.  After the command actions, this number should grow as values are marshaled
     // in to the response buffer.
-    INT32            authSize;          // this is initialized with the parsed size
+    UINT32           authSize;          // this is initialized with the parsed size
     // of authorizationSize field and should be zero when the authorizations are parsed.
     BYTE            *parameterBuffer;   // input to ExecuteCommand
     BYTE            *responseBuffer;    // input to ExecuteCommand
@@ -1058,7 +1119,7 @@ extern int               s_freeSessionSlots;
 #if defined IO_BUFFER_C || defined GLOBAL_C
 /* The value of s_actionIoAllocation is the number of UINT64 values allocated. It is used to set the
    pointer for the response structure.  */
-extern UINT64   s_actionIoBuffer[8192];      // action I/O buffer
+extern UINT64   s_actionIoBuffer[8388608];      // action I/O buffer
 extern UINT32   s_actionIoAllocation;       // number of UIN64 allocated for the action input
 					    // structure
 #endif // MEMORY_LIB_C

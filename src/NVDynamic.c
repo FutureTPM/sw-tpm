@@ -832,7 +832,7 @@ NvWriteIndexAuth(
 	    }
 	result = NvConditionallyWrite(
 				      locator + offsetof(NV_INDEX, authValue),
-				      sizeof(UINT16) + authValue->t.size,
+				      sizeof(UINT32) + authValue->t.size,
 				      authValue);
 	return result;
     }
@@ -982,7 +982,7 @@ NvGetIndexName(
 	       TPM2B_NAME      *name           // OUT: name of the index
 	       )
 {
-    UINT16               dataSize, digestSize;
+    UINT32               dataSize, digestSize;
     BYTE                 marshalBuffer[sizeof(TPMS_NV_PUBLIC)];
     BYTE                *buffer;
     HASH_STATE           hashState;
@@ -1023,10 +1023,10 @@ NvDefineIndex(
 	      TPM2B_AUTH      *authValue      // IN: The initial authorization value
 	      )
 {
- 
+
     // The buffer to be written to NV memory
     NV_INDEX        nvIndex;            // the index data
-    UINT16          entrySize;          // size of entry
+    UINT32          entrySize;          // size of entry
     TPM_RC          result;
     //
     entrySize = sizeof(NV_INDEX);

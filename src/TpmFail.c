@@ -152,7 +152,7 @@ static BOOL
 UnmarshalHeader(
 		HEADER          *header,
 		BYTE            **buffer,
-		INT32           *size
+		UINT32          *size
 		)
 {
     UINT32 usize;
@@ -238,7 +238,7 @@ TpmFailureMode(
     // If the header is not correct for TPM2_GetCapability() or
     // TPM2_GetTestResult() then just return the in failure mode response;
     buffer = inRequest;
-    if(!UnmarshalHeader(&header, &inRequest, (INT32 *)&inRequestSize))
+    if(!UnmarshalHeader(&header, &inRequest, &inRequestSize))
 	goto FailureModeReturn;
     if(header.tag != TPM_ST_NO_SESSIONS
        || header.size < 10)
@@ -265,12 +265,12 @@ TpmFailureMode(
 	    if(header.size != (10 + (3 * sizeof(UINT32)))
 	       // also verify that this is requesting TPM properties
 	       || TPM_RC_SUCCESS != UINT32_Unmarshal(&capability, &inRequest,
-						     (INT32 *)&inRequestSize)
+						     &inRequestSize)
 	       || capability != TPM_CAP_TPM_PROPERTIES
 	       || TPM_RC_SUCCESS != UINT32_Unmarshal(&pt, &inRequest,
-						     (INT32 *)&inRequestSize)
+						     &inRequestSize)
 	       || TPM_RC_SUCCESS != UINT32_Unmarshal(&count, &inRequest,
-						     (INT32 *)&inRequestSize))
+						     &inRequestSize))
 		goto FailureModeReturn;
 	    // If in failure mode because of an unrecoverable read error, and the
 	    // property is 0 and the count is 0, then this is an indication to

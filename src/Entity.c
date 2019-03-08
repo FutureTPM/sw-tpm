@@ -204,10 +204,11 @@ EntityGetLoadStatus(
     return result;
 }
 /* 9.4.3.2 EntityGetAuthValue() */
-/* This function is used to access the authValue associated with a handle. This function assumes
-   that the handle references an entity that is accessible and the handle is not for a persistent
-   objects. That is EntityGetLoadStatus() should have been called. Also, the accessibility of the
-   authValue should have been verified by IsAuthValueAvailable(). */
+/* This function is used to access the authValue associated with a handle. This
+ * function assumes that the handle references an entity that is accessible and
+ * the handle is not for a persistent objects. That is EntityGetLoadStatus()
+ * should have been called. Also, the accessibility of the authValue should
+ * have been verified by IsAuthValueAvailable(). */
 /* This function copies the authorization value of the entity to auth. */
 /* Return Values Meaning */
 /* count number of bytes in the authValue with zeros stripped */
@@ -412,10 +413,10 @@ EntityGetName(
 /* 9.4.3.5 EntityGetHierarchy() */
 /* This function returns the hierarchy handle associated with an entity. */
 /* a) A handle that is a hierarchy handle is associated with itself. */
-/* b) An NV index belongs to TPM_RH_PLATFORM if TPMA_NV_PLATFORMCREATE, is SET, otherwise it belongs
-   to TPM_RH_OWNER */
-/* c) An object handle belongs to its hierarchy. All other handles belong to the platform
-   hierarchy. or an NV Index. */
+/* b) An NV index belongs to TPM_RH_PLATFORM if TPMA_NV_PLATFORMCREATE, is SET,
+ * otherwise it belongs to TPM_RH_OWNER */
+/* c) An object handle belongs to its hierarchy. All other handles belong to
+ * the platform hierarchy. or an NV Index. */
 TPMI_RH_HIERARCHY
 EntityGetHierarchy(
 		   TPMI_DH_ENTITY   handle         // IN :handle of entity

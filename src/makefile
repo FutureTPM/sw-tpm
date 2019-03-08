@@ -43,7 +43,7 @@ CC = /usr/bin/gcc
 
 CCFLAGS = -Wall  			\
 	-Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
-	-Werror -Wsign-compare \
+	-Wsign-compare \
 	 -c -ggdb -O0 			\
 	-DTPM_POSIX			\
 	-D_POSIX_			\
@@ -52,6 +52,7 @@ CCFLAGS = -Wall  			\
 	-I.
 
 LNFLAGS = -ggdb 			\
+    -lm \
 	-DTPM_POSIX			\
 	-DTPM_NUVOTON			\
 	-lcrypto			\

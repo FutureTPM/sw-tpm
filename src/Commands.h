@@ -457,6 +457,12 @@
 #if CC_KYBER_Dec
 #include "Kyber_Dec_fp.h"
 #endif
+#if CC_KYBER_Encrypt
+#include "Kyber_Encrypt_fp.h"
+#endif
+#if CC_KYBER_Decrypt
+#include "Kyber_Decrypt_fp.h"
+#endif
 #if CC_KYBER_2Phase_KEX
 #include "Kyber_2Phase_KEX_fp.h"
 #endif
@@ -465,6 +471,34 @@
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if CC_LDAA_Join
+#include "LDaa_Join_fp.h"
+#endif
+#if CC_LDAA_SignCommit1
+#include "LDaa_SignCommit1_fp.h"
+#endif
+#if CC_LDAA_SignCommit2
+#include "LDaa_SignCommit2_fp.h"
+#endif
+#if CC_LDAA_SignCommit3
+#include "LDaa_SignCommit3_fp.h"
+#endif
+#if CC_LDAA_CommitTokenLink
+#include "LDaa_CommitTokenLink_fp.h"
+#endif
+#if CC_LDAA_SignProof
+#include "LDaa_SignProof_fp.h"
+#endif
+#if CC_LDAA_SignProceed
+#include "LDaa_SignProceed_fp.h"
+#endif
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
 #endif

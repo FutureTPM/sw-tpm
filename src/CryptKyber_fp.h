@@ -1,6 +1,6 @@
 /*
  * MIT License
-
+ *
  * Copyright (c) 2019 Luís Fiolhais, Paulo Martins, Leonel Sousa (INESC-ID)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -69,5 +69,25 @@ CryptKyberValidateCipherTextSize(
             TPM2B_KYBER_CIPHER_TEXT *ct,
             // IN: the security mode being used to decapsulate the cipher text
             TPM_KYBER_SECURITY  k
+		 );
+
+LIB_EXPORT TPM_RC
+CryptKyberEncrypt(
+            // OUT: The encrypted data
+            TPM2B_KYBER_ENCRYPT *cOut,
+            // IN: The object structure in which the key is created.
+		    OBJECT              *kyberKey,
+            // IN: the data to encrypt
+            TPM2B               *dIn
+		 );
+
+LIB_EXPORT TPM_RC
+CryptKyberDecrypt(
+            // OUT: The decrypted data
+            TPM2B               *cOut,
+            // IN: The object structure in which the key is created.
+		    OBJECT              *kyberKey,
+            // IN: the data to encrypt
+            TPM2B_KYBER_ENCRYPT *dIn
 		 );
 #endif

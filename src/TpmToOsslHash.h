@@ -55,7 +55,7 @@
 /*    arising in any way out of use or reliance upon this specification or any 	*/
 /*    information herein.							*/
 /*										*/
-/*  (c) Copyright IBM Corp. and others, 2016 - 2018				*/ 
+/*  (c) Copyright IBM Corp. and others, 2016 - 2018				*/
 /*										*/
 /********************************************************************************/
 
@@ -64,7 +64,8 @@
 
 /* B.2.2.1. TpmToOsslHash.h */
 /* B.2.2.1.1. Introduction */
-/* This header file is used to splice the OpenSSL() hash code into the TPM code. */
+/* This header file is used to splice the OpenSSL() hash code into the TPM
+ * code. */
 #ifndef _TPM_TO_OSSL_HASH_H_
 #define _TPM_TO_OSSL_HASH_H_
 #if HASH_LIB == OSSL
@@ -72,9 +73,9 @@
 #include <openssl/sha.h>
 #include <openssl/ossl_typ.h>
 /* B.2.2.1.2. Links to the OpenSSL HASH code */
-/* Redefine the internal name used for each of the hash state structures to the name used by the
-   library. These defines need to be known in all parts of the TPM so that the structure sizes can
-   be properly computed when needed. */
+/* Redefine the internal name used for each of the hash state structures to the
+ * name used by the library. These defines need to be known in all parts of the
+ * TPM so that the structure sizes can be properly computed when needed. */
 #define tpmHashStateSHA1_t        SHA_CTX
 #define tpmHashStateSHA256_t      SHA256_CTX
 #define tpmHashStateSHA384_t      SHA512_CTX
@@ -82,21 +83,22 @@
 #if ALG_SM3_256
 #   error "The version of OpenSSL used by this code does not support SM3"
 #endif
-/*     The defines below are only needed when compiling CryptHash.c or CryptSmac.c. This isolation
-       is primarily to avoid name space collision. However, if there is a real collision, it will
-       likely show up when the linker tries to put things together. */
+/*     The defines below are only needed when compiling CryptHash.c or
+ *     CryptSmac.c. This isolation is primarily to avoid name space collision.
+ *     However, if there is a real collision, it will likely show up when the
+ *     linker tries to put things together. */
 #ifdef _CRYPT_HASH_C_
 typedef BYTE          *PBYTE;
 typedef const BYTE    *PCBYTE;
-/* Define the interface between CryptHash.c to the functions provided by the library. For each
-   method, define the calling parameters of the method and then define how the method is invoked in
-   CryptHash.c. */
-/* All hashes are required to have the same calling sequence. If they don't, create a simple
-   adaptation function that converts from the standard form of the call to the form used by the
-   specific hash (and then send a nasty letter to the person who wrote the hash function for the
-   library). */
-/* The macro that calls the method also defines how the parameters get swizzled between the default
-   form (in CryptHash.c)and the library form. */
+/* Define the interface between CryptHash.c to the functions provided by the
+ * library. For each method, define the calling parameters of the method and
+ * then define how the method is invoked in CryptHash.c. */
+/* All hashes are required to have the same calling sequence. If they don't,
+ * create a simple adaptation function that converts from the standard form of
+ * the call to the form used by the specific hash (and then send a nasty letter
+ * to the person who wrote the hash function for the library). */
+/* The macro that calls the method also defines how the parameters get swizzled
+ * between the default form (in CryptHash.c)and the library form. */
 /* Initialize the hash context */
 #define HASH_START_METHOD_DEF   void (HASH_START_METHOD)(PANY_HASH_STATE state)
 #define HASH_START(hashState)						\
@@ -114,8 +116,8 @@ typedef const BYTE    *PCBYTE;
 #define HASH_END(hashState, buffer)					\
     ((hashState)->def->method.end)(buffer, &(hashState)->state)
 /* Copy the hash context */
-/* NOTE: For import, export, and copy, memcpy() is used since there is no reformatting necessary
-   between the internal and external forms. */
+/* NOTE: For import, export, and copy, memcpy() is used since there is no
+ * reformatting necessary between the internal and external forms. */
 #define HASH_STATE_COPY_METHOD_DEF					\
     void (HASH_STATE_COPY_METHOD)(PANY_HASH_STATE to,			\
 				  PCANY_HASH_STATE from,		\
@@ -124,7 +126,8 @@ typedef const BYTE    *PCBYTE;
     ((hashStateIn)->def->method.copy)(&(hashStateOut)->state,		\
 				      &(hashStateIn)->state,		\
 				      (hashStateIn)->def->contextSize)
-/* Copy (with reformatting when necessary) an internal hash structure to an external blob */
+/* Copy (with reformatting when necessary) an internal hash structure to an
+ * external blob */
 #define  HASH_STATE_EXPORT_METHOD_DEF					\
     void (HASH_STATE_EXPORT_METHOD)(BYTE *to,				\
 				    PCANY_HASH_STATE from,		\
@@ -134,7 +137,8 @@ typedef const BYTE    *PCBYTE;
     (&(((BYTE *)(to))[offsetof(HASH_STATE, state)]),			\
      &(hashStateFrom)->state,						\
      (hashStateFrom)->def->contextSize)
-/* Copy from an external blob to an internal formate (with reformatting when necessary */
+/* Copy from an external blob to an internal formate (with reformatting
+ * when necessary */
 #define  HASH_STATE_IMPORT_METHOD_DEF					\
     void (HASH_STATE_IMPORT_METHOD)(PANY_HASH_STATE to,			\
 				    const BYTE *from,			\
@@ -144,8 +148,9 @@ typedef const BYTE    *PCBYTE;
     (&(hashStateTo)->state,						\
      &(((const BYTE *)(from))[offsetof(HASH_STATE, state)]),		\
      (hashStateTo)->def->contextSize)
-/* Function aliases. The code in CryptHash.c uses the internal designation for the functions. These
-   need to be translated to the function names of the library. */
+/* Function aliases. The code in CryptHash.c uses the internal designation for
+ * the functions. These need to be translated to the function names of the
+ * library. */
 //      Internal Designation        External Designation
 #define tpmHashStart_SHA1           SHA1_Init   // external name of the initialization method
 #define tpmHashData_SHA1            SHA1_Update

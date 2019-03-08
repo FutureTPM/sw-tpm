@@ -90,8 +90,9 @@ MemoryIoBufferZero(
     memset(s_actionIoBuffer, 0, s_actionIoAllocation);
 }
 /* 9.7.2.3	MemoryGetInBuffer() */
-/* This function returns the address of the buffer into which the command parameters will be
-   unmarshaled in preparation for calling the command actions. */
+/* This function returns the address of the buffer into which the command
+ * parameters will be unmarshaled in preparation for calling the command
+ * actions. */
 BYTE *
 MemoryGetInBuffer(
 		  UINT32           size           // Size, in bytes, required for the input

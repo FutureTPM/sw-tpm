@@ -64,8 +64,9 @@
 #include "Context_spt_fp.h"
 /* 7.3.2 Functions */
 /* 7.3.2.1 ComputeContextProtectionKey() */
-/* This function retrieves the symmetric protection key for context encryption It is used by
-   TPM2_ConextSave() and TPM2_ContextLoad() to create the symmetric encryption key and iv */
+/* This function retrieves the symmetric protection key for context encryption.
+ * It is used by TPM2_ConextSave() and TPM2_ContextLoad() to create the
+ * symmetric encryption key and iv */
 void
 ComputeContextProtectionKey(
 			    TPMS_CONTEXT    *contextBlob,   // IN: context blob
@@ -110,8 +111,9 @@ ComputeContextProtectionKey(
     return;
 }
 /* 7.3.2.2 ComputeContextIntegrity() */
-/* Generate the integrity hash for a context It is used by TPM2_ContextSave() to create an integrity
-   hash and by TPM2_ContextLoad() to compare an integrity hash */
+/* Generate the integrity hash for a context It is used by TPM2_ContextSave()
+ * to create an integrity hash and by TPM2_ContextLoad() to compare an
+ * integrity hash */
 void
 ComputeContextIntegrity(
 			TPMS_CONTEXT    *contextBlob,   // IN: context blob
@@ -120,7 +122,7 @@ ComputeContextIntegrity(
 {
     HMAC_STATE          hmacState;
     TPM2B_PROOF         *proof;
-    UINT16              integritySize;
+    UINT32              integritySize;
     // Get proof value
     proof = HierarchyGetProof(contextBlob->hierarchy);
     // Start HMAC

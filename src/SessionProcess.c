@@ -636,9 +636,9 @@ CompareTemplateHash(
 		    )
 {
     BYTE                *pBuffer = command->parameterBuffer;
-    INT32                pSize = command->parameterSize;
+    UINT32               pSize = command->parameterSize;
     TPM2B_DIGEST         tHash;
-    UINT16               size;
+    UINT32               size;
     //
     // Only try this for the three commands for which it is intended
     if(command->code != TPM_CC_Create
@@ -651,7 +651,7 @@ CompareTemplateHash(
     // Assume that the first parameter is a TPM2B and unmarshal the size field
     // Note: this will not affect the parameter buffer and size in the calling
     // function.
-    if(UINT16_Unmarshal(&size, &pBuffer, &pSize) != TPM_RC_SUCCESS)
+    if(UINT32_Unmarshal(&size, &pBuffer, &pSize) != TPM_RC_SUCCESS)
 	return FALSE;
     // reduce the space in the buffer.
     // NOTE: this could make pSize go negative if the parameters are not correct but
@@ -661,7 +661,7 @@ CompareTemplateHash(
     // Advance the pointer
     pBuffer += size;
     // Get the size of what should be the template
-    if(UINT16_Unmarshal(&size, &pBuffer, &pSize) != TPM_RC_SUCCESS)
+    if(UINT32_Unmarshal(&size, &pBuffer, &pSize) != TPM_RC_SUCCESS)
 	return FALSE;
     // See if this is reasonable
     if(size > pSize)
@@ -696,9 +696,10 @@ CompareNameHash(
 		       nameHash.t.size);
 }
 /* 6.4.4.8 CheckPWAuthSession() */
-/* This function validates the authorization provided in a PWAP session. It compares the input value
-   to authValue of the authorized entity. Argument sessionIndex is used to get handles handle of the
-   referenced entities from s_inputAuthValues[] and s_associatedHandles[]. */
+/* This function validates the authorization provided in a PWAP session. It
+ * compares the input value to authValue of the authorized entity. Argument
+ * sessionIndex is used to get handles handle of the referenced entities from
+ * s_inputAuthValues[] and s_associatedHandles[]. */
 /* Error Returns Meaning */
 /* TPM_RC_AUTH_FAIL authorization fails and increments DA failure count */
 /* TPM_RC_BAD_AUTH authorization fails but DA does not apply */
@@ -1382,10 +1383,10 @@ CheckCommandAudit(
 }
 #endif
 /* 6.4.4.16 ParseSessionBuffer() */
-/* This function is the entry function for command session processing. It iterates sessions in
-   session area and reports if the required authorization has been properly provided. It also
-   processes audit session and passes the information of encryption sessions to parameter encryption
-   module. */
+/* This function is the entry function for command session processing. It
+ * iterates sessions in session area and reports if the required authorization
+ * has been properly provided. It also processes audit session and passes the
+ * information of encryption sessions to parameter encryption module. */
 /* Error Returns Meaning */
 /* various parsing failure or authorization failure */
 TPM_RC
@@ -1872,12 +1873,13 @@ UpdateAllNonceTPM(
     return;
 }
 /* 6.4.5.12 BuildResponseSession() */
-/* Function to build Session buffer in a response. The authorization data is added to the end of
-   command->responseBuffer. The size of the authorization area is accumulated in
-   command->authSize. When this is called, command->responseBuffer is pointing at the next location
-   in the response buffer to be filled. This is where the authorization sessions will go, if
-   any. command->parameterSize is the number of bytes that have been marshaled as parameters in the
-   output buffer. */
+/* Function to build Session buffer in a response. The authorization data is
+ * added to the end of command->responseBuffer. The size of the authorization
+ * area is accumulated in command->authSize. When this is called,
+ * command->responseBuffer is pointing at the next location in the response
+ * buffer to be filled. This is where the authorization sessions will go, if
+ * any. command->parameterSize is the number of bytes that have been marshaled
+ * as parameters in the output buffer. */
 void
 BuildResponseSession(
 		     COMMAND         *command        // IN: structure that has relevant command

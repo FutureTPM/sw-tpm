@@ -414,11 +414,13 @@ TPM2_Kyber_2Phase_KEX(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     OBJECT *kyber_key_static;
+    OBJECT *kyber_alice_key_static;
     OBJECT *kyber_key_ephemeral;
 
     // Input Validation
     kyber_key_static = HandleToObject(in->static_key);
     kyber_key_ephemeral = HandleToObject(in->ephemeral_key);
+    kyber_alice_key_static = HandleToObject(in->alice_static_key);
 
     // selected key must be a Kyber key
     if(kyber_key_static->publicArea.type != TPM_ALG_KYBER)
@@ -471,8 +473,8 @@ TPM2_Kyber_2Phase_KEX(
               &out->cipher_text_1);
       MemoryCopy(buf, &tmp_ss.t.buffer, 32);
 
-      // Encapsulate the second secret using the static key
-      CryptKyberEncapsulate(&kyber_key_static->publicArea, &tmp_ss,
+      // Encapsulate the second secret using alice's static key
+      CryptKyberEncapsulate(&kyber_alice_key_static->publicArea, &tmp_ss,
               &out->cipher_text_2);
       MemoryCopy(buf+KYBER_SYMBYTES, &tmp_ss.t.buffer, 32);
 
@@ -487,6 +489,7 @@ TPM2_Kyber_2Phase_KEX(
       // final shared key.
       shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
               buf, 3*KYBER_SYMBYTES);
+      out->shared_key.t.size = 32;
     }
 
     return retVal;
@@ -585,13 +588,522 @@ TPM2_Kyber_3Phase_KEX(
       // final shared key.
       shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
               buf, 3*KYBER_SYMBYTES);
+      out->shared_key.t.size = 32;
     }
 
     return retVal;
 }
 #endif // ALG_KYBER
 #endif // CC_KYBER_3Phase_KEX
+
+#if CC_KYBER_Encrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_Encrypt_fp.h"
+#include "kyber-params.h"
+#if ALG_KYBER
+TPM_RC
+TPM2_Kyber_Encrypt(
+		 Kyber_Encrypt_In      *in,            // In: input parameter list
+		 Kyber_Encrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a Kyber key
+    if(key_handle->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(key_handle->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
+
+    retVal = CryptKyberEncrypt(&out->outData, key_handle, &in->message.b);
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_Encrypt
+
+#if CC_KYBER_Decrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "Kyber_Decrypt_fp.h"
+#include "kyber-params.h"
+#if ALG_KYBER
+TPM_RC
+TPM2_Kyber_Decrypt(
+		 Kyber_Decrypt_In      *in,            // In: input parameter list
+		 Kyber_Decrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a Kyber key
+    if(key_handle->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // Kyber is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Validate security parameter
+    if (!CryptKyberIsModeValid(key_handle->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Kyber_Decrypt_key_handle;
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+
+    retVal = CryptKyberDecrypt(&out->outData.b, key_handle, &in->message);
+
+    return retVal;
+}
+#endif // ALG_KYBER
+#endif // CC_KYBER_Decrypt
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/
+#if CC_LDAA_Join  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_Join_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_Join(
+		 LDAA_Join_In      *in,            // In: input parameter list
+		 LDAA_Join_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+
+    // The specification requires the TPM to be able to take part in more than
+    // one LDAA session simultaneously. The current implementation
+    // _doesn't_do_that_. In this implementation only the SID is checked as a
+    // means to differentiate between sessions, and only one session is
+    // supported at a time. Furthermore, the implementation doesn't
+    // diferentiate between different users in the same machine, or different
+    // hosts.
+    //
+    // Check if the received entry exists in storage, if not then proceed
+    // and create entry (set SID and tie private key to the session). If there
+    // is an entry present reset the protocol status and fail.
+    if (gr.ldaa_commitCounter != 0) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    } else {
+        // Store protocol SID
+        gr.ldaa_sid = in->sid;
+        // Hash private key to tie it to the current LDAA session
+        CryptHashBlock(ALG_SHA256_VALUE,
+                ldaa_key->sensitive.sensitive.ldaa.t.size,
+                ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+                SHA256_DIGEST_SIZE,
+                gr.ldaa_hash_private_key);
+    }
+
+    // Perform Join operation
+    retVal = CryptLDaaJoin(
+            // Outputs
+            &out->public_key, &out->nym,
+            // Inputs
+            &ldaa_key->publicArea, &in->bsn_I, &ldaa_key->sensitive);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_Join
+
+#if CC_LDAA_SignCommit1  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignCommit1_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignCommit1(
+		 LDAA_SignCommit1_In      *in,            // In: input parameter list
+		 LDAA_SignCommit1_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignCommit1_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    UINT8 commit_sel = 1;
+
+    retVal = CryptLDaaSignCommit(
+            // Outputs
+            &out->commit,
+            // Inputs
+            &ldaa_key->sensitive,
+            &commit_sel, &in->sign_state_sel,
+            &in->pbsn, &in->pe,
+            &in->issuer_at_ntt,
+            &in->issuer_bntt,
+            &in->bsn, NULL);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignCommit1
+
+#if CC_LDAA_SignCommit2  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignCommit2_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignCommit2(
+		 LDAA_SignCommit2_In      *in,            // In: input parameter list
+		 LDAA_SignCommit2_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignCommit2_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit2_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    UINT8 commit_sel = 2;
+
+    retVal = CryptLDaaSignCommit(
+            // Outputs
+            &out->commit,
+            // Inputs
+            &ldaa_key->sensitive,
+            &commit_sel, &in->sign_state_sel,
+            &in->pbsn, &in->pe,
+            NULL,
+            &in->issuer_bntt,
+            &in->bsn, &in->offset);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignCommit2
+
+#if CC_LDAA_SignCommit3  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignCommit3_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignCommit3(
+		 LDAA_SignCommit3_In      *in,            // In: input parameter list
+		 LDAA_SignCommit3_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignCommit3_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit3_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 698 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    UINT8 commit_sel = 3;
+
+    retVal = CryptLDaaSignCommit(
+            // Outputs
+            &out->commit,
+            // Inputs
+            &ldaa_key->sensitive,
+            &commit_sel, &in->sign_state_sel,
+            &in->pbsn, &in->pe,
+            NULL,
+            &in->issuer_bntt,
+            &in->bsn, &in->offset);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignCommit3
+
+#if CC_LDAA_CommitTokenLink  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_CommitTokenLink_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_CommitTokenLink(
+		 LDAA_CommitTokenLink_In      *in,            // In: input parameter list
+		 LDAA_CommitTokenLink_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_CommitTokenLink_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_CommitTokenLink_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter != 2 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    retVal = CryptLDaaCommitTokenLink(
+            // Outputs
+            &out->nym, &out->pbsn, &out->pe,
+            // Inputs
+            &ldaa_key->sensitive, &in->bsn);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS)
+        retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_CommitTokenLink
+
+#if CC_LDAA_SignProof  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignProof_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignProof(
+		 LDAA_SignProof_In      *in,            // In: input parameter list
+		 LDAA_SignProof_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignProof_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter < 699 || gr.ldaa_commitCounter > 706 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    retVal = CryptLDaaSignProof(
+            // Outputs
+            &out->R1,
+            &out->R2,
+            &out->sign_group,
+            // Inputs
+            &in->R1,
+            &in->R2,
+            &in->sign_state_sel,
+            &in->sign_state_type);
+
+    // Run Commit command
+    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 706)
+        retVal = CryptLDaaCommit();
+    else
+        retVal = CryptLDaaClearProtocolState();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignProof
+
+#if CC_LDAA_SignProceed  // Conditional expansion of this file
+#include "Tpm.h"
+#include "LDaa_SignProceed_fp.h"
+#if ALG_LDAA
+TPM_RC
+TPM2_LDAA_SignProceed(
+		 LDAA_SignProceed_In      *in            // In: input parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT  *ldaa_key;
+    BYTE     digest[SHA256_DIGEST_SIZE];
+
+    // Input Validation
+    ldaa_key = HandleToObject(in->key_handle);
+
+    // Input key must be an LDAA key
+    if(ldaa_key->publicArea.type != TPM_ALG_LDAA)
+        return TPM_RCS_KEY + RC_LDAA_SignProceed_key_handle;
+    if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
+        return TPM_RCS_SCHEME + RC_LDAA_SignProceed_key_handle;
+
+    // Hash private key
+    CryptHashBlock(ALG_SHA256_VALUE,
+            ldaa_key->sensitive.sensitive.ldaa.t.size,
+            ldaa_key->sensitive.sensitive.ldaa.t.buffer,
+            SHA256_DIGEST_SIZE,
+            digest);
+
+    // Fail if the private key passed is different than the tied key to
+    // the LDAA session, if the SID stored and passed are different, or
+    // if commit counter isn't in the correct state.
+    if (gr.ldaa_commitCounter != 1 ||
+            in->sid != gr.ldaa_sid ||
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+        // Clear current state of the protocol
+        CryptLDaaClearProtocolState();
+        return TPM_RC_NO_RESULT;
+    }
+
+    retVal = CryptLDaaCommit();
+
+    return retVal;
+}
+#endif // ALG_LDAA
+#endif // CC_LDAA_SignProof
+/*****************************************************************************/
+/*                                 LDAA Mods                                 */
+/*****************************************************************************/

@@ -280,7 +280,7 @@ OaepEncode(
     INT32        i;
     BYTE         mySeed[MAX_DIGEST_SIZE];
     BYTE        *seed = mySeed;
-    INT32        hLen = CryptHashGetDigestSize(hashAlg);
+    UINT32       hLen = CryptHashGetDigestSize(hashAlg);
     BYTE         mask[MAX_RSA_KEY_BYTES];
     BYTE        *pp;
     BYTE        *pm;
@@ -845,8 +845,8 @@ CryptRsaEncrypt(
 	{
 	  case ALG_NULL_VALUE:  // 'raw' encryption
 	      {
-		  INT32            i;
-		  INT32            dSize = dIn->size;
+		  UINT32           i;
+		  UINT32           dSize = dIn->size;
 		  // dIn can have more bytes than cOut as long as the extra bytes
 		  // are zero. Note: the more significant bytes of a number in a byte
 		  // buffer are the bytes at the start of the array.

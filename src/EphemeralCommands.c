@@ -131,9 +131,9 @@ TPM2_Commit(
 		return TPM_RCS_KEY + RC_Commit_signHandle;
 	}
     // If there is a P1, make sure that it is on the curve
-    // NOTE: an "empty" point has two UINT16 values which are the size values
+    // NOTE: an "empty" point has two UINT32 values which are the size values
     // for each of the coordinates.
-    if(in->P1.size > 4)
+    if(in->P1.size > 8)
 	{
 	    pP1 = &in->P1.point;
 	    if(!CryptEccIsPointOnCurve(parms->curveID, pP1))

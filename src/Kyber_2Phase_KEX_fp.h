@@ -1,6 +1,6 @@
 /*
  * MIT License
-
+ *
  * Copyright (c) 2019 Luís Fiolhais, Paulo Martins, Leonel Sousa (INESC-ID)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,12 +27,14 @@
 typedef struct {
     TPMI_DH_OBJECT          static_key;
     TPMI_DH_OBJECT          ephemeral_key;
+    TPMI_DH_OBJECT          alice_static_key;
     TPM2B_KYBER_CIPHER_TEXT cipher_text_static;
 } Kyber_2Phase_KEX_In;
 
 #define RC_Kyber_2Phase_KEX_static_key	       (TPM_RC_P + TPM_RC_1)
 #define RC_Kyber_2Phase_KEX_ephemeral_key	   (TPM_RC_P + TPM_RC_2)
-#define RC_Kyber_2Phase_KEX_cipher_text_static (TPM_RC_P + TPM_RC_3)
+#define RC_Kyber_2Phase_KEX_alice_static_key   (TPM_RC_P + TPM_RC_3)
+#define RC_Kyber_2Phase_KEX_cipher_text_static (TPM_RC_P + TPM_RC_4)
 
 typedef struct {
     TPM2B_KYBER_SHARED_KEY  shared_key;

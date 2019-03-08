@@ -131,6 +131,9 @@
 #if ALG_KYBER
 #include "CryptKyber_fp.h"
 #endif
+#if ALG_LDAA
+#include "CryptLDaa_fp.h"
+#endif
 #if ALG_ECC
 #include "CryptEccMain_fp.h"
 #include "CryptEccSignature_fp.h"

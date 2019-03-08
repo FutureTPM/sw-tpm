@@ -454,6 +454,40 @@ const TPMA_CC    s_ccAttr [] = {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_LDAA_Join)
+    TPMA_CC_INITIALIZER(0x019E, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit1)
+    TPMA_CC_INITIALIZER(0x019F, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_CommitTokenLink)
+    TPMA_CC_INITIALIZER(0x01A0, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignProof)
+    TPMA_CC_INITIALIZER(0x01A1, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignProceed)
+    TPMA_CC_INITIALIZER(0x01A2, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit2)
+    TPMA_CC_INITIALIZER(0x01A3, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit3)
+    TPMA_CC_INITIALIZER(0x01A4, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_KYBER_Encrypt)
+    TPMA_CC_INITIALIZER(0x01A5, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_KYBER_Decrypt)
+    TPMA_CC_INITIALIZER(0x01A6, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     TPMA_CC_INITIALIZER(0x0000, 0, 0, 0, 0, 0, 0, 1, 0),
 #endif
@@ -976,6 +1010,49 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
+
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_LDAA_Join)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_Join                   *  // 0x019E
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit1)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit1            *  // 0x019F
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_CommitTokenLink)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_CommitTokenLink        *  // 0x01A0
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignProof)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignProof              *  // 0x01A1
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignProceed)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignProceed            *  // 0x01A2
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit2)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit2            *  // 0x01A3
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_LDAA_SignCommit3)
+    (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit3            *  // 0x01A4
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
+/*****************************************************************************/
+/*                               LDAA Mods                                   */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_KYBER_Encrypt)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Encrypt               *  // 0x01A5
+			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+#endif
+#if (PAD_LIST  || CC_KYBER_Decrypt)
+    (COMMAND_ATTRIBUTES)(CC_KYBER_Decrypt               *  // 0x01A6
+			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+#endif
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     (COMMAND_ATTRIBUTES)(CC_Vendor_TCG_Test             *  // 0x0000

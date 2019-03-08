@@ -191,14 +191,15 @@ CryptGenerateKeyedHash(
     return TPM_RC_SUCCESS;
 }
 /* 10.2.6.3.4 CryptIsSchemeAnonymous() */
-/* This function is used to test a scheme to see if it is an anonymous scheme The only anonymous
-   scheme is ECDAA. ECDAA can be used to do things like U-Prove. */
+/* This function is used to test a scheme to see if it is an anonymous scheme.
+ * The anonymous schemes are ECDAA and LDAA. ECDAA can be used to do things
+ * like U-Prove. */
 BOOL
 CryptIsSchemeAnonymous(
 		       TPM_ALG_ID       scheme         // IN: the scheme algorithm to test
 		       )
 {
-    return scheme == ALG_ECDAA_VALUE;
+    return scheme == ALG_ECDAA_VALUE || scheme == ALG_LDAA_VALUE;
 }
 /* 10.2.6.4 Symmetric Functions */
 /* 10.2.6.4.1 ParmDecryptSym() */
@@ -390,6 +391,9 @@ CryptInit(
 #if ALG_KYBER
     ok = ok && CryptKyberInit();
 #endif // TPM_ALG_KYBER
+#if ALG_LDAA
+    ok = ok && CryptLDaaInit();
+#endif // TPM_ALG_LDAA
     return ok;
 }
 /* 10.2.6.5.2 CryptStartup() */
@@ -419,6 +423,9 @@ CryptStartup(
 #if ALG_KYBER
     && CryptKyberStartup()
 #endif // TPM_ALG_KYBER
+#if ALG_LDAA
+    && CryptLDaaStartup()
+#endif // TPM_ALG_LDAA
 	 ;
 #if ALG_ECC
     // Don't directly check for SU_RESET because that is the default
@@ -434,6 +441,22 @@ CryptStartup(
 	    MemorySet(gr.commitArray, 0, sizeof(gr.commitArray));
 	}
 #endif // TPM_ALG_ECC
+#if ALG_LDAA
+    // Don't directly check for SU_RESET because that is the default
+    if(OK && (type != SU_RESTART) && (type != SU_RESUME))
+	{
+	    // If the shutdown was orderly, then the values recovered from NV will
+	    // be OK to use.
+	    // Reset the counter and commit array
+	    gr.ldaa_commitCounter = 0;
+	    gr.ldaa_sid = 0;
+	    gr.ldaa_commit_sign_state = 0;
+        gr.ldaa_r_commit_2 = 0;
+        gr.ldaa_r_commit_3 = 0;
+	    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
+	    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
+	}
+#endif // TPM_ALG_LDAA
     return OK;
 }
 /* 10.2.6.6 Algorithm-Independent Functions */
@@ -464,6 +487,9 @@ CryptIsAsymAlgorithm(
 #endif
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
+#endif
+#if ALG_LDAA
+	  case TPM_ALG_LDAA:
 #endif
 	    return TRUE;
 	    break;
@@ -506,9 +532,9 @@ CryptSecretEncrypt(
 #if ALG_RSA
 	  case TPM_ALG_RSA:
 	      {
-		  // Create secret data from RNG
+		  // create secret data from rng
 		  CryptRandomGenerate(data->t.size, data->t.buffer);
-		  // Encrypt the data by RSA OAEP into encrypted secret
+		  // encrypt the data by rsa oaep into encrypted secret
 		  result = CryptRsaEncrypt((TPM2B_PUBLIC_KEY_RSA *)secret, &data->b,
 					   encryptKey, &scheme, label, NULL);
 	      }
@@ -574,11 +600,11 @@ CryptSecretEncrypt(
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 	      {
-              // Kyber will only work if and only if data->t.size is 32 bytes,
-              // i.e., hash must be SHA256.
-              result = CryptKyberEncapsulate(&encryptKey->publicArea,
-                      (TPM2B_KYBER_SHARED_KEY *)data,
-                      (TPM2B_KYBER_CIPHER_TEXT *)secret);
+              // create secret data from rng
+              CryptRandomGenerate(data->t.size, data->t.buffer);
+              // encrypt the data by rsa oaep into encrypted secret
+              result = CryptKyberEncrypt((TPM2B_KYBER_ENCRYPT *)secret,
+                      encryptKey, &data->b);
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
@@ -589,27 +615,29 @@ CryptSecretEncrypt(
     return result;
 }
 /* 10.2.6.6.4 CryptSecretDecrypt() */
-/* Decrypt a secret value by asymmetric (or symmetric) algorithm This function is used for
-   ActivateCredential() and Import for asymmetric decryption, and StartAuthSession() for both
-   asymmetric and symmetric decryption process */
+/* Decrypt a secret value by asymmetric (or symmetric) algorithm. This function
+ * is used for ActivateCredential() and Import for asymmetric decryption, and
+ * StartAuthSession() for both asymmetric and symmetric decryption process */
 /* Error Returns Meaning */
 /* TPM_RC_ATTRIBUTES RSA key is not a decryption key */
-/* TPM_RC_BINDING Invalid RSA key (public and private parts are not cryptographically bound. */
+/* TPM_RC_BINDING Invalid RSA key (public and private parts are not
+ * cryptographically bound. */
 /* TPM_RC_ECC_POINT ECC point in the secret is not on the curve */
 /* TPM_RC_INSUFFICIENT failed to retrieve ECC point from the secret */
 /* TPM_RC_NO_RESULT multiplication resulted in ECC point at infinity */
 /* TPM_RC_SIZE data to decrypt is not of the same size as RSA key */
-/* TPM_RC_VALUE For RSA key, numeric value of the encrypted data is greater than the modulus, or the
-   recovered data is larger than the output buffer. For keyedHash or symmetric key, the secret is
-   larger than the size of the digest produced by the name algorithm. */
+/* TPM_RC_VALUE For RSA key, numeric value of the encrypted data is greater
+ * than the modulus, or the recovered data is larger than the output buffer.
+ * For keyedHash or symmetric key, the secret is larger than the size of the
+ * digest produced by the name algorithm. */
 /* TPM_RC_FAILURE internal error */
 TPM_RC
 CryptSecretDecrypt(
 		   OBJECT                  *decryptKey,    // IN: decrypt key
 		   TPM2B_NONCE             *nonceCaller,   // IN: nonceCaller.  It is needed for
-		   //     symmetric decryption.  For
-		   //     asymmetric decryption, this
-		   //     parameter is NULL
+                                                   //     symmetric decryption.  For
+                                                   //     asymmetric decryption, this
+                                                   //     parameter is NULL
 		   const TPM2B             *label,         // IN: a value for L
 		   TPM2B_ENCRYPTED_SECRET  *secret,        // IN: input secret
 		   TPM2B_DATA              *data           // OUT: decrypted secret value
@@ -662,7 +690,7 @@ CryptSecretDecrypt(
 		  TPMS_ECC_POINT       eccPublic;
 		  TPMS_ECC_POINT       eccSecret;
 		  BYTE                *buffer = secret->t.secret;
-		  INT32                size = secret->t.size;
+		  UINT32               size = secret->t.size;
 		  // Retrieve ECC point from secret buffer
 		  result = TPMS_ECC_POINT_Unmarshal(&eccPublic, &buffer, &size);
 		  if(result == TPM_RC_SUCCESS)
@@ -702,12 +730,8 @@ CryptSecretDecrypt(
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 	      {
-              // Kyber will only work if and only if data->t.size is 32 bytes,
-              // i.e., hash must be SHA256.
-              result = CryptKyberDecapsulate(&decryptKey->sensitive,
-                      decryptKey->publicArea.parameters.kyberDetail.security,
-                      (TPM2B_KYBER_CIPHER_TEXT *)secret,
-                      (TPM2B_KYBER_SHARED_KEY *)data);
+              result = CryptKyberDecrypt(&data->b, decryptKey,
+                      (TPM2B_KYBER_ENCRYPT *)secret);
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
@@ -1008,6 +1032,12 @@ CryptCreateObject(
 	    result = CryptDilithiumGenerateKey(object, rand);
 	    break;
 #endif // TPM_ALG_DILITHIUM
+#if ALG_LDAA
+	    // Create LDAA key
+	  case TPM_ALG_LDAA:
+	    result = CryptLDaaGenerateKey(object, rand);
+	    break;
+#endif // TPM_ALG_LDAA
 #if ALG_KYBER
 	    // Create Kyber key
 	  case TPM_ALG_KYBER:
@@ -1109,7 +1139,7 @@ CryptGetSignHashAlg(
 #   endif
 #endif //TPM_ALG_ECC
 #if ALG_DILITHIUM
-	    // If DILITHIUM is supported, both DILITHIUMSSA and DILITHIUMPSS are required
+	    // If DILITHIUM is supported
 #   if !defined TPM_ALG_DILITHIUM
 #       error "DILITHIUM is required for DILITHIUM"
 #   endif
@@ -1124,8 +1154,8 @@ CryptGetSignHashAlg(
     return TPM_ALG_NULL;
 }
 /* 10.2.6.6.10 CryptIsSplitSign() */
-/* This function us used to determine if the signing operation is a split signing operation that
-   required a TPM2_Commit(). */
+/* This function us used to determine if the signing operation is a split
+ * signing operation that required a TPM2_Commit(). */
 BOOL
 CryptIsSplitSign(
 		 TPM_ALG_ID       scheme         // IN: the algorithm selector
@@ -1138,6 +1168,10 @@ CryptIsSplitSign(
 	    return TRUE;
 	    break;
 #   endif   // TPM_ALG_ECDAA
+#   if ALG_LDAA
+	  case TPM_ALG_LDAA:
+	    return TRUE;
+#   endif   // TPM_ALG_LDAA
 	  default:
 	    return FALSE;
 	    break;
@@ -1197,6 +1231,10 @@ CryptIsAsymSignScheme(
       case TPM_ALG_DILITHIUM:
         break;
 #endif // TPM_ALG_DILITHIUM
+#if ALG_LDAA
+      case TPM_ALG_LDAA:
+        break;
+#endif // TPM_ALG_LDAA
 	  default:
 	    isSignScheme = FALSE;
 	    break;
@@ -1350,15 +1388,17 @@ CryptSelectSignScheme(
     return OK;
 }
 /* 10.2.6.6.14 CryptSign() */
-/* Sign a digest with asymmetric key or HMAC. This function is called by attestation commands and
-   the generic TPM2_Sign() command. This function checks the key scheme and digest size.  It does
-   not check if the sign operation is allowed for restricted key.  It should be checked before the
-   function is called. The function will assert if the key is not a signing key. */
+/* Sign a digest with asymmetric key or HMAC. This function is called by
+ * attestation commands and the generic TPM2_Sign() command. This function
+ * checks the key scheme and digest size.  It does not check if the sign
+ * operation is allowed for restricted key.  It should be checked before the
+ * function is called. The function will assert if the key is not a signing
+ * key. */
 /* Error Returns Meaning */
 /* TPM_RC_SCHEME signScheme is not compatible with the signing key type */
-/* TPM_RC_VALUE digest value is greater than the modulus of signHandle or size of hashData does not
-   match hash algorithm insignScheme (for an RSA key); invalid commit status or failed to generate r
-   value (for an ECC key) */
+/* TPM_RC_VALUE digest value is greater than the modulus of signHandle or size
+ * of hashData does not match hash algorithm insignScheme (for an RSA key);
+ * invalid commit status or failed to generate r value (for an ECC key) */
 TPM_RC
 CryptSign(
 	  OBJECT              *signKey,       // IN: signing key
@@ -1804,7 +1844,7 @@ CryptValidateKeys(
                         return TPM_RCS_SIZE + blameSensitive; /* Kyber768 */
                     break;
                 case TPM_KYBER_SECURITY_4:
-                    if (sensitive->sensitive.kyber.t.size == 3168)
+                    if (sensitive->sensitive.kyber.t.size != 3168)
                         return TPM_RCS_SIZE + blameSensitive; /* Kyber1024 */
                     break;
                 default:

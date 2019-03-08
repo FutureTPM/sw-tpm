@@ -60,8 +60,8 @@
 /********************************************************************************/
 
 /* 6.2 ExecCommand.c */
-/* This file contains the entry function ExecuteCommand() which provides the main control flow for
-   TPM command execution. */
+/* This file contains the entry function ExecuteCommand() which provides the
+ * main control flow for TPM command execution. */
 #include "Tpm.h"
 #include "ExecCommand_fp.h"
 /* Uncomment this next #include if doing static command/response buffer sizing */
@@ -78,22 +78,24 @@
 // 1)	unmarshal the command parameters from the command buffer;
 // 2)	call the routine that performs the command actions; and
 // 3)	marshal the responses into the response buffer.
-// f)	If any error occurs in any of the steps above create the error response and return.
+// f)	If any error occurs in any of the steps above create the error response
+// and return.
 // g)	Calls BuildResponseSessions() to:
 // 1)	when necessary, encrypt a parameter
 //       2)	build the response authorization sessions
 //       3)	update the audit sessions and nonces
-//       h)	Calls BuildResponseHeader() to complete the construction of the response.
+//       h)	Calls BuildResponseHeader() to complete the construction of
+//       the response.
 
-// 	  responseSize is set by the caller to the maximum number of bytes available in the output
-// 	  buffer. ExecuteCommand() will adjust the value and return the number of bytes placed in
-// 	  the buffer.
-// 	  response is also set by the caller to indicate the buffer into which ExecuteCommand() is
-// 	  to place the response.
-// 	  request and response may point to the same buffer
-// 	  NOTE: As of February, 2016, the failure processing has been moved to the platform-specific
-// 	  code. When the TPM code encounters an unrecoverable failure, it will SET g_inFailureMode
-// 	  and call _plat__Fail(). That function should not return but may call ExecuteCommand().
+// 	  responseSize is set by the caller to the maximum number of bytes
+// 	  available in the output buffer. ExecuteCommand() will adjust the value
+// 	  and return the number of bytes placed in the buffer. response is also set
+// 	  by the caller to indicate the buffer into which ExecuteCommand() is
+// 	  to place the response. request and response may point to the same buffer
+// 	  NOTE: As of February, 2016, the failure processing has been moved to the
+// 	  platform-specific code. When the TPM code encounters an unrecoverable
+// 	  failure, it will SET g_inFailureMode and call _plat__Fail(). That
+// 	  function should not return but may call ExecuteCommand().
 LIB_EXPORT void
 ExecuteCommand(
 	       uint32_t         requestSize,   // IN: command buffer size
