@@ -532,9 +532,9 @@ CryptSecretEncrypt(
 #if ALG_RSA
 	  case TPM_ALG_RSA:
 	      {
-		  // Create secret data from RNG
+		  // create secret data from rng
 		  CryptRandomGenerate(data->t.size, data->t.buffer);
-		  // Encrypt the data by RSA OAEP into encrypted secret
+		  // encrypt the data by rsa oaep into encrypted secret
 		  result = CryptRsaEncrypt((TPM2B_PUBLIC_KEY_RSA *)secret, &data->b,
 					   encryptKey, &scheme, label, NULL);
 	      }
@@ -600,11 +600,11 @@ CryptSecretEncrypt(
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 	      {
-              // Kyber will only work if and only if data->t.size is 32 bytes,
-              // i.e., hash must be SHA256.
-              result = CryptKyberEncapsulate(&encryptKey->publicArea,
-                      (TPM2B_KYBER_SHARED_KEY *)data,
-                      (TPM2B_KYBER_CIPHER_TEXT *)secret);
+              // create secret data from rng
+              CryptRandomGenerate(data->t.size, data->t.buffer);
+              // encrypt the data by rsa oaep into encrypted secret
+              result = CryptKyberEncrypt((TPM2B_KYBER_ENCRYPT *)secret,
+                      encryptKey, &data->b);
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
@@ -730,12 +730,8 @@ CryptSecretDecrypt(
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 	      {
-              // Kyber will only work if and only if data->t.size is 32 bytes,
-              // i.e., hash must be SHA256.
-              result = CryptKyberDecapsulate(&decryptKey->sensitive,
-                      decryptKey->publicArea.parameters.kyberDetail.security,
-                      (TPM2B_KYBER_CIPHER_TEXT *)secret,
-                      (TPM2B_KYBER_SHARED_KEY *)data);
+              result = CryptKyberDecrypt(&data->b, decryptKey,
+                      (TPM2B_KYBER_ENCRYPT *)secret);
 	      }
 	      break;
 #endif //TPM_ALG_KYBER

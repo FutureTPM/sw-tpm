@@ -1179,6 +1179,14 @@ typedef union {
 typedef union {
     struct {
 	UINT32                  size;
+	BYTE                    buffer[MAX_KYBER_CIPHER_TEXT_SIZE + MAX_DIGEST_BUFFER];
+    }            t;
+    TPM2B        b;
+} TPM2B_KYBER_ENCRYPT;
+
+typedef union {
+    struct {
+	UINT32                  size;
 	BYTE                    buffer[MAX_KYBER_PUBLIC_KEY_SIZE];
     }            t;
     TPM2B        b;
@@ -1891,7 +1899,7 @@ typedef union {
     BYTE                    keyedHash[sizeof(TPM2B_DIGEST)];
 #endif   // ALG_KEYEDHASH
 #if 	ALG_KYBER
-    BYTE                    kyber[MAX_KYBER_CIPHER_TEXT_SIZE];
+    BYTE                    kyber[MAX_KYBER_CIPHER_TEXT_SIZE + MAX_DIGEST_BUFFER];
 #endif   // ALG_KYBER
 } TPMU_ENCRYPTED_SECRET;
 /* Table 2:182 - Definition of TPM2B_ENCRYPTED_SECRET Structure  */
