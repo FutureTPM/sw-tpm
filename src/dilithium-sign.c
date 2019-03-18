@@ -1,6 +1,6 @@
-#include "fips202.h"
 #include "dilithium-params.h"
 #include "dilithium-sign.h"
+#include "Tpm.h"
 
 /*************************************************
 * Name:        expand_mat
@@ -22,6 +22,7 @@ void dilithium_expand_mat(dilithium_polyvecl *mat,
    * Probability that we need more than 5 blocks: < 2^{-132}.
    * Probability that we need more than 6 blocks: < 2^{-546}. */
   unsigned char outbuf[5*SHAKE128_RATE];
+  unsigned char tmp_outbuf[5*SHAKE128_RATE];
 
   for(i = 0; i < DILITHIUM_SEEDBYTES; ++i)
     inbuf[i] = rho[i];
@@ -29,7 +30,9 @@ void dilithium_expand_mat(dilithium_polyvecl *mat,
   for(i = 0; i < dilithium_k; ++i) {
     for(j = 0; j < dilithium_l; ++j) {
       inbuf[DILITHIUM_SEEDBYTES] = i + (j << 4);
-      shake128(outbuf, sizeof(outbuf), inbuf, DILITHIUM_SEEDBYTES + 1);
+      CryptHashBlock(TPM_ALG_SHAKE128,
+              DILITHIUM_SEEDBYTES + 1, inbuf,
+              sizeof(tmp_outbuf), outbuf);
       dilithium_poly_uniform(mat[i].vec+j, outbuf);
     }
   }

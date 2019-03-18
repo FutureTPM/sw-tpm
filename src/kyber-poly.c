@@ -4,7 +4,7 @@
 #include "kyber-polyvec.h"
 #include "kyber-reduce.h"
 #include "kyber-cbd.h"
-#include "fips202.h"
+#include "Tpm.h"
 
 /*************************************************
 * Name:        poly_compress
@@ -128,7 +128,9 @@ void kyber_poly_getnoise(kyber_poly *r,const unsigned char *seed, unsigned char 
     extseed[i] = seed[i];
   extseed[KYBER_SYMBYTES] = nonce;
 
-  shake256(buf, kyber_eta*KYBER_N/4, extseed, KYBER_SYMBYTES+1);
+  CryptHashBlock(TPM_ALG_SHAKE256,
+          KYBER_SYMBYTES+1, extseed,
+          kyber_eta*KYBER_N/4, buf);
 
   kyber_cbd(r, buf, kyber_eta);
 }

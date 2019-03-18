@@ -1,8 +1,8 @@
-#include "Tpm.h"
 #include "ldaa-params.h"
 #include "ldaa-permutation.h"
 #include "ldaa-sample.h"
 #include <math.h>
+#include <stddef.h>
 
 void ldaa_permutation_sample_u(ldaa_permutation_t *this)
 {

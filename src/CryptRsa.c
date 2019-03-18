@@ -336,11 +336,12 @@ OaepEncode(
     return retVal;
 }
 /* 10.2.19.4.6 OaepDecode() */
-/* This function performs OAEP padding checking. The size of the buffer to receive the recovered
-   data. If the padding is not valid, the dSize size is set to zero and the function returns
-   TPM_RC_VALUE. */
-/* The dSize parameter is used as an input to indicate the size available in the buffer. If
-   insufficient space is available, the size is not changed and the return code is TPM_RC_VALUE. */
+/* This function performs OAEP padding checking. The size of the buffer to
+ * receive the recovered data. If the padding is not valid, the dSize size is
+ * set to zero and the function returns TPM_RC_VALUE. */
+/* The dSize parameter is used as an input to indicate the size available in
+ * the buffer. If insufficient space is available, the size is not changed and
+ * the return code is TPM_RC_VALUE. */
 /* Error Returns Meaning */
 /* TPM_RC_VALUE the value to decode was larger than the modulus, or the padding is wrong or the
    buffer to receive the results is too small */

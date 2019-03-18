@@ -1,4 +1,6 @@
 #include "ldaa-polynomial-matrix-mix.h"
+#include "BaseTypes.h"
+#include "Memory_fp.h"
 
 void ldaa_poly_matrix_commit1_prod_from_ntt(ldaa_poly_matrix_commit1_t *this,
 	 ldaa_poly_matrix_ntt_commit1_prod_t *a)

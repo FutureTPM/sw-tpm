@@ -2,7 +2,7 @@
 #define LDAA_POLYNOMIAL_NTT_H
 #include "BaseTypes.h"
 #include "ldaa-params.h"
-#include "ldaa-polynomial.h"
+#include "TpmTypes.h"
 
 typedef struct {
   UINT32 coeffs[LDAA_N];

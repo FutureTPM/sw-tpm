@@ -2,6 +2,8 @@
 #include "ldaa-polynomial.h"
 #include "ldaa-polynomial-ntt.h"
 #include "ldaa-sample-z.h"
+#include <stddef.h>
+#include "Memory_fp.h"
 
 const UINT32 LDAA_WS[65536] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

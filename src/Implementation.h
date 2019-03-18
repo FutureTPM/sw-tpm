@@ -278,6 +278,18 @@
 #define ALG_XOR                         ALG_YES
 
 /*****************************************************************************/
+/*                                  SHA Mods                                 */
+/*****************************************************************************/
+#define ALG_SHA3_256                      ALG_YES
+#define ALG_SHA3_384                      ALG_YES
+#define ALG_SHA3_512                      ALG_YES
+#define ALG_SHAKE128                      ALG_YES
+#define ALG_SHAKE256                      ALG_YES
+/*****************************************************************************/
+/*                                  SHA Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 #define  ALG_KYBER                      ALG_YES
@@ -426,11 +438,38 @@ typedef UINT16                          TPM_ALG_ID;
 #if         ALG_CAMELLIA
 #define TPM_ALG_CAMELLIA                (TPM_ALG_ID)(ALG_CAMELLIA_VALUE)
 #endif   // ALG_CAMELLIA
+/*****************************************************************************/
+/*                                  SHA Mods                                 */
+/*****************************************************************************/
+#define     ALG_SHA3_256_VALUE          0x0027
+#if         ALG_SHA3_256
+#define TPM_ALG_SHA3_256                (TPM_ALG_ID)(ALG_SHA3_256_VALUE)
+#endif   // ALG_SHA3_256
+#define     ALG_SHA3_384_VALUE          0x0028
+#if         ALG_SHA3_384
+#define TPM_ALG_SHA3_384                (TPM_ALG_ID)(ALG_SHA3_384_VALUE)
+#endif   // ALG_SHA3_384
+#define     ALG_SHA3_512_VALUE          0x0029
+#if         ALG_SHA3_512
+#define TPM_ALG_SHA3_512                (TPM_ALG_ID)(ALG_SHA3_512_VALUE)
+#endif   // ALG_SHA3_512
+#define     ALG_SHAKE128_VALUE          0x002A
+#if         ALG_SHAKE128
+#define TPM_ALG_SHAKE128                (TPM_ALG_ID)(ALG_SHAKE128_VALUE)
+#endif   // ALG_SHAKE128
+#define     ALG_SHAKE256_VALUE          0x002B
+#if         ALG_SHAKE256
+#define TPM_ALG_SHAKE256                (TPM_ALG_ID)(ALG_SHAKE256_VALUE)
+#endif   // ALG_SHAKE256
+/*****************************************************************************/
+/*                                  SHA Mods                                 */
+/*****************************************************************************/
+
 
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#define     ALG_KYBER_VALUE             0x002A
+#define     ALG_KYBER_VALUE             0x002C
 #if         ALG_KYBER
 #define TPM_ALG_KYBER                   (TPM_ALG_ID)(ALG_KYBER_VALUE)
 #endif   // ALG_KYBER
@@ -447,7 +486,7 @@ typedef  UINT8             TPM_KYBER_SECURITY;
 /*****************************************************************************/
 /*                             Dilithium Mods                                */
 /*****************************************************************************/
-#define     ALG_DILITHIUM_VALUE         0x002B
+#define     ALG_DILITHIUM_VALUE         0x002D
 #if         ALG_DILITHIUM
 #define TPM_ALG_DILITHIUM               (TPM_ALG_ID)(ALG_DILITHIUM_VALUE)
 #endif   // ALG_DILITHIUM
@@ -465,7 +504,7 @@ typedef  UINT8             TPM_DILITHIUM_MODE;
 /*****************************************************************************/
 /*                                LDAA Mods                                  */
 /*****************************************************************************/
-#define     ALG_LDAA_VALUE              0x002C
+#define     ALG_LDAA_VALUE              0x002E
 #if         ALG_LDAA
 #define TPM_ALG_LDAA                    (TPM_ALG_ID)(ALG_LDAA_VALUE)
 #endif   // ALG_LDAA
@@ -555,6 +594,46 @@ typedef  UINT16             TPM_ECC_CURVE;
     0x30, 0x30, 0x30, 0x0C, 0x06, 0x08, 0x2A, 0x81,	\
 	0x1C, 0x81, 0x45, 0x01, 0x83, 0x11, 0x05, 0x00,	\
 	0x04, 0x20
+
+#define  SHA3_256_DIGEST_SIZE    32
+#define  SHA3_256_BLOCK_SIZE     136
+#define  SHA3_256_DER_SIZE       19
+#define  SHA3_256_DER					\
+    0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, \
+    0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x08, 0x05, \
+    0x00, 0x04, 0x20
+
+#define  SHA3_384_DIGEST_SIZE    48
+#define  SHA3_384_BLOCK_SIZE     104
+#define  SHA3_384_DER_SIZE       19
+#define  SHA3_384_DER					\
+    0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, \
+    0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x09, 0x05, \
+    0x00, 0x04, 0x30
+
+#define  SHA3_512_DIGEST_SIZE    64
+#define  SHA3_512_BLOCK_SIZE     72
+#define  SHA3_512_DER_SIZE       19
+#define  SHA3_512_DER					\
+    0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, \
+    0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0a, 0x05, \
+    0x00, 0x04, 0x40
+
+#define  SHAKE128_DIGEST_SIZE    1024
+#define  SHAKE128_BLOCK_SIZE     168
+#define  SHAKE128_DER_SIZE       19
+#define  SHAKE128_DER					\
+    0x30, 0x61, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, \
+    0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0b, 0x05, \
+    0x00, 0x04, 0x50
+
+#define  SHAKE256_DIGEST_SIZE    1024
+#define  SHAKE256_BLOCK_SIZE     136
+#define  SHAKE256_DER_SIZE       19
+#define  SHAKE256_DER					\
+    0x30, 0x71, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, \
+    0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x0c, 0x05, \
+    0x00, 0x04, 0x60
 
 /*     From TCG Algorithm Registry: Table 17 - Defines for AES Symmetric Cipher Algorithm
        Constants */
@@ -1337,7 +1416,8 @@ typedef UINT32                              TPM_CC;
 #define COMMAND_COUNT							\
     (LIBRARY_COMMAND_ARRAY_SIZE + VENDOR_COMMAND_ARRAY_SIZE)
 #define HASH_COUNT							\
-    (ALG_SHA1 + ALG_SHA256 + ALG_SHA384 + ALG_SHA512 + ALG_SM3_256)
+    (ALG_SHA1 + ALG_SHA256 + ALG_SHA384 + ALG_SHA512 + ALG_SM3_256 + \
+     ALG_SHA3_256 + ALG_SHA3_384 + ALG_SHA3_512)
 
 #define MAX_HASH_BLOCK_SIZE  (						\
 			MAX(ALG_SHA1   * SHA1_BLOCK_SIZE,		\
@@ -1345,14 +1425,22 @@ typedef UINT32                              TPM_CC;
 			MAX(ALG_SHA384 * SHA384_BLOCK_SIZE, 		\
 			MAX(ALG_SHA512 * SHA512_BLOCK_SIZE, 		\
 			MAX(ALG_SM3_256 * SM3_256_BLOCK_SIZE, 		\
-			0 ))))))
+			MAX(ALG_SHA3_256 * SHA3_256_BLOCK_SIZE, 	\
+			MAX(ALG_SHA3_512 * SHA3_512_BLOCK_SIZE, 	\
+			MAX(ALG_SHAKE128 * SHAKE128_BLOCK_SIZE, 	\
+			MAX(ALG_SHAKE256 * SHAKE256_BLOCK_SIZE, 	\
+			0 ))))))))))
 #define MAX_DIGEST_SIZE      (						\
 			MAX(ALG_SHA1 * SHA1_DIGEST_SIZE,		\
 			MAX(ALG_SHA256 * SHA256_DIGEST_SIZE,		\
 			MAX(ALG_SHA384 * SHA384_DIGEST_SIZE, 		\
 			MAX(ALG_SHA512 * SHA512_DIGEST_SIZE,		\
 			MAX(ALG_SM3_256 * SM3_256_DIGEST_SIZE, 		\
-			0 ))))))
+			MAX(ALG_SHA3_256 * SHA3_256_DIGEST_SIZE, 	\
+			MAX(ALG_SHA3_512 * SHA3_512_DIGEST_SIZE, 	\
+			MAX(ALG_SHAKE128 * SHAKE128_DIGEST_SIZE, 	\
+			MAX(ALG_SHAKE256 * SHAKE256_DIGEST_SIZE, 	\
+			0 ))))))))))
 #if MAX_DIGEST_SIZE == 0 || MAX_HASH_BLOCK_SIZE == 0
 #error "Hash data not valid"
 #endif

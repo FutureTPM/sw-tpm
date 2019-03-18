@@ -403,7 +403,6 @@ TPM2_Kyber_Dec(
 #include "Tpm.h"
 #include "Kyber_2Phase_KEX_fp.h"
 #include "kyber-params.h"
-#include "fips202.h"
 #if ALG_KYBER
 // Perform 2nd step of mutually authenticated key Exchange with forward secrecy
 TPM_RC
@@ -487,8 +486,9 @@ TPM2_Kyber_2Phase_KEX(
 
       // Hash the concatenation of all shared keys generated to obtain the
       // final shared key.
-      shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
-              buf, 3*KYBER_SYMBYTES);
+      CryptHashBlock(TPM_ALG_SHAKE256,
+              3*KYBER_SYMBYTES, buf,
+              KYBER_SYMBYTES, out->shared_key.t.buffer);
       out->shared_key.t.size = 32;
     }
 
@@ -501,7 +501,6 @@ TPM2_Kyber_2Phase_KEX(
 #include "Tpm.h"
 #include "Kyber_3Phase_KEX_fp.h"
 #include "kyber-params.h"
-#include "fips202.h"
 #if ALG_KYBER
 // Perform 3rd (and final) step of mutually authenticated key Exchange with
 // forward secrecy
@@ -586,8 +585,9 @@ TPM2_Kyber_3Phase_KEX(
 
       // Hash the concatenation of all shared keys generated to obtain the
       // final shared key.
-      shake256((unsigned char *)&out->shared_key.t.buffer, KYBER_SYMBYTES,
-              buf, 3*KYBER_SYMBYTES);
+      CryptHashBlock(TPM_ALG_SHAKE256,
+              3*KYBER_SYMBYTES, buf,
+              KYBER_SYMBYTES, out->shared_key.t.buffer);
       out->shared_key.t.size = 32;
     }
 

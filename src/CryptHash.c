@@ -79,10 +79,25 @@ HASH_DEF_TEMPLATE(SHA384);
 #if ALG_SHA512
 HASH_DEF_TEMPLATE(SHA512);
 #endif
+#if ALG_SHA3_256
+HASH_DEF_TEMPLATE(SHA3_256);
+#endif
+#if ALG_SHA3_384
+HASH_DEF_TEMPLATE(SHA3_384);
+#endif
+#if ALG_SHA3_512
+HASH_DEF_TEMPLATE(SHA3_512);
+#endif
+#if ALG_SHAKE128
+HASH_DEF_TEMPLATE(SHAKE128);
+#endif
+#if ALG_SHAKE256
+HASH_DEF_TEMPLATE(SHAKE256);
+#endif
 HASH_DEF nullDef = {{0}};
 /* 10.2.14.3 Obligatory Initialization Functions */
-/* This function is called by _TPM_Init() do perform the initialization operations for the
-   library. */
+/* This function is called by _TPM_Init() do perform the initialization
+ * operations for the library. */
 BOOL
 CryptHashInit(
 	      void
@@ -92,8 +107,8 @@ CryptHashInit(
     return TRUE;
 }
 /* 10.2.13.3.2 CryptHashStartup() */
-/* This function is called by TPM2_Startup() in case there is work to do at startup. Currently, this
-   is a placeholder. */
+/* This function is called by TPM2_Startup() in case there is work to do at
+ * startup. Currently, this is a placeholder. */
 BOOL
 CryptHashStartup(
 		 void
@@ -135,6 +150,31 @@ CryptGetHashDef(
 	    retVal = &SHA512_Def;
 	    break;
 #endif
+#if ALG_SHA3_256
+	  case ALG_SHA3_256_VALUE:
+	    retVal = &SHA3_256_Def;
+	    break;
+#endif
+#if ALG_SHA3_384
+	  case ALG_SHA3_384_VALUE:
+	    retVal = &SHA3_384_Def;
+	    break;
+#endif
+#if ALG_SHA3_512
+	  case ALG_SHA3_512_VALUE:
+	    retVal = &SHA3_512_Def;
+	    break;
+#endif
+#if ALG_SHAKE128
+	  case ALG_SHAKE128_VALUE:
+	    retVal = &SHAKE128_Def;
+	    break;
+#endif
+#if ALG_SHAKE256
+	  case ALG_SHAKE256_VALUE:
+	    retVal = &SHAKE256_Def;
+	    break;
+#endif
 	  default:
 	    retVal = &nullDef;
 	    break;
@@ -169,6 +209,21 @@ CryptHashIsValidAlg(
 #endif
 #if ALG_SM3_256
 	  case ALG_SM3_256_VALUE:
+#endif
+#if ALG_SHA3_256
+	  case ALG_SHA3_256_VALUE:
+#endif
+#if ALG_SHA3_384
+	  case ALG_SHA3_384_VALUE:
+#endif
+#if ALG_SHA3_512
+	  case ALG_SHA3_512_VALUE:
+#endif
+#if ALG_SHAKE128
+	  case ALG_SHAKE128_VALUE:
+#endif
+#if ALG_SHAKE256
+	  case ALG_SHAKE256_VALUE:
 #endif
 	    return TRUE;
 	    break;
@@ -391,7 +446,7 @@ HashEnd(
 	    // Set the final size
 	    dOutSize = MIN(dOutSize, hashState->def->digestSize);
 	    // Complete into the temp buffer and then copy
-	    HASH_END(hashState, temp);
+	    HASH_END(hashState, temp, dOutSize)
 	    // Don't want any other functions calling the HASH_END method
 	    // directly.
 #undef HASH_END
@@ -450,15 +505,16 @@ CryptDigestUpdate(
     if(hashState->hashAlg != TPM_ALG_NULL)
 	{
 	    if((hashState->type == HASH_STATE_HASH)
-	       || (hashState->type == HASH_STATE_HMAC))
+	       || (hashState->type == HASH_STATE_HMAC)) {
 		HASH_DATA(hashState, dataSize, (BYTE *)data);
 #if SMAC_IMPLEMENTED
-	    else if(hashState->type == HASH_STATE_SMAC)
+        } else if(hashState->type == HASH_STATE_SMAC) {
 		(hashState->state.smac.smacMethods.data)(&hashState->state.smac.state,
 							 dataSize, data);
 #endif // SMAC_IMPLEMENTED
-	    else
+        } else {
 		FAIL(FATAL_ERROR_INTERNAL);
+        }
 	}
     return;
 }
@@ -482,9 +538,10 @@ CryptHashEnd(
     return HashEnd(hashState, dOutSize, dOut);
 }
 /* 10.2.14.6.5 CryptHashBlock() */
-/* Start a hash, hash a single block, update digest and return the size of the results. */
-/* The digestSize parameter can be smaller than the digest. If so, only the more significant bytes
-   are returned. */
+/* Start a hash, hash a single block, update digest and return the size of the
+ * results. */
+/* The digestSize parameter can be smaller than the digest. If so, only the
+ * more significant bytes are returned. */
 /* Return Values Meaning */
 /* >= 0 number of bytes placed in dOut */
 LIB_EXPORT UINT16
@@ -683,9 +740,10 @@ CryptHmacEnd2B(
 }
 /* 10.2.14.8 Mask and Key Generation Functions */
 /* 10.2.14.8.1 _crypi_MGF1() */
-/* This function performs MGF1 using the selected hash. MGF1 is T(n) = T(n-1) || H(seed ||
-   counter). This function returns the length of the mask produced which could be zero if the digest
-   algorithm is not supported */
+/* This function performs MGF1 using the selected hash.
+ * MGF1 is T(n) = T(n-1) || H(seed || counter). This function returns the
+ * length of the mask produced which could be zero if the digest algorithm is
+ * not supported */
 /* Return Values Meaning */
 /* 0 hash algorithm was TPM_ALG_NULL */
 /* > 0 should be the same as mSize */

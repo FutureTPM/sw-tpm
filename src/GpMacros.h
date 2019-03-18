@@ -185,10 +185,17 @@
 #define STD_RESPONSE_HEADER (sizeof(TPM_ST) + sizeof(UINT32) + sizeof(TPM_RC))
 #define JOIN(x,y) x##y
 #define CONCAT(x,y) JOIN(x, y)
-/*     If CONTEXT_INTEGRITY_HASH_ALG is defined, then the vendor is using the old style
-       table. Otherwise, pick the strongest implemented hash algorithm as the context hash. */
+/*     If CONTEXT_INTEGRITY_HASH_ALG is defined, then the vendor is using the
+ *     old style table. Otherwise, pick the strongest implemented hash
+ *     algorithm as the context hash. */
 #ifndef CONTEXT_HASH_ALGORITHM
-#   if defined ALG_SHA512 && ALG_SHA512 == YES
+#   if defined ALG_SHA3_512 && ALG_SHA3_512 == YES
+#       define CONTEXT_HASH_ALGORITHM    SHA3_512
+#   elif defined ALG_SHA3_384 && ALG_SHA3_384 == YES
+#       define CONTEXT_HASH_ALGORITHM    SHA3_384
+#   elif defined ALG_SHA3_256 && ALG_SHA3_256 == YES
+#       define CONTEXT_HASH_ALGORITHM    SHA3_256
+#   elif defined ALG_SHA512 && ALG_SHA512 == YES
 #       define CONTEXT_HASH_ALGORITHM    SHA512
 #   elif defined ALG_SHA384 && ALG_SHA384 == YES
 #       define CONTEXT_HASH_ALGORITHM    SHA384

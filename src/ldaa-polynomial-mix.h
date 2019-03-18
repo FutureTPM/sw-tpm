@@ -1,6 +1,5 @@
 #ifndef LDAA_POLYNOMIAL_MIX_H
 #define LDAA_POLYNOMIAL_MIX_H
-#include "Tpm.h"
 #include "ldaa-polynomial-ntt.h"
 #include "ldaa-polynomial.h"
 

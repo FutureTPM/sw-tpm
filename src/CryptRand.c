@@ -81,9 +81,10 @@ typedef struct
     int                 contents;
 } DF_STATE, *PDF_STATE;
 /* 10.2.18.3.3 DfCompute() */
-/* This function does the incremental update of the derivation function state. It encrypts the iv
-   value and XOR's the results into each of the blocks of the output. This is equivalent to
-   processing all of input data for each output block. */
+/* This function does the incremental update of the derivation function state.
+ * It encrypts the iv value and XOR's the results into each of the blocks of
+ * the output. This is equivalent to processing all of input data for each
+ * output block. */
 static void
 DfCompute(
 	  PDF_STATE        dfState
@@ -108,8 +109,8 @@ DfCompute(
     dfState->contents = 0;
 }
 /* 10.2.18.3.4 DfStart() */
-/* This initializes the output blocks with an encrypted counter value and initializes the key
-   schedule. */
+/* This initializes the output blocks with an encrypted counter value and
+ * initializes the key schedule. */
 static void
 DfStart(
 	PDF_STATE        dfState,
@@ -141,8 +142,9 @@ DfStart(
     dfState->contents = 4;
 }
 /* 10.2.18.3.5 DfUpdate() */
-/* This updates the state with the input data. A byte at a time is moved into the state buffer until
-   it is full and then that block is encrypted by DfCompute(). */
+/* This updates the state with the input data. A byte at a time is moved into
+ * the state buffer until it is full and then that block is encrypted by
+ * DfCompute(). */
 static void
 DfUpdate(
 	 PDF_STATE        dfState,
@@ -170,10 +172,11 @@ DfUpdate(
 	}
 }
 /* 10.2.18.3.6 DfEnd() */
-/* This function is called to get the result of the derivation function computation. If the buffer
-   is not full, it is padded with zeros. The output buffer is structured to be the same as a
-   DRBG_SEED value so that the function can return a pointer to the DRBG_SEED value in the DF_STATE
-   structure. */
+/* This function is called to get the result of the derivation function
+ * computation. If the buffer is not full, it is padded with zeros. The output
+ * buffer is structured to be the same as a DRBG_SEED value so that the
+ * function can return a pointer to the DRBG_SEED value in the DF_STATE
+ * structure. */
 static DRBG_SEED *
 DfEnd(
       PDF_STATE        dfState
@@ -190,8 +193,8 @@ DfEnd(
     return (DRBG_SEED *)&dfState->iv;
 }
 /* 10.2.18.3.7 DfBuffer() */
-/* Function to take an input buffer and do the derivation function to produce a DRBG_SEED value that
-   can be used in DRBG_Reseed(); */
+/* Function to take an input buffer and do the derivation function to produce a
+ * DRBG_SEED value that can be used in DRBG_Reseed(); */
 static DRBG_SEED *
 DfBuffer(
 	 DRBG_SEED       *output,        // OUT: receives the result
@@ -210,10 +213,10 @@ DfBuffer(
     return output;
 }
 /* 10.2.18.3.8 DRBG_GetEntropy() */
-/* Even though this implementation never fails, it may get blocked indefinitely long in the call to
-   get entropy from the platform (DRBG_GetEntropy32()). This function is only used during
-   instantiation of the DRBG for manufacturing and on each start-up after an non-orderly
-   shutdown. */
+/* Even though this implementation never fails, it may get blocked indefinitely
+ * long in the call to get entropy from the platform (DRBG_GetEntropy32()).
+ * This function is only used during instantiation of the DRBG for
+ * manufacturing and on each start-up after an non-orderly shutdown. */
 /* Return Values Meaning */
 /* TRUE Requested entropy returned */
 /* FALSE Entropy Failure */
@@ -272,9 +275,9 @@ IncrementIv(
     while((--ivP >= (BYTE *)iv) && ((*ivP = ((*ivP + 1) & 0xFF)) == 0));
 }
 /* 10.2.18.3.10 EncryptDRBG() */
-/* This does the encryption operation for the DRBG. It will encrypt the input state counter (IV)
-   using the state key. Into the output buffer for as many times as it takes to generate the
-   required number of bytes. */
+/* This does the encryption operation for the DRBG. It will encrypt the input
+ * state counter (IV) using the state key. Into the output buffer for as many
+ * times as it takes to generate the required number of bytes. */
 void
 EncryptDRBG(
 	    BYTE                *dOut,
@@ -339,13 +342,15 @@ EncryptDRBG(
 #endif
 }
 /* 10.2.18.3.11 DRBG_Update() */
-/* This function performs the state update function. According to SP800-90A, a temp value is created
-   by doing CTR mode encryption of providedData and replacing the key and IV with these values. The
-   one difference is that, with counter mode, the IV is incremented after each block is encrypted
-   and in this operation, the counter is incremented before each block is encrypted. This function
-   implements an optimized version of the algorithm in that it does the update of the
-   drbgState->seed in place and then providedData is XORed() into drbgState->seed to complete the
-   encryption of providedData. This works because the IV is the last thing that gets encrypted. */
+/* This function performs the state update function. According to SP800-90A, a
+ * temp value is created by doing CTR mode encryption of providedData and
+ * replacing the key and IV with these values. The one difference is that, with
+ * counter mode, the IV is incremented after each block is encrypted and in
+ * this operation, the counter is incremented before each block is encrypted.
+ * This function implements an optimized version of the algorithm in that it
+ * does the update of the drbgState->seed in place and then providedData is
+ * XORed() into drbgState->seed to complete the encryption of providedData.
+ * This works because the IV is the last thing that gets encrypted. */
 void
 DRBG_Update(
 	    DRBG_STATE          *drbgState,     // IN:OUT state to update
@@ -381,8 +386,8 @@ DRBG_Update(
     // don't need to copy the resulting 'temp' to drbgState->seed
 }
 /* 10.2.18.3.12 DRBG_Reseed() */
-/* This function is used when reseeding of the DRBG is required. If entropy is provided, it is used
-   in lieu of using hardware entropy. */
+/* This function is used when reseeding of the DRBG is required. If entropy is
+ * provided, it is used in lieu of using hardware entropy. */
 /* NOTE: the provided entropy must be the required size. */
 /* Return Values Meaning */
 /* TRUE reseed succeeded */
@@ -481,11 +486,12 @@ DRBG_SelfTest(
 }
 /* 10.2.18.4 Public Interface */
 /* 10.2.18.4.1 Description */
-/* The functions in this section are the interface to the RNG. These are the functions that are used
-   by TPM.lib. Other functions are only visible to programs in the LtcCryptoEngine(). */
+/* The functions in this section are the interface to the RNG. These are the
+ * functions that are used by TPM.lib. Other functions are only visible to
+ * programs in the LtcCryptoEngine(). */
 /* 10.2.18.4.2 CryptRandomStir() */
-/* This function is used to cause a reseed. A DRBG_SEED amount of entropy is collected from the
-   hardware and then additional data is added. */
+/* This function is used to cause a reseed. A DRBG_SEED amount of entropy is
+ * collected from the hardware and then additional data is added. */
 /* Error Returns Meaning */
 /* TPM_RC_NO_RESULT failure of the entropy generator */
 LIB_EXPORT TPM_RC
@@ -563,8 +569,9 @@ DRBG_InstantiateSeededKdf(
     return TRUE;
 }
 /* 10.2.18.4.5 DRBG_AdditionalData() */
-/* Function to reseed the DRBG with additional entropy. This is normally called before computing the
-   protection value of a primary key in the Endorsement hierarchy. */
+/* Function to reseed the DRBG with additional entropy. This is normally called
+ * before computing the protection value of a primary key in the Endorsement
+ * hierarchy. */
 LIB_EXPORT void
 DRBG_AdditionalData(
 		    DRBG_STATE      *drbgState,     // IN:OUT state to update
@@ -579,8 +586,9 @@ DRBG_AdditionalData(
 	}
 }
 /* 10.2.18.4.6 DRBG_InstantiateSeeded() */
-/* This function is used to instantiate a random number generator from seed values. The nominal use
-   of this generator is to create sequences of pseudo-random numbers from a seed value. */
+/* This function is used to instantiate a random number generator from seed
+ * values. The nominal use of this generator is to create sequences of
+ * pseudo-random numbers from a seed value. */
 LIB_EXPORT BOOL
 DRBG_InstantiateSeeded(
 		       DRBG_STATE      *drbgState,     // IN/OUT: buffer to hold the state
@@ -652,11 +660,12 @@ CryptRandInit(
     return DRBG_SelfTest();
 }
 /* 10.2.18.5 DRBG_Generate() */
-/* This function generates a random sequence according SP800-90A. If random is not NULL, then
-   randomSize bytes of random values are generated. If random is NULL or randomSize is zero, then
-   the function returns TRUE without generating any bits or updating the reseed counter. This
-   function returns 0 if a reseed is required. Otherwise, it returns the number of bytes produced
-   which could be less than the number requested if the request is too large. */
+/* This function generates a random sequence according SP800-90A. If random is
+ * not NULL, then randomSize bytes of random values are generated. If random is
+ * NULL or randomSize is zero, then the function returns TRUE without
+ * generating any bits or updating the reseed counter. This function returns 0
+ * if a reseed is required. Otherwise, it returns the number of bytes produced
+ * which could be less than the number requested if the request is too large. */
 LIB_EXPORT UINT16
 DRBG_Generate(
 	      RAND_STATE      *state,
@@ -776,9 +785,9 @@ DRBG_Generate(
     return randomSize;
 }
 /* 10.2.18.6 DRBG_Instantiate() */
-/* This is CTR_DRBG_Instantiate_algorithm() from [SP 800-90A 10.2.1.3.1]. This is called when a the
-   TPM DRBG is to be instantiated. This is called to instantiate a DRBG used by the TPM for normal
-   operations. */
+/* This is CTR_DRBG_Instantiate_algorithm() from [SP 800-90A 10.2.1.3.1]. This
+ * is called when a the TPM DRBG is to be instantiated. This is called to
+ * instantiate a DRBG used by the TPM for normal operations. */
 /* Return Values Meaning */
 /* TRUE instantiation succeeded */
 /* FALSE instantiation failed */

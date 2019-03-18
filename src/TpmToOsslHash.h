@@ -70,16 +70,19 @@
 #define _TPM_TO_OSSL_HASH_H_
 #if HASH_LIB == OSSL
 #include <openssl/evp.h>
-#include <openssl/sha.h>
-#include <openssl/ossl_typ.h>
 /* B.2.2.1.2. Links to the OpenSSL HASH code */
 /* Redefine the internal name used for each of the hash state structures to the
  * name used by the library. These defines need to be known in all parts of the
  * TPM so that the structure sizes can be properly computed when needed. */
-#define tpmHashStateSHA1_t        SHA_CTX
-#define tpmHashStateSHA256_t      SHA256_CTX
-#define tpmHashStateSHA384_t      SHA512_CTX
-#define tpmHashStateSHA512_t      SHA512_CTX
+#define tpmHashStateSHA1_t        EVP_MD_CTX*
+#define tpmHashStateSHA256_t      EVP_MD_CTX*
+#define tpmHashStateSHA384_t      EVP_MD_CTX*
+#define tpmHashStateSHA512_t      EVP_MD_CTX*
+#define tpmHashStateSHA3_256_t    EVP_MD_CTX*
+#define tpmHashStateSHA3_384_t    EVP_MD_CTX*
+#define tpmHashStateSHA3_512_t    EVP_MD_CTX*
+#define tpmHashStateSHAKE128_t    EVP_MD_CTX*
+#define tpmHashStateSHAKE256_t    EVP_MD_CTX*
 #if ALG_SM3_256
 #   error "The version of OpenSSL used by this code does not support SM3"
 #endif
@@ -100,21 +103,142 @@ typedef const BYTE    *PCBYTE;
 /* The macro that calls the method also defines how the parameters get swizzled
  * between the default form (in CryptHash.c)and the library form. */
 /* Initialize the hash context */
-#define HASH_START_METHOD_DEF   void (HASH_START_METHOD)(PANY_HASH_STATE state)
+#define HASH_START_METHOD_DEF   void (HASH_START_METHOD)(EVP_MD_CTX *state, \
+        const EVP_MD *md, ENGINE *impl)
 #define HASH_START(hashState)						\
-    ((hashState)->def->method.start)(&(hashState)->state);
+    switch((hashState)->hashAlg) { \
+        case TPM_ALG_SHA1: \
+            (hashState)->state.Sha1 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha1, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA256: \
+            (hashState)->state.Sha256 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha256, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA384: \
+            (hashState)->state.Sha384 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha384, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA512:  \
+            (hashState)->state.Sha512 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha512, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA3_256:  \
+            (hashState)->state.Sha3_256 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha3_256, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA3_384:  \
+            (hashState)->state.Sha3_384 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha3_384, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHA3_512:  \
+            (hashState)->state.Sha3_512 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Sha3_512, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHAKE128:  \
+            (hashState)->state.Shake128 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Shake128, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        case TPM_ALG_SHAKE256:  \
+            (hashState)->state.Shake256 = EVP_MD_CTX_new(); \
+            ((hashState)->def->method.start)((hashState)->state.Shake256, \
+                (hashState)->def->method.type, NULL); \
+           break;\
+        default: \
+            printf("Start hash with unexpected hash alg: %d\n", (hashState)->hashAlg); \
+            break;\
+    }\
 /* Add data to the hash */
 #define HASH_DATA_METHOD_DEF						\
-    void (HASH_DATA_METHOD)(PANY_HASH_STATE state,			\
+    void (HASH_DATA_METHOD)(EVP_MD_CTX *state,			\
 			    PCBYTE buffer,				\
 			    size_t size)
 #define HASH_DATA(hashState, dInSize, dIn)				\
-    ((hashState)->def->method.data)(&(hashState)->state, dIn, dInSize)
+    switch((hashState)->hashAlg) { \
+        case TPM_ALG_SHA1:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha1, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA256:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha256, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA384:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha384, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA512:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha512, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA3_256:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha3_256, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA3_384:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha3_384, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHA3_512:  \
+            ((hashState)->def->method.data)((hashState)->state.Sha3_512, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHAKE128:  \
+            ((hashState)->def->method.data)((hashState)->state.Shake128, dIn, dInSize); \
+           break;\
+        case TPM_ALG_SHAKE256:  \
+            ((hashState)->def->method.data)((hashState)->state.Shake256, dIn, dInSize); \
+           break;\
+        default: \
+            printf("Process hash with unexpected hash alg: %d\n", (hashState)->hashAlg); \
+            break;\
+    }\
 /* Finalize the hash and get the digest */
 #define HASH_END_METHOD_DEF						\
-    void (HASH_END_METHOD)(BYTE *buffer, PANY_HASH_STATE state)
-#define HASH_END(hashState, buffer)					\
-    ((hashState)->def->method.end)(buffer, &(hashState)->state)
+    void (HASH_END_METHOD)(EVP_MD_CTX *state, BYTE *buffer, size_t len)
+#define HASH_END(hashState, buffer, dOutSize)					\
+    switch((hashState)->hashAlg) { \
+        case TPM_ALG_SHA1:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha1, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha1); \
+           break;\
+        case TPM_ALG_SHA256:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha256, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha256); \
+           break;\
+        case TPM_ALG_SHA384:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha384, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha384); \
+           break;\
+        case TPM_ALG_SHA512:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha512, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha512); \
+           break;\
+        case TPM_ALG_SHA3_256:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha3_256, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha3_256); \
+           break;\
+        case TPM_ALG_SHA3_384:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha3_384, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha3_384); \
+           break;\
+        case TPM_ALG_SHA3_512:  \
+           ((hashState)->def->method.end)((hashState)->state.Sha3_512, buffer, 0); \
+           EVP_MD_CTX_free((hashState)->state.Sha3_512); \
+           break;\
+        case TPM_ALG_SHAKE128:  \
+           ((hashState)->def->method.end)((hashState)->state.Shake128, buffer, dOutSize); \
+           EVP_MD_CTX_free((hashState)->state.Shake128); \
+           break;\
+        case TPM_ALG_SHAKE256:  \
+           ((hashState)->def->method.end)((hashState)->state.Shake256, buffer, dOutSize); \
+           EVP_MD_CTX_free((hashState)->state.Shake256); \
+           break;\
+        default: \
+            printf("Ended hash with unexpected hash alg: %d\n", (hashState)->hashAlg); \
+            break;\
+    }\
 /* Copy the hash context */
 /* NOTE: For import, export, and copy, memcpy() is used since there is no
  * reformatting necessary between the internal and external forms. */
@@ -126,8 +250,7 @@ typedef const BYTE    *PCBYTE;
     ((hashStateIn)->def->method.copy)(&(hashStateOut)->state,		\
 				      &(hashStateIn)->state,		\
 				      (hashStateIn)->def->contextSize)
-/* Copy (with reformatting when necessary) an internal hash structure to an
- * external blob */
+/* Copy (with reformatting when necessary) an internal hash structure to an external blob */
 #define  HASH_STATE_EXPORT_METHOD_DEF					\
     void (HASH_STATE_EXPORT_METHOD)(BYTE *to,				\
 				    PCANY_HASH_STATE from,		\
@@ -137,8 +260,7 @@ typedef const BYTE    *PCBYTE;
     (&(((BYTE *)(to))[offsetof(HASH_STATE, state)]),			\
      &(hashStateFrom)->state,						\
      (hashStateFrom)->def->contextSize)
-/* Copy from an external blob to an internal formate (with reformatting
- * when necessary */
+/* Copy from an external blob to an internal formate (with reformatting when necessary */
 #define  HASH_STATE_IMPORT_METHOD_DEF					\
     void (HASH_STATE_IMPORT_METHOD)(PANY_HASH_STATE to,			\
 				    const BYTE *from,			\
@@ -148,36 +270,86 @@ typedef const BYTE    *PCBYTE;
     (&(hashStateTo)->state,						\
      &(((const BYTE *)(from))[offsetof(HASH_STATE, state)]),		\
      (hashStateTo)->def->contextSize)
+
 /* Function aliases. The code in CryptHash.c uses the internal designation for
  * the functions. These need to be translated to the function names of the
  * library. */
 //      Internal Designation        External Designation
-#define tpmHashStart_SHA1           SHA1_Init   // external name of the initialization method
-#define tpmHashData_SHA1            SHA1_Update
-#define tpmHashEnd_SHA1             SHA1_Final
+#define tpmHashStart_SHA1           EVP_DigestInit_ex                 // external name of the initialization method
+#define tpmHashData_SHA1            EVP_DigestUpdate
+#define tpmHashEnd_SHA1             EVP_DigestFinal_ex
 #define tpmHashStateCopy_SHA1       memcpy
 #define tpmHashStateExport_SHA1     memcpy
 #define tpmHashStateImport_SHA1     memcpy
-#define tpmHashStart_SHA256         SHA256_Init
-#define tpmHashData_SHA256          SHA256_Update
-#define tpmHashEnd_SHA256           SHA256_Final
+
+#define tpmHashStart_SHA256         EVP_DigestInit_ex
+#define tpmHashData_SHA256          EVP_DigestUpdate
+#define tpmHashEnd_SHA256           EVP_DigestFinal_ex
 #define tpmHashStateCopy_SHA256     memcpy
 #define tpmHashStateExport_SHA256   memcpy
 #define tpmHashStateImport_SHA256   memcpy
-#define tpmHashStart_SHA384         SHA384_Init
-#define tpmHashData_SHA384          SHA384_Update
-#define tpmHashEnd_SHA384           SHA384_Final
+
+#define tpmHashStart_SHA384         EVP_DigestInit_ex
+#define tpmHashData_SHA384          EVP_DigestUpdate
+#define tpmHashEnd_SHA384           EVP_DigestFinal_ex
 #define tpmHashStateCopy_SHA384     memcpy
 #define tpmHashStateExport_SHA384   memcpy
 #define tpmHashStateImport_SHA384   memcpy
-#define tpmHashStart_SHA512         SHA512_Init
-#define tpmHashData_SHA512          SHA512_Update
-#define tpmHashEnd_SHA512           SHA512_Final
+
+#define tpmHashStart_SHA512         EVP_DigestInit_ex
+#define tpmHashData_SHA512          EVP_DigestUpdate
+#define tpmHashEnd_SHA512           EVP_DigestFinal_ex
 #define tpmHashStateCopy_SHA512     memcpy
 #define tpmHashStateExport_SHA512   memcpy
 #define tpmHashStateImport_SHA512   memcpy
+
+#define tpmHashStart_SHA3_256       EVP_DigestInit_ex
+#define tpmHashData_SHA3_256        EVP_DigestUpdate
+#define tpmHashEnd_SHA3_256         EVP_DigestFinal_ex
+#define tpmHashStateCopy_SHA3_256   memcpy
+#define tpmHashStateExport_SHA3_256 memcpy
+#define tpmHashStateImport_SHA3_256 memcpy
+
+#define tpmHashStart_SHA3_384       EVP_DigestInit_ex
+#define tpmHashData_SHA3_384        EVP_DigestUpdate
+#define tpmHashEnd_SHA3_384         EVP_DigestFinal_ex
+#define tpmHashStateCopy_SHA3_384   memcpy
+#define tpmHashStateExport_SHA3_384 memcpy
+#define tpmHashStateImport_SHA3_384 memcpy
+
+#define tpmHashStart_SHA3_512       EVP_DigestInit_ex
+#define tpmHashData_SHA3_512        EVP_DigestUpdate
+#define tpmHashEnd_SHA3_512         EVP_DigestFinal_ex
+#define tpmHashStateCopy_SHA3_512   memcpy
+#define tpmHashStateExport_SHA3_512 memcpy
+#define tpmHashStateImport_SHA3_512 memcpy
+
+#define tpmHashStart_SHAKE128       EVP_DigestInit_ex
+#define tpmHashData_SHAKE128        EVP_DigestUpdate
+#define tpmHashEnd_SHAKE128         EVP_DigestFinalXOF
+#define tpmHashStateCopy_SHAKE128   memcpy
+#define tpmHashStateExport_SHAKE128 memcpy
+#define tpmHashStateImport_SHAKE128 memcpy
+
+#define tpmHashStart_SHAKE256       EVP_DigestInit_ex
+#define tpmHashData_SHAKE256        EVP_DigestUpdate
+#define tpmHashEnd_SHAKE256         EVP_DigestFinalXOF
+#define tpmHashStateCopy_SHAKE256   memcpy
+#define tpmHashStateExport_SHAKE256 memcpy
+#define tpmHashStateImport_SHAKE256 memcpy
+
 #endif // _CRYPT_HASH_C_
-#define LibHashInit()
+#define LibHashInit() \
+    SHA1_Def.method.type     = EVP_sha1(); \
+    SHA256_Def.method.type   = EVP_sha256(); \
+    SHA384_Def.method.type   = EVP_sha384(); \
+    SHA512_Def.method.type   = EVP_sha512(); \
+    SHA3_256_Def.method.type = EVP_sha3_256(); \
+    SHA3_384_Def.method.type = EVP_sha3_384(); \
+    SHA3_512_Def.method.type = EVP_sha3_512(); \
+    SHAKE128_Def.method.type = EVP_shake128(); \
+    SHAKE256_Def.method.type = EVP_shake256();
+
 /* This definition would change if there were something to report */
 #define HashLibSimulationEnd()
 #endif // HASH_LIB == OSSL

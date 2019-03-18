@@ -188,7 +188,9 @@ void indcpa_keypair(unsigned char *pk,
   unsigned char nonce=0;
 
   DRBG_Generate(rand, buf, KYBER_SYMBYTES);
-  sha3_512(buf, buf, KYBER_SYMBYTES);
+  CryptHashBlock(TPM_ALG_SHA3_512,
+          KYBER_SYMBYTES, buf,
+          2*KYBER_SYMBYTES, buf);
 
   gen_a(a, publicseed, kyber_k);
 

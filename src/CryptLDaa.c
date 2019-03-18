@@ -674,14 +674,16 @@ CryptLDaaSignCommit(
         case 2: {
             size_t offset = (size_t) *in_offset;
             ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2,
-                    &ldaa_b_ntt.issuer_b_ntt_2, sign_state_sel, n_lines, offset);
+                    &ldaa_b_ntt.issuer_b_ntt_2, sign_state_sel,
+                    n_lines, offset, &gr.ldaa_r_commit_2);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C, n_lines);
             break;
                 }
         case 3: {
             size_t offset = (size_t) *in_offset;
             ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3,
-                    &ldaa_b_ntt.issuer_b_ntt_3, sign_state_sel, n_lines, offset);
+                    &ldaa_b_ntt.issuer_b_ntt_3, sign_state_sel,
+                    n_lines, offset, &gr.ldaa_r_commit_2);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C, n_lines);
             break;
                 }

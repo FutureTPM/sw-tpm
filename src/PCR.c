@@ -226,8 +226,9 @@ PCRGetAuthPolicy(
 	}
 }
 /* 8.7.3.7 PCRSimStart() */
-/* This function is used to initialize the policies when a TPM is manufactured. This function would
-   only be called in a manufacturing environment or in a TPM simulator. */
+/* This function is used to initialize the policies when a TPM is manufactured.
+ * This function would only be called in a manufacturing environment or in a
+ * TPM simulator. */
 void
 PCRSimStart(
 	    void
@@ -304,6 +305,21 @@ GetSavedPcrPointer(
 	    return gc.pcrSave.sm3_256[pcrIndex];
 	    break;
 #endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+	    return gc.pcrSave.sha3_256[pcrIndex];
+	    break;
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+	    return gc.pcrSave.sha3_384[pcrIndex];
+	    break;
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+	    return gc.pcrSave.sha3_512[pcrIndex];
+	    break;
+#endif
 	  default:
 	    break;
 	}
@@ -378,6 +394,21 @@ GetPcrPointer(
 #if ALG_SM3_256
 	  case TPM_ALG_SM3_256:
 	    pcr = s_pcrs[pcrNumber].sm3_256Pcr;
+	    break;
+#endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+	    pcr = s_pcrs[pcrNumber].sha3_256Pcr;
+	    break;
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+	    pcr = s_pcrs[pcrNumber].sha3_384Pcr;
+	    break;
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+	    pcr = s_pcrs[pcrNumber].sha3_512Pcr;
 	    break;
 #endif
 	  default:

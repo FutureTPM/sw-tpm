@@ -5,10 +5,6 @@
 #include "ldaa-params.h"
 #include "ldaa-permutation.h"
 
-typedef struct {
-    UINT32 coeffs[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
-} ldaa_integer_matrix_t;
-
 void ldaa_integer_matrix_sample_u(ldaa_integer_matrix_t *this);
 void ldaa_integer_matrix_add(ldaa_integer_matrix_t *this,
 		ldaa_integer_matrix_t *a,

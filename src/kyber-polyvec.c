@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "kyber-polyvec.h"
-#include "fips202.h"
 #include "kyber-cbd.h"
 #include "kyber-reduce.h"
 

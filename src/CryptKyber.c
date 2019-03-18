@@ -26,7 +26,6 @@
 #include "kyber-params.h"
 #include "kyber-indcpa.h"
 #include "kyber-verify.h"
-#include "fips202.h"
 
 BOOL CryptKyberInit(void) {
     return TRUE;
@@ -221,15 +220,16 @@ CryptKyberGenerateKey(
     params = generate_kyber_params(publicArea->parameters.kyberDetail.security);
 
     // Command Output
-    indcpa_keypair((unsigned char *)&publicArea->unique.kyber.t.buffer,
-            (unsigned char *)&sensitive->sensitive.kyber.t.buffer,
+    indcpa_keypair(publicArea->unique.kyber.t.buffer,
+            sensitive->sensitive.kyber.t.buffer,
             params.k, params.polyveccompressedbytes, params.eta, rand);
     for (size_t i = 0; i < params.indcpa_publickeybytes; i++) {
       sensitive->sensitive.kyber.t.buffer[i+params.indcpa_secretkeybytes] = publicArea->unique.kyber.t.buffer[i];
     }
-    sha3_256((unsigned char *)sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-2*KYBER_SYMBYTES,
-            publicArea->unique.kyber.t.buffer,
-            params.publickeybytes);
+
+    CryptHashBlock(TPM_ALG_SHA3_256,
+            params.publickeybytes, publicArea->unique.kyber.t.buffer,
+            KYBER_SYMBYTES, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-2*KYBER_SYMBYTES);
     /* Value z for pseudo-random output on reject */
     //CryptRandomGenerate(KYBER_SYMBYTES, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES);
     DRBG_Generate(rand,
@@ -271,25 +271,32 @@ CryptKyberEncapsulate(
     // Create secret data from RNG
     CryptRandomGenerate(KYBER_SYMBYTES, buf);
     /* Don't release system RNG output */
-    sha3_256(buf, buf, KYBER_SYMBYTES);
+    CryptHashBlock(TPM_ALG_SHA3_256,
+            KYBER_SYMBYTES, buf,
+            KYBER_SYMBYTES, buf);
 
     /* Multitarget countermeasure for coins + contributory KEM */
-    sha3_256(buf+KYBER_SYMBYTES,
-            (unsigned char *)&publicArea->unique.kyber.t.buffer,
-            params.publickeybytes);
-    sha3_512(kr, buf, 2*KYBER_SYMBYTES);
+    CryptHashBlock(TPM_ALG_SHA3_256,
+            params.publickeybytes, publicArea->unique.kyber.t.buffer,
+            KYBER_SYMBYTES, buf+KYBER_SYMBYTES);
+    CryptHashBlock(TPM_ALG_SHA3_512,
+            2*KYBER_SYMBYTES, buf,
+            2*KYBER_SYMBYTES, kr);
 
     /* coins are in kr+KYBER_SYMBYTES */
-    indcpa_enc((unsigned char *)&ct->t.buffer, buf,
-            (unsigned char *)&publicArea->unique.kyber.t.buffer,
+    indcpa_enc(ct->t.buffer, buf,
+            publicArea->unique.kyber.t.buffer,
             kr+KYBER_SYMBYTES, params.k,
             params.polyveccompressedbytes, params.eta);
 
     /* overwrite coins in kr with H(c) */
-    sha3_256(kr+KYBER_SYMBYTES, (unsigned char *)&ct->t.buffer,
-            params.ciphertextbytes);
+    CryptHashBlock(TPM_ALG_SHA3_256,
+            params.ciphertextbytes, ct->t.buffer,
+            KYBER_SYMBYTES, kr+KYBER_SYMBYTES);
     /* hash concatenation of pre-k and H(c) to k */
-    sha3_256((unsigned char *)&ss->t.buffer, kr, 2*KYBER_SYMBYTES);
+    CryptHashBlock(TPM_ALG_SHA3_256,
+            2*KYBER_SYMBYTES, kr,
+            KYBER_SYMBYTES, ss->t.buffer);
 
     ss->t.size = 32;
     ct->t.size = params.ciphertextbytes;
@@ -336,7 +343,9 @@ CryptKyberDecapsulate(
           /* Save hash by storing H(pk) in sk */
           buf[KYBER_SYMBYTES+i] = sensitive->sensitive.kyber.t.buffer[params.secretkeybytes-2*KYBER_SYMBYTES+i];
         }
-        sha3_512(kr, buf, 2*KYBER_SYMBYTES);
+        CryptHashBlock(TPM_ALG_SHA3_512,
+                2*KYBER_SYMBYTES, buf,
+                2*KYBER_SYMBYTES, kr);
 
         /* coins are in kr+KYBER_SYMBYTES */
         indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES, params.k,
@@ -345,13 +354,17 @@ CryptKyberDecapsulate(
         fail = kyber_verify(ct->t.buffer, cmp, params.ciphertextbytes);
 
         /* overwrite coins in kr with H(c)  */
-        sha3_256(kr+KYBER_SYMBYTES, ct->t.buffer, params.ciphertextbytes);
+        CryptHashBlock(TPM_ALG_SHA3_256,
+                params.ciphertextbytes, ct->t.buffer,
+                KYBER_SYMBYTES, kr+KYBER_SYMBYTES);
 
         /* Overwrite pre-k with z on re-encryption failure */
         kyber_cmov(kr, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);
 
         /* hash concatenation of pre-k and H(c) to k */
-        sha3_256(ss->t.buffer, kr, 2*KYBER_SYMBYTES);
+        CryptHashBlock(TPM_ALG_SHA3_256,
+                2*KYBER_SYMBYTES, kr,
+                KYBER_SYMBYTES, ss->t.buffer);
 
         ss->t.size = 32;
 

@@ -1,11 +1,8 @@
 #ifndef LDAA_POLYNOMIAL_H
 #define LDAA_POLYNOMIAL_H
 #include "BaseTypes.h"
+#include "TpmTypes.h"
 #include "ldaa-params.h"
-
-typedef struct {
-  UINT32 coeffs[LDAA_N];
-} ldaa_poly_t;
 
 void ldaa_poly_sample_z(ldaa_poly_t *this);
 void ldaa_poly_add(ldaa_poly_t *out, ldaa_poly_t *a, ldaa_poly_t *b);

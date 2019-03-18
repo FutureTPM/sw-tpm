@@ -504,6 +504,18 @@ ClearCpRpHashes(
     command->sm3_256CpHash.t.size = 0;
     command->sm3_256RpHash.t.size = 0;
 #endif
+#if ALG_SHA3_256
+    command->sha3_256CpHash.t.size = 0;
+    command->sha3_256RpHash.t.size = 0;
+#endif
+#if ALG_SHA3_384
+    command->sha3_384CpHash.t.size = 0;
+    command->sha3_384RpHash.t.size = 0;
+#endif
+#if ALG_SHA3_512
+    command->sha3_512CpHash.t.size = 0;
+    command->sha3_512RpHash.t.size = 0;
+#endif
 }
 /* 6.4.4.2 GetCpHashPointer() */
 /* Function to get a pointer to the cpHash of the command */
@@ -534,6 +546,18 @@ GetCpHashPointer(
 #if ALG_SM3_256
 	  case TPM_ALG_SM3_256:
 	    return (TPM2B_DIGEST *)&command->sm3_256CpHash;
+#endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+	    return (TPM2B_DIGEST *)&command->sha3_256CpHash;
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+	    return (TPM2B_DIGEST *)&command->sha3_384CpHash;
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+	    return (TPM2B_DIGEST *)&command->sha3_512CpHash;
 #endif
 	  default:
 	    break;
@@ -569,6 +593,18 @@ GetRpHashPointer(
 #if ALG_SM3_256
 	  case TPM_ALG_SM3_256:
 	    return (TPM2B_DIGEST *)&command->sm3_256RpHash;
+#endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+	    return (TPM2B_DIGEST *)&command->sha3_256RpHash;
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+	    return (TPM2B_DIGEST *)&command->sha3_384RpHash;
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+	    return (TPM2B_DIGEST *)&command->sha3_512RpHash;
 #endif
 	  default:
 	    break;

@@ -83,9 +83,9 @@
 #else
 #error  "RADIX_BITS must either be 32 or 64."
 #endif
-/*     Include the options for hashing If all the optional headers were always part of the
-       distribution then it would not be necessary to do the conditional testing before the
-       include. )-; */
+/*     Include the options for hashing If all the optional headers were always
+ *     part of the distribution then it would not be necessary to do the
+ *     conditional testing before the include. )-; */
 #if HASH_LIB == OSSL
 #  include "TpmToOsslHash.h"
 #elif HASH_LIB == LTC

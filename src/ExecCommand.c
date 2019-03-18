@@ -106,7 +106,7 @@ ExecuteCommand(
 {
     // Command local variables
     UINT32               commandSize;
-    COMMAND              command;
+    static COMMAND              command;
     // Response local variables
     UINT32               maxResponse = *responseSize;
     TPM_RC               result;            // return code for the command

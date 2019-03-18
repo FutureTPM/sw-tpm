@@ -342,6 +342,15 @@ typedef struct PCR_SAVE
 #if ALG_SHA512
     BYTE                sha512[NUM_STATIC_PCR][SHA512_DIGEST_SIZE];
 #endif
+#if ALG_SHA3_256
+    BYTE                sha3_256[NUM_STATIC_PCR][SHA3_256_DIGEST_SIZE];
+#endif
+#if ALG_SHA3_384
+    BYTE                sha3_384[NUM_STATIC_PCR][SHA3_384_DIGEST_SIZE];
+#endif
+#if ALG_SHA3_512
+    BYTE                sha3_512[NUM_STATIC_PCR][SHA3_512_DIGEST_SIZE];
+#endif
 #if ALG_SM3_256
     BYTE                sm3_256[NUM_STATIC_PCR][SM3_256_DIGEST_SIZE];
 #endif
@@ -961,6 +970,18 @@ typedef struct _COMMAND_
     TPM2B_SM3_256_DIGEST sm3_256CpHash;
     TPM2B_SM3_256_DIGEST sm3_256RpHash;
 #endif
+#if ALG_SHA3_256
+    TPM2B_SHA3_256_DIGEST sha3_256CpHash;
+    TPM2B_SHA3_256_DIGEST sha3_256RpHash;
+#endif
+#if ALG_SHA3_384
+    TPM2B_SHA3_384_DIGEST sha3_384CpHash;
+    TPM2B_SHA3_384_DIGEST sha3_384RpHash;
+#endif
+#if ALG_SHA3_512
+    TPM2B_SHA3_512_DIGEST sha3_512CpHash;
+    TPM2B_SHA3_512_DIGEST sha3_512RpHash;
+#endif
 } COMMAND;
 /* Global sting constants for consistency in KDF function calls. */
 extern const TPM2B      *PRIMARY_OBJECT_CREATION;
@@ -1086,6 +1107,18 @@ typedef struct
 #if ALG_SM3_256
     // SHA256 PCR
     BYTE    sm3_256Pcr[SM3_256_DIGEST_SIZE];
+#endif
+#if ALG_SHA3_256
+    // SHA3_256 PCR
+    BYTE    sha3_256Pcr[SHA3_256_DIGEST_SIZE];
+#endif
+#if ALG_SHA3_384
+    // SHA3_384 PCR
+    BYTE    sha3_384Pcr[SHA3_384_DIGEST_SIZE];
+#endif
+#if ALG_SHA3_512
+    // SHA3_512 PCR
+    BYTE    sha3_512Pcr[SHA3_512_DIGEST_SIZE];
 #endif
 } PCR;
 typedef struct

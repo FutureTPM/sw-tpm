@@ -165,7 +165,7 @@ CryptDilithiumSign(
     key_ = seedbuf + DILITHIUM_SEEDBYTES;
     mu = seedbuf + 2*DILITHIUM_SEEDBYTES;
     dilithium_unpack_sk(rho, key_, tr, &s1, &s2, &t0,
-            (unsigned char *)&key->sensitive.sensitive.dilithium.b.buffer, params.k,
+            key->sensitive.sensitive.dilithium.b.buffer, params.k,
             params.l, params.poleta_size_packed, params.polt0_size_packed,
             params.eta);
 
@@ -177,9 +177,9 @@ CryptDilithiumSign(
       sigOut->signature.dilithium.sig.b.buffer[params.crypto_bytes - DILITHIUM_CRHBYTES + i] = tr[i];
 
     /* Compute CRH(tr, msg) */
-    shake256(mu, DILITHIUM_CRHBYTES,
-            sigOut->signature.dilithium.sig.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
-            DILITHIUM_CRHBYTES + hIn->b.size);
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            DILITHIUM_CRHBYTES + hIn->b.size, sigOut->signature.dilithium.sig.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+            DILITHIUM_CRHBYTES, mu);
 
     /* Expand matrix and transform vectors */
     dilithium_expand_mat(mat, rho, params.k, params.l);
@@ -319,12 +319,12 @@ CryptDilithiumValidateSignature(
       for(i = 0; i < message_tmp.b.size; ++i)
         message_tmp.b.buffer[params.crypto_bytes + i] = sig->signature.dilithium.sig.b.buffer[params.crypto_bytes + i];
 
-    shake256(message_tmp.t.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
-            DILITHIUM_CRHBYTES,
-            key->publicArea.unique.dilithium.b.buffer, params.crypto_publickeybytes);
-    shake256(mu, DILITHIUM_CRHBYTES,
-            message_tmp.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
-            DILITHIUM_CRHBYTES + message_tmp.b.size);
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            params.crypto_publickeybytes, key->publicArea.unique.dilithium.b.buffer,
+            DILITHIUM_CRHBYTES, message_tmp.t.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES);
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            DILITHIUM_CRHBYTES + message_tmp.b.size, message_tmp.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
+            DILITHIUM_CRHBYTES, mu);
 
     /* Matrix-vector multiplication; compute Az - c2^dt1 */
     dilithium_expand_mat(mat, rho, params.k, params.l);
@@ -417,7 +417,9 @@ CryptDilithiumGenerateKey(
 
     /* Expand 32 bytes of randomness into rho, rhoprime and key */
     CryptRandomGenerate(DILITHIUM_SEEDBYTES, seedbuf);
-    shake256(seedbuf, 3*DILITHIUM_SEEDBYTES, seedbuf, DILITHIUM_SEEDBYTES);
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            DILITHIUM_SEEDBYTES, seedbuf,
+            3*DILITHIUM_SEEDBYTES, seedbuf);
     rho = seedbuf;
     rhoprime = rho + DILITHIUM_SEEDBYTES;
     key = rho + 2*DILITHIUM_SEEDBYTES;
@@ -447,14 +449,14 @@ CryptDilithiumGenerateKey(
     /* Extract t1 and write public key */
     dilithium_polyveck_freeze(&t, params.k);
     dilithium_polyveck_power2round(&t1, &t0, &t, params.k);
-    dilithium_pack_pk((unsigned char *)&publicArea->unique.dilithium.t.buffer,
+    dilithium_pack_pk(publicArea->unique.dilithium.t.buffer,
             rho, &t1, params.k, params.polt1_size_packed);
 
     /* Compute CRH(rho, t1) and write secret key */
-    shake256(tr, DILITHIUM_CRHBYTES,
-            (unsigned char *)&publicArea->unique.dilithium.t.buffer,
-            params.crypto_publickeybytes);
-    dilithium_pack_sk((unsigned char *)&sensitive->sensitive.dilithium.t.buffer,
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            params.crypto_publickeybytes, publicArea->unique.dilithium.t.buffer,
+            DILITHIUM_CRHBYTES, tr);
+    dilithium_pack_sk(sensitive->sensitive.dilithium.t.buffer,
             rho, key, tr, &s1, &s2, &t0,
             params.k, params.l, params.poleta_size_packed,
             params.polt0_size_packed, params.eta);

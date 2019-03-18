@@ -1,8 +1,8 @@
 #include "ldaa-integer-matrix.h"
-#include "Tpm.h"
 #include "ldaa-permutation.h"
 #include "ldaa-params.h"
 #include "ldaa-uniform-int.h"
+#include <stddef.h>
 
 void ldaa_integer_matrix_pext_permute(ldaa_integer_matrix_pext_t *this,
 		    ldaa_permutation_perm_t *p)

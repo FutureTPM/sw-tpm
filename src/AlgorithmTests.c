@@ -135,6 +135,31 @@ TestHash(
 	    testDigest = &c_SM3_256_digest.b;
 	    break;
 #endif
+//#if ALG_SHA3_256
+//	  case ALG_SHA3_256_VALUE:
+//	    testDigest = &c_SHA3_256_digest.b;
+//	    break;
+//#endif
+//#if ALG_SHA3_384
+//	  case ALG_SHA3_384_VALUE:
+//	    testDigest = &c_SHA3_384_digest.b;
+//	    break;
+//#endif
+//#if ALG_SHA3_512
+//	  case ALG_SHA3_512_VALUE:
+//	    testDigest = &c_SHA3_512_digest.b;
+//	    break;
+//#endif
+//#if ALG_SHAKE128
+//	  case ALG_SHAKE128_VALUE:
+//	    testDigest = &c_SHAKE128_digest.b;
+//	    break;
+//#endif
+//#if ALG_SHAKE256
+//	  case ALG_SHAKE256_VALUE:
+//	    testDigest = &c_SHAKE256_digest.b;
+//	    break;
+//#endif
 	  default:
 	    FAIL(FATAL_ERROR_INTERNAL);
 	}
@@ -863,12 +888,27 @@ TestAlgorithm(
 #if ALG_SHA256
 		  case ALG_SHA256_VALUE:
 #endif // TPM_ALG_SHA256
-#if ALG_SHA384
-		  case ALG_SHA384_VALUE:
-#endif // TPM_ALG_SHA384
-#if ALG_SHA512
-		  case ALG_SHA512_VALUE:
-#endif // TPM_ALG_SHA512
+//#if ALG_SHA384
+//		  case ALG_SHA384_VALUE:
+//#endif // TPM_ALG_SHA384
+//#if ALG_SHA512
+//		  case ALG_SHA512_VALUE:
+//#endif // TPM_ALG_SHA512
+//#if ALG_SHA3_256
+//          case ALG_SHA3_256_VALUE:
+//#endif
+//#if ALG_SHA3_384
+//          case ALG_SHA3_384_VALUE:
+//#endif
+//#if ALG_SHA3_512
+//          case ALG_SHA3_512_VALUE:
+//#endif
+//#if ALG_SHAKE128
+//          case ALG_SHAKE128_VALUE:
+//#endif
+//#if ALG_SHAKE256
+//          case ALG_SHAKE256_VALUE:
+//#endif
 		    // if SM3 is implemented its test is like any other hash, but there
 		    // aren't any test vectors yet.
 #if ALG_SM3_256

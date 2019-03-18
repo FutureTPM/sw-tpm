@@ -1,7 +1,7 @@
 #ifndef LDAA_POLYNOMIAL_MATRIX_H
 #define LDAA_POLYNOMIAL_MATRIX_H
 
-#include "BaseTypes.h"
+#include "TpmTypes.h"
 #include "ldaa-params.h"
 #include "ldaa-polynomial.h"
 #include <stddef.h>
@@ -62,10 +62,6 @@ void ldaa_poly_matrix_commit2_add(ldaa_poly_matrix_commit2_t *out,
 typedef struct {
   UINT32 coeffs[LDAA_K_COMM * 1];
 } ldaa_poly_matrix_R_commit_t;
-
-typedef struct {
-  ldaa_poly_t coeffs[LDAA_K_COMM * 1];
-} ldaa_poly_matrix_R_t;
 
 void ldaa_poly_matrix_R_add(ldaa_poly_matrix_R_t *out,
 		    ldaa_poly_matrix_R_t *a,

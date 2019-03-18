@@ -1,8 +1,11 @@
 #ifndef LDAA_POLYNOMIAL_MATRIX_NTT_H
 #define LDAA_POLYNOMIAL_MATRIX_NTT_H
 #include "BaseTypes.h"
+#include "TpmTypes.h"
 #include "ldaa-params.h"
 #include "ldaa-polynomial-ntt.h"
+#include "ldaa-polynomial-matrix.h"
+#include <stddef.h>
 
 typedef struct {
   ldaa_poly_ntt_t coeffs[LDAA_M];

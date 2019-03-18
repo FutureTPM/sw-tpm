@@ -1,8 +1,8 @@
 #ifndef LDAA_POLYNOMIAL_MATRIX_MIX_H
 #define LDAA_POLYNOMIAL_MATRIX_MIX_H
-
-#include "Tpm.h"
+#include <stddef.h>
 #include "ldaa-params.h"
+#include "TpmTypes.h"
 #include "ldaa-polynomial-matrix.h"
 #include "ldaa-polynomial-matrix-ntt.h"
 

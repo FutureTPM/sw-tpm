@@ -492,6 +492,31 @@ TPMU_HA_Marshal(TPMU_HA *source, BYTE **buffer, UINT32 *size, UINT32 selector)
 	written += Array_Marshal(&source->sm3_256[0], SM3_256_DIGEST_SIZE, buffer, size);
 	break;
 #endif
+#if ALG_SHA3_256
+      case TPM_ALG_SHA3_256:
+	written += Array_Marshal(&source->sha3_256[0], SHA3_256_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHA3_384
+      case TPM_ALG_SHA3_384:
+	written += Array_Marshal(&source->sha3_384[0], SHA3_384_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHA3_512
+      case TPM_ALG_SHA3_512:
+	written += Array_Marshal(&source->sha3_512[0], SHA3_512_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHAKE128
+      case TPM_ALG_SHAKE128:
+	written += Array_Marshal(&source->shake128[0], SHAKE128_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHAKE256
+      case TPM_ALG_SHAKE256:
+	written += Array_Marshal(&source->shake256[0], SHAKE256_DIGEST_SIZE, buffer, size);
+	break;
+#endif
       case TPM_ALG_NULL:
 	break;
       default:

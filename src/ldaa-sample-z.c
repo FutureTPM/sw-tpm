@@ -1,6 +1,8 @@
 #include "ldaa-params.h"
 #include "ldaa-sample-z.h"
 #include "ldaa-sample.h"
+#include "BaseTypes.h"
+#include "Implementation.h"
 #include <math.h>
 
 static double ldaa_rho(double x, double c, double s)

@@ -909,6 +909,21 @@ typedef union {
 #if 	ALG_SM3_256
     BYTE                    sm3_256[SM3_256_DIGEST_SIZE];
 #endif   // ALG_SM3_256
+#if 	ALG_SHA3_256
+    BYTE                    sha3_256[SHA3_256_DIGEST_SIZE];
+#endif   // ALG_SHA3_256
+#if 	ALG_SHA3_384
+    BYTE                    sha3_384[SHA3_384_DIGEST_SIZE];
+#endif   // ALG_SHA3_384
+#if 	ALG_SHA3_512
+    BYTE                    sha3_512[SHA3_512_DIGEST_SIZE];
+#endif   // ALG_SHA3_512
+#if 	ALG_SHAKE128
+    BYTE                    shake128[SHAKE128_DIGEST_SIZE];
+#endif   // ALG_SHAKE128
+#if 	ALG_SHAKE256
+    BYTE                    shake256[SHAKE256_DIGEST_SIZE];
+#endif   // ALG_SHAKE256
 } TPMU_HA;
 /* Table 2:72 - Definition of TPMT_HA Structure  */
 typedef struct {
@@ -1012,9 +1027,6 @@ typedef struct {
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 #include "ldaa-params.h"
-#include "ldaa-permutation.h"
-#include "ldaa-integer-matrix.h"
-#include "ldaa-polynomial-matrix.h"
 #define MAX_LDAA_PUBLIC_KEY_SIZE   (LDAA_PUBLIC_KEY_LENGTH * 4UL)
 #define MAX_LDAA_SECRET_KEY_SIZE   (LDAA_SECRET_KEY_LENGTH * 4UL)
 #define MAX_LDAA_ISSUER_BNTT_SIZE  (900 * LDAA_K_COMM * LDAA_N * 4UL) // Largest case
@@ -1070,6 +1082,14 @@ typedef union {
 typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_MESSAGE;
 typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_BASENAME;
 
+typedef struct {
+    UINT32 coeffs[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
+} ldaa_integer_matrix_t;
+
+typedef struct {
+    UINT32 v[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
+} ldaa_permutation_t;
+
 typedef struct res_1_t {
     ldaa_integer_matrix_t phi_x[LDAA_M*LDAA_LOG_BETA];
     ldaa_integer_matrix_t varphi_e[LDAA_LOG_BETA];
@@ -1096,6 +1116,14 @@ typedef union {
     LDAA_SIGN_GROUP_2 res_2;
     LDAA_SIGN_GROUP_3 res_3;
 } TPMU_LDAA_SIGN_GROUP;
+
+typedef struct {
+  UINT32 coeffs[LDAA_N];
+} ldaa_poly_t;
+
+typedef struct {
+  ldaa_poly_t coeffs[LDAA_K_COMM * 1];
+} ldaa_poly_matrix_R_t;
 
 typedef union {
     struct {

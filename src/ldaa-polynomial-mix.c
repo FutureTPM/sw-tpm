@@ -1,4 +1,5 @@
 #include "ldaa-polynomial-mix.h"
+#include <stddef.h>
 
 void ldaa_poly_mul_ntt_1(ldaa_poly_t *this,
         ldaa_poly_ntt_t *a,

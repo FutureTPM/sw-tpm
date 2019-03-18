@@ -1,4 +1,3 @@
-#include "Tpm.h"
 #include "ldaa-polynomial-matrix-ntt.h"
 #include "ldaa-polynomial-matrix.h"
 #include "ldaa-polynomial-ntt.h"

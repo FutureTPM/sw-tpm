@@ -1075,13 +1075,28 @@ TPMI_ALG_HASH_Unmarshal(TPMI_ALG_HASH *target, BYTE **buffer, UINT32 *size, BOOL
 	  case TPM_ALG_SHA256:
 #endif
 #if ALG_SHA384
-	  case 	TPM_ALG_SHA384:
+	  case TPM_ALG_SHA384:
 #endif
 #if ALG_SHA512
-	  case 	TPM_ALG_SHA512:
+	  case TPM_ALG_SHA512:
 #endif
 #if ALG_SM3_256
 	  case TPM_ALG_SM3_256:
+#endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+#endif
+#if ALG_SHAKE128
+	  case TPM_ALG_SHAKE128:
+#endif
+#if ALG_SHAKE256
+	  case TPM_ALG_SHAKE256:
 #endif
 	    break;
 	  case TPM_ALG_NULL:
@@ -1368,13 +1383,28 @@ TPMI_ALG_MAC_SCHEME_Unmarshal(TPMI_ALG_MAC_SCHEME *target, BYTE **buffer, UINT32
 	  case TPM_ALG_SHA256:
 #endif
 #if ALG_SHA384
-	  case 	TPM_ALG_SHA384:
+	  case TPM_ALG_SHA384:
 #endif
 #if ALG_SHA512
-	  case 	TPM_ALG_SHA512:
+	  case TPM_ALG_SHA512:
 #endif
 #if ALG_SM3_256
 	  case TPM_ALG_SM3_256:
+#endif
+#if ALG_SHA3_256
+	  case TPM_ALG_SHA3_256:
+#endif
+#if ALG_SHA3_384
+	  case TPM_ALG_SHA3_384:
+#endif
+#if ALG_SHA3_512
+	  case TPM_ALG_SHA3_512:
+#endif
+#if ALG_SHAKE128
+	  case TPM_ALG_SHAKE128:
+#endif
+#if ALG_SHAKE256
+	  case TPM_ALG_SHAKE256:
 #endif
 #if ALG_CMAC
 	  case TPM_ALG_CMAC:
@@ -1473,6 +1503,31 @@ TPMU_HA_Unmarshal(TPMU_HA *target, BYTE **buffer, UINT32 *size, UINT32 selector)
 #if ALG_SM3_256
       case TPM_ALG_SM3_256:
 	rc = Array_Unmarshal(target->sm3_256, SM3_256_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHA3_256
+      case TPM_ALG_SHA3_256:
+	rc = Array_Unmarshal(target->sha3_256, SHA3_256_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHA3_384
+      case TPM_ALG_SHA3_384:
+	rc = Array_Unmarshal(target->sha3_384, SHA3_384_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHA3_512
+      case TPM_ALG_SHA3_512:
+	rc = Array_Unmarshal(target->sha3_512, SHA3_512_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHAKE128
+      case TPM_ALG_SHAKE128:
+	rc = Array_Unmarshal(target->shake128, SHAKE128_DIGEST_SIZE, buffer, size);
+	break;
+#endif
+#if ALG_SHAKE256
+      case TPM_ALG_SHAKE256:
+	rc = Array_Unmarshal(target->shake256, SHAKE256_DIGEST_SIZE, buffer, size);
 	break;
 #endif
       case TPM_ALG_NULL:

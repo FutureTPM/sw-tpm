@@ -126,6 +126,31 @@ TPM2B_SHA512    c_SHA512_digest = {{64, {
 	    0x24,0x2c,0xcc,0xed,0xdb,0xde,0xba,0x1f,0x14,0x14,0x5a,0x95,0x80,0xde,0x66,0xbd
 	}}};
 #endif
+//#if ALG_SHA3_256 == YES
+//TPM2B_TYPE(SHA3_256, 32);
+//TPM2B_SHA3_256    c_SHA3_256_digest = {{32, {
+//	}}};
+//#endif
+//#if ALG_SHA3_384 == YES
+//TPM2B_TYPE(SHA384, 48);
+//TPM2B_SHA3_384    c_SHA3_384_digest = {{48, {
+//	}}};
+//#endif
+//#if ALG_SHA3_512 == YES
+//TPM2B_TYPE(SHA3_512, 64);
+//TPM2B_SHA3_512    c_SHA3_512_digest = {{64, {
+//	}}};
+//#endif
+//#if ALG_SHAKE128 == YES
+//TPM2B_TYPE(SHAKE128, 168);
+//TPM2B_SHAKE128    c_SHAKE128_digest = {{168, {
+//	}}};
+//#endif
+//#if ALG_SHAKE256 == YES
+//TPM2B_TYPE(SHAKE256, 136);
+//TPM2B_SHAKE256    c_SHAKE256_digest = {{136, {
+//	}}};
+//#endif
 
 
 #endif
