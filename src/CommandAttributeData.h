@@ -444,12 +444,6 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_KYBER_Dec)
     TPMA_CC_INITIALIZER(0x019B, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
-#if (PAD_LIST  || CC_KYBER_2Phase_KEX)
-    TPMA_CC_INITIALIZER(0x019C, 0, 0, 0, 0, 2, 0, 0, 0),
-#endif
-#if (PAD_LIST  || CC_KYBER_3Phase_KEX)
-    TPMA_CC_INITIALIZER(0x019D, 0, 0, 0, 0, 2, 0, 0, 0),
-#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
@@ -998,14 +992,6 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #if (PAD_LIST  || CC_KYBER_Dec)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x019B
 			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
-#endif
-#if (PAD_LIST  || CC_KYBER_2Phase_KEX)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_2Phase_KEX            *  // 0x019C
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
-#endif
-#if (PAD_LIST  || CC_KYBER_3Phase_KEX)
-    (COMMAND_ATTRIBUTES)(CC_KYBER_3Phase_KEX            *  // 0x019D
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */

@@ -4260,82 +4260,6 @@ Kyber_Decrypt_COMMAND_DESCRIPTOR_t _Kyber_DecryptData = {
 #else
 #define _KYBER_DecryptDataAddress 0
 #endif
-
-#if CC_KYBER_2Phase_KEX
-#include "Kyber_2Phase_KEX_fp.h"
-typedef TPM_RC  (Kyber_2Phase_KEX_Entry)(
-				    Kyber_2Phase_KEX_In  *in,
-				    Kyber_2Phase_KEX_Out *out
-				    );
-typedef const struct {
-    Kyber_2Phase_KEX_Entry  *entry;
-    UINT32                  inSize;
-    UINT32                  outSize;
-    UINT32                  offsetOfTypes;
-    UINT32                  paramOffsets[5];
-    BYTE                    types[9];
-} Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t;
-Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_2Phase_KEXData = {
-    /* entry  */          &TPM2_Kyber_2Phase_KEX,
-    /* inSize */          (UINT32)(sizeof(Kyber_2Phase_KEX_In)),
-    /* outSize */         (UINT32)(sizeof(Kyber_2Phase_KEX_Out)),
-    /* offsetOfTypes */   offsetof(Kyber_2Phase_KEX_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(Kyber_2Phase_KEX_In, ephemeral_key)),
-                           (UINT32)(offsetof(Kyber_2Phase_KEX_In, alice_static_key)),
-                           (UINT32)(offsetof(Kyber_2Phase_KEX_In, cipher_text_static)),
-                           (UINT32)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_1)),
-                           (UINT32)(offsetof(Kyber_2Phase_KEX_Out, cipher_text_2))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
-                           END_OF_LIST,
-                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
-                           END_OF_LIST}
-};
-#define _KYBER_2Phase_KEXDataAddress (&_Kyber_2Phase_KEXData)
-#else
-#define _KYBER_2Phase_KEXDataAddress 0
-#endif
-
-#if CC_KYBER_3Phase_KEX
-#include "Kyber_3Phase_KEX_fp.h"
-typedef TPM_RC  (Kyber_3Phase_KEX_Entry)(
-				    Kyber_3Phase_KEX_In  *in,
-				    Kyber_3Phase_KEX_Out *out
-				    );
-typedef const struct {
-    Kyber_3Phase_KEX_Entry *entry;
-    UINT32                 inSize;
-    UINT32                 outSize;
-    UINT32                 offsetOfTypes;
-    UINT32                 paramOffsets[4];
-    BYTE                   types[8];
-} Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t;
-Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t _Kyber_3Phase_KEXData = {
-    /* entry  */          &TPM2_Kyber_3Phase_KEX,
-    /* inSize */          (UINT32)(sizeof(Kyber_3Phase_KEX_In)),
-    /* outSize */         (UINT32)(sizeof(Kyber_3Phase_KEX_Out)),
-    /* offsetOfTypes */   offsetof(Kyber_3Phase_KEX_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(Kyber_3Phase_KEX_In, ephemeral_key)),
-                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, cipher_text_1)),
-                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, cipher_text_2)),
-                           (UINT32)(offsetof(Kyber_3Phase_KEX_In, shared_key_3))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
-                           TPM2B_KYBER_SHARED_KEY_P_UNMARSHAL,
-                           END_OF_LIST,
-                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
-                           END_OF_LIST}
-};
-#define _KYBER_3Phase_KEXDataAddress (&_Kyber_3Phase_KEXData)
-#else
-#define _KYBER_3Phase_KEXDataAddress 0
-#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
@@ -5106,12 +5030,6 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_2Phase_KEX)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_2Phase_KEXDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_3Phase_KEX)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_3Phase_KEXDataAddress,
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
