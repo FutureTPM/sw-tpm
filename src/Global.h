@@ -859,7 +859,7 @@ typedef struct state_reset_data
     // TPM2_LDAA_CommitTokenLink. After the token link has been processed
     // successfully the counter is incremented once again.
     //
-    // 3 - 698 => Sign Proceed Commit Processing activated. In this state the
+    // 3 - 26 => Sign Proceed Commit Processing activated. In this state the
     // user is allowed to call the TPM2_LDAA_SignCommit function iteratively
     // to process the necessary commits for the attestation. The order in which
     // the commits are processed is up to the user, and it's their
@@ -867,9 +867,9 @@ typedef struct state_reset_data
     // no logic to impede the user from processing the same commit over and
     // over. In this state, the TPM relies on the user to be guided through
     // the commit processing. At the end of the commit processing the state
-    // counter should be at 696.
+    // counter should be at 27.
     //
-    // 699 - 706 => Sign Proceed: Generate Signature Based Proof. The final stage
+    // 27 - 34 => Sign Proceed: Generate Signature Based Proof. The final stage
     // of the TPM LDAA protocol can be executed by calling the final command:
     // TPM2_LDAA_SignProof. This command also features an incremental
     // interface, thus the conditions from the SignCommit command also apply to
@@ -887,10 +887,6 @@ typedef struct state_reset_data
     // needs to be processed or was already processed in a prior call to the
     // command.
     UINT32              ldaa_commit_sign_state;
-    // Check if secret randomness for commit 2 and 3 has already been processed
-    // for the given sign state
-    UINT8               ldaa_r_commit_2;
-    UINT8               ldaa_r_commit_3;
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;

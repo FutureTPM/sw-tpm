@@ -2,6 +2,7 @@
 #include "ldaa-polynomial.h"
 #include "ldaa-polynomial-ntt.h"
 #include "ldaa-sample-z.h"
+#include "ldaa-uniform-int.h"
 #include <stddef.h>
 #include "Memory_fp.h"
 
@@ -354,7 +355,7 @@ void ldaa_poly_sample_z(ldaa_poly_t *this)
     size_t i;
 
     for (i = 0; i < LDAA_N; i++) {
-        INT32 x = ldaa_sample_z(0, LDAA_S);
+        INT32 x = ldaa_sample_z(0, LDAA_S, NULL);
         this->coeffs[i] = (x < 0 ? LDAA_Q : 0) + x;
     }
 }
@@ -368,6 +369,15 @@ void ldaa_poly_add(ldaa_poly_t *out, ldaa_poly_t *a, ldaa_poly_t *b)
         if (out->coeffs[i] >= LDAA_Q) {
             out->coeffs[i] -= LDAA_Q;
         }
+    }
+}
+
+void ldaa_poly_sample_u(ldaa_poly_t *out, DRBG_STATE *state)
+{
+    size_t i;
+
+    for (i = 0; i < LDAA_N; i++) {
+        out->coeffs[i] = ldaa_uniform_int_sample(0, LDAA_Q, state);
     }
 }
 

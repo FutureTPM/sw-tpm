@@ -14,7 +14,7 @@ void ldaa_permutation_sample_u(ldaa_permutation_t *this)
   }
 
   for (i = 0; i < n-1; i++) {
-    size_t j = floor(i + (n - i) * ldaa_sample());
+    size_t j = floor(i + (n - i) * ldaa_sample(NULL));
     UINT32 tmp = this->v[i];
     this->v[i] = this->v[j];
     this->v[j] = tmp;
@@ -31,7 +31,7 @@ void ldaa_permutation_perm_sample_u(ldaa_permutation_perm_t *this)
   }
 
   for (i = 0; i < n-1; i++) {
-    size_t j = floor(i + (n - i) * ldaa_sample());
+    size_t j = floor(i + (n - i) * ldaa_sample(NULL));
     UINT32 tmp = this->v[i];
     this->v[i] = this->v[j];
     this->v[j] = tmp;

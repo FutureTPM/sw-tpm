@@ -1179,10 +1179,10 @@ typedef UINT32                              TPM_CC;
 #define TPM_CC_KYBER_Dec                    (TPM_CC)(0x0000019B)
 #endif
 #if         CC_KYBER_Encrypt
-#define TPM_CC_KYBER_Encrypt                (TPM_CC)(0x000001A5)
+#define TPM_CC_KYBER_Encrypt                (TPM_CC)(0x000001A3)
 #endif
 #if         CC_KYBER_Decrypt
-#define TPM_CC_KYBER_Decrypt                (TPM_CC)(0x000001A6)
+#define TPM_CC_KYBER_Decrypt                (TPM_CC)(0x000001A4)
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
@@ -1192,25 +1192,25 @@ typedef UINT32                              TPM_CC;
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 #if         CC_LDAA_Join
-#define TPM_CC_LDAA_Join                    (TPM_CC)(0x0000019E)
+#define TPM_CC_LDAA_Join                    (TPM_CC)(0x0000019C)
 #endif
 #if         CC_LDAA_SignCommit1
-#define TPM_CC_LDAA_SignCommit1             (TPM_CC)(0x0000019F)
+#define TPM_CC_LDAA_SignCommit1             (TPM_CC)(0x0000019D)
 #endif
 #if         CC_LDAA_CommitTokenLink
-#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x000001A0)
+#define TPM_CC_LDAA_CommitTokenLink         (TPM_CC)(0x0000019E)
 #endif
 #if         CC_LDAA_SignProof
-#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x000001A1)
+#define TPM_CC_LDAA_SignProof               (TPM_CC)(0x0000019F)
 #endif
 #if         CC_LDAA_SignProceed
-#define TPM_CC_LDAA_SignProceed             (TPM_CC)(0x000001A2)
+#define TPM_CC_LDAA_SignProceed             (TPM_CC)(0x000001A0)
 #endif
 #if         CC_LDAA_SignCommit2
-#define TPM_CC_LDAA_SignCommit2             (TPM_CC)(0x000001A3)
+#define TPM_CC_LDAA_SignCommit2             (TPM_CC)(0x000001A1)
 #endif
 #if         CC_LDAA_SignCommit3
-#define TPM_CC_LDAA_SignCommit3             (TPM_CC)(0x000001A4)
+#define TPM_CC_LDAA_SignCommit3             (TPM_CC)(0x000001A2)
 #endif
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
@@ -1244,7 +1244,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x000001A6
+#define TPM_CC_LAST                         0x000001A4
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else

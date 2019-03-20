@@ -1,4 +1,4 @@
-#include "BaseTypes.h"
+#include "Tpm.h"
 #include "ldaa-params.h"
 #include "ldaa-commitment-scheme.h"
 #include "ldaa-polynomial-matrix.h"
@@ -6,13 +6,12 @@
 #include "ldaa-polynomial-matrix-mix.h"
 #include "ldaa-uniform-int.h"
 
-static void compute_commitment_1(ldaa_poly_matrix_ntt_B_t *B,
-		   ldaa_poly_matrix_R_commit_t *R,
+static void compute_commitment_1(ldaa_poly_matrix_R_commit_t *R,
 		   ldaa_poly_matrix_comm1_t *S,
-           ldaa_commitment1_t *commited)
+           ldaa_commitment1_t *commited, size_t seed)
 {
     ldaa_poly_matrix_commit1_t prod;
-    ldaa_poly_matrix_commit1_product_ntt_1(&prod, B, R);
+    ldaa_poly_matrix_commit1_product_ntt_1(&prod, R, seed);
 
     ldaa_poly_matrix_commit1_t S2;
     // Append S rows to S2
@@ -42,29 +41,28 @@ static void compute_commitment_1(ldaa_poly_matrix_ntt_B_t *B,
 }
 
 void ldaa_commit_scheme_commit_1(ldaa_poly_matrix_comm1_t *S,
-        ldaa_commitment1_t *commited, ldaa_poly_matrix_ntt_B_t *BNTT)
+        ldaa_commitment1_t *commited, size_t seed)
 {
     ldaa_poly_matrix_R_commit_t R;
     size_t i;
 
     for (i = 0; i < LDAA_K_COMM; i++) {
-        R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2);
+        R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2, NULL);
     }
 
-    compute_commitment_1(BNTT, &R, S, commited);
+    compute_commitment_1(&R, S, commited, seed);
 }
 
-static void compute_commitment_2(ldaa_poly_matrix_ntt_B2_t *B,
-		   ldaa_poly_matrix_R_commit_t *R,
+static void compute_commitment_2(ldaa_poly_matrix_R_commit_t *R,
 		   ldaa_poly_matrix_comm2_t *S,
-           ldaa_commitment2_t *commited, size_t n_lines)
+           ldaa_commitment2_t *commited, size_t seed)
 {
     static ldaa_poly_matrix_commit2_t prod;
-    ldaa_poly_matrix_commit2_product_ntt_1(&prod, B, R, n_lines);
+    ldaa_poly_matrix_commit2_product_ntt_1(&prod, R, seed);
 
     static ldaa_poly_matrix_commit2_t S2;
     // Append S rows to S2
-    for (size_t i = 0; i < n_lines; i++) {
+    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         if (i == 0) {
             for (size_t j = 0; j < LDAA_N; j++) {
                 S2.coeffs[i].coeffs[j] = 0;
@@ -75,10 +73,10 @@ static void compute_commitment_2(ldaa_poly_matrix_ntt_B2_t *B,
             }
         }
     }
-    ldaa_poly_matrix_commit2_add(&S2, &S2, &prod, n_lines);
+    ldaa_poly_matrix_commit2_add(&S2, &S2, &prod);
 
     // Copy results to output struct
-    for (size_t i = 0; i < n_lines; i++) {
+    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         for (size_t j = 0; j < LDAA_N; j++) {
             commited->C.coeffs[i].coeffs[j] = S2.coeffs[i].coeffs[j];
         }
@@ -90,23 +88,15 @@ static void compute_commitment_2(ldaa_poly_matrix_ntt_B2_t *B,
 }
 
 void ldaa_commit_scheme_commit_2(ldaa_poly_matrix_comm2_t *S,
-        ldaa_commitment2_t *commited, ldaa_poly_matrix_ntt_B2_t *BNTT,
-        ldaa_poly_matrix_R_t *already_processed_R,
-        BOOL r_already_processed, size_t n_lines)
+        ldaa_commitment2_t *commited, size_t seed)
 {
     ldaa_poly_matrix_R_commit_t R;
     size_t i;
 
-    if (!r_already_processed) {
-        for (i = 0; i < LDAA_K_COMM; i++) {
-            //R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2);
-            R.coeffs[i] = 1;
-        }
-    } else {
-        for (i = 0; i < LDAA_K_COMM; i++) {
-            R.coeffs[i] = already_processed_R->coeffs[i].coeffs[0];
-        }
+    for (i = 0; i < LDAA_K_COMM; i++) {
+        R.coeffs[i] = ldaa_uniform_int_sample(0, LDAA_ALPHA2, NULL);
+        //R.coeffs[i] = 1;
     }
 
-    compute_commitment_2(BNTT, &R, S, commited, n_lines);
+    compute_commitment_2(&R, S, commited, seed);
 }

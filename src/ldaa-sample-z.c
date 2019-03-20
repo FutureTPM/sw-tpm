@@ -12,7 +12,7 @@ static double ldaa_rho(double x, double c, double s)
   return exp(-pi * sqdist / (s*s));
 }
 
-INT32 ldaa_sample_z(double c, double s)
+INT32 ldaa_sample_z(double c, double s, DRBG_STATE *state)
 {
   double a = ceil(c - s * 8);
   double b = floor(c + s * 8);
@@ -20,9 +20,9 @@ INT32 ldaa_sample_z(double c, double s)
   int32_t x;
 
   do {
-    double myRand = ldaa_sample();
+    double myRand = ldaa_sample(state);
     x = floor(a + (b-a) * myRand);
-    double exitRand = ldaa_sample();
+    double exitRand = ldaa_sample(state);
     if (exitRand < ldaa_rho(x, c, s))
       end = TRUE;
   } while(!end);

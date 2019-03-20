@@ -451,8 +451,6 @@ CryptStartup(
 	    gr.ldaa_commitCounter = 0;
 	    gr.ldaa_sid = 0;
 	    gr.ldaa_commit_sign_state = 0;
-        gr.ldaa_r_commit_2 = 0;
-        gr.ldaa_r_commit_3 = 0;
 	    MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
 	    MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
 	}

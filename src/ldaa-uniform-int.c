@@ -2,11 +2,11 @@
 #include "ldaa-sample.h"
 #include <math.h>
 
-INT32 ldaa_uniform_int_sample(INT32 a, INT32 b)
+INT32 ldaa_uniform_int_sample(INT32 a, INT32 b, DRBG_STATE *state)
 {
   double myRand = 1.0;
 
-  myRand = ldaa_sample();
+  myRand = ldaa_sample(state);
 
   myRand = a + (b-a) * myRand;
 

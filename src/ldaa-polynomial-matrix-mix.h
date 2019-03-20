@@ -10,14 +10,12 @@ void ldaa_poly_matrix_commit1_prod_from_ntt(ldaa_poly_matrix_commit1_t *this,
 	 ldaa_poly_matrix_ntt_commit1_prod_t *a);
 
 void ldaa_poly_matrix_commit1_product_ntt_1(ldaa_poly_matrix_commit1_t *this,
-			  ldaa_poly_matrix_ntt_B_t *a,
-			  ldaa_poly_matrix_R_commit_t *ba);
+			  ldaa_poly_matrix_R_commit_t *ba, size_t seed);
 
 void ldaa_poly_matrix_commit2_prod_from_ntt(ldaa_poly_matrix_commit2_t *this,
-	 ldaa_poly_matrix_ntt_commit2_prod_t *a, size_t n_lines);
+	 ldaa_poly_matrix_ntt_commit2_prod_t *a);
 
 void ldaa_poly_matrix_commit2_product_ntt_1(ldaa_poly_matrix_commit2_t *this,
-			  ldaa_poly_matrix_ntt_B2_t *a,
-			  ldaa_poly_matrix_R_commit_t *ba, size_t n_lines);
+			  ldaa_poly_matrix_R_commit_t *ba, size_t seed);
 
 #endif

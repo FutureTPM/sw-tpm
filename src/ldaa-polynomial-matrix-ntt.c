@@ -4,17 +4,28 @@
 #include "ldaa-params.h"
 
 void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *this,
-		    ldaa_poly_matrix_ntt_B_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b)
+		    ldaa_poly_matrix_ntt_R_t *b, size_t seed)
 {
     size_t i, j, k, l;
     UINT32 prod;
+    TPM2B_SEED tpm2b_seed;
+    ldaa_poly_t a;
+    ldaa_poly_ntt_t a_ntt;
+    DRBG_STATE rand;
+
+    MemoryCopy(tpm2b_seed.b.buffer, &seed, sizeof(size_t));
+    tpm2b_seed.b.size = sizeof(size_t);
+    TPM2B_STRING(HOST_B_NTT_GENERATION, "Host B NTT Generation");
+    DRBG_InstantiateSeeded(&rand, &tpm2b_seed.b,
+            HOST_B_NTT_GENERATION, NULL, NULL);
 
     for (i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
         for (j = 0; j < 1; j++) {
             for (k = 0; k < LDAA_K_COMM; k++) {
+                ldaa_poly_sample_u(&a, &rand);
+                ldaa_poly_ntt_from_canonical(&a_ntt, &a);
                 for (l = 0; l < LDAA_N; l++) {
-                    prod = ldaa_reduce((UINT64)a->coeffs[i * LDAA_K_COMM + k].coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
+                    prod = ldaa_reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= LDAA_Q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= LDAA_Q;
@@ -26,18 +37,28 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
 }
 
 void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *this,
-		    ldaa_poly_matrix_ntt_B2_t *a,
-		    ldaa_poly_matrix_ntt_R_t *b,
-            size_t n_lines)
+		    ldaa_poly_matrix_ntt_R_t *b, size_t seed)
 {
     size_t i, j, k, l;
     UINT32 prod;
+    TPM2B_SEED tpm2b_seed;
+    ldaa_poly_t a;
+    ldaa_poly_ntt_t a_ntt;
+    DRBG_STATE rand;
 
-    for (i = 0; i < n_lines; i++) {
+    MemoryCopy(tpm2b_seed.b.buffer, &seed, sizeof(size_t));
+    tpm2b_seed.b.size = sizeof(size_t);
+    TPM2B_STRING(HOST_B_NTT_GENERATION, "Host B NTT Generation");
+    DRBG_InstantiateSeeded(&rand, &tpm2b_seed.b,
+            HOST_B_NTT_GENERATION, NULL, NULL);
+
+    for (i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
         for (j = 0; j < 1; j++) {
             for (k = 0; k < LDAA_K_COMM; k++) {
+                ldaa_poly_sample_u(&a, &rand);
+                ldaa_poly_ntt_from_canonical(&a_ntt, &a);
                 for (l = 0; l < LDAA_N; l++) {
-                    prod = ldaa_reduce((UINT64)a->coeffs[i * LDAA_K_COMM + k].coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
+                    prod = ldaa_reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= LDAA_Q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= LDAA_Q;

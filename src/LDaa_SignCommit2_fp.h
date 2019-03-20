@@ -29,22 +29,20 @@ typedef struct {
     UINT8                      sid;   // Session ID
     UINT8                      ssid;
     TPM2B_LDAA_BASENAME        bsn;
-    TPM2B_LDAA_ISSUER_BNTT     issuer_bntt;
     BYTE                       sign_state_sel;
     TPM2B_LDAA_PE              pe;
     TPM2B_LDAA_PBSN            pbsn;
-    BYTE                       offset;
+    UINT32                     seed;
 } LDAA_SignCommit2_In;
 
 #define RC_LDAA_SignCommit2_key_handle	   (TPM_RC_P + TPM_RC_1)
 #define RC_LDAA_SignCommit2_sid		       (TPM_RC_P + TPM_RC_2)
 #define RC_LDAA_SignCommit2_ssid		   (TPM_RC_P + TPM_RC_3)
 #define RC_LDAA_SignCommit2_bsn	           (TPM_RC_P + TPM_RC_4)
-#define RC_LDAA_SignCommit2_issuer_bntt	   (TPM_RC_P + TPM_RC_5)
-#define RC_LDAA_SignCommit2_sign_state_sel (TPM_RC_P + TPM_RC_6)
-#define RC_LDAA_SignCommit2_pe             (TPM_RC_P + TPM_RC_7)
-#define RC_LDAA_SignCommit2_pbsn           (TPM_RC_P + TPM_RC_8)
-#define RC_LDAA_SignCommit2_offset         (TPM_RC_P + TPM_RC_9)
+#define RC_LDAA_SignCommit2_sign_state_sel (TPM_RC_P + TPM_RC_5)
+#define RC_LDAA_SignCommit2_pe             (TPM_RC_P + TPM_RC_6)
+#define RC_LDAA_SignCommit2_pbsn           (TPM_RC_P + TPM_RC_7)
+#define RC_LDAA_SignCommit2_seed           (TPM_RC_P + TPM_RC_8)
 
 typedef struct {
     UINT8                   sid;   // Session ID

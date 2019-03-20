@@ -63,11 +63,10 @@ void ldaa_poly_matrix_comm2_set_v_entries(
 
 void ldaa_poly_matrix_commit2_add(ldaa_poly_matrix_commit2_t *out,
 		    ldaa_poly_matrix_commit2_t *a,
-		    ldaa_poly_matrix_commit2_t *b,
-            size_t n_lines)
+		    ldaa_poly_matrix_commit2_t *b)
 {
     size_t i;
-    for (i = 0; i < n_lines; i++) {
+    for (i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
             ldaa_poly_add(&out->coeffs[i], &a->coeffs[i], &b->coeffs[i]);
     }
 }

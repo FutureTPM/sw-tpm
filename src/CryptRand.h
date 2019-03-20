@@ -65,10 +65,11 @@
    Engine. */
 #ifndef _CRYPT_RAND_H
 #define _CRYPT_RAND_H
-/* DRBG Structures and Defines Values and structures for the random number generator. These values
-   are defined in this header file so that the size of the RNG state can be known to TPM.lib. This
-   allows the allocation of some space in NV memory for the state to be stored on an orderly
-   shutdown. The DRBG based on a symmetric block cipher is defined by three values, */
+/* DRBG Structures and Defines Values and structures for the random number
+ * generator. These values are defined in this header file so that the size of
+ * the RNG state can be known to TPM.lib. This allows the allocation of some
+ * space in NV memory for the state to be stored on an orderly shutdown. The
+ * DRBG based on a symmetric block cipher is defined by three values, */
 /* a) the key size */
 /* b) the block size (the IV size) */
 /* c) the symmetric algorithm */
@@ -156,16 +157,17 @@ typedef struct
     TPM2B_DIGEST         residual;
 } KDF_STATE, *pKDR_STATE;
 #define KDF_MAGIC    ((UINT32) 0x4048444a) // "KDF " backwards
-/* Make sure that any other structures added to this union start with a 64-bit counter and a 32-bit
-   magic number */
+/* Make sure that any other structures added to this union start with a 64-bit
+ * counter and a 32-bit magic number */
 typedef union
 {
     DRBG_STATE      drbg;
     KDF_STATE       kdf;
 } RAND_STATE;
-/* This is the state used when the library uses a random number generator. A special function is
-   installed for the library to call. That function picks up the state from this location and uses
-   it for the generation of the random number. */
+/* This is the state used when the library uses a random number generator. A
+ * special function is installed for the library to call. That function picks
+ * up the state from this location and uses it for the generation of the
+ * random number. */
 extern RAND_STATE           *s_random;
 /* When instrumenting RSA key sieve */
 #if  RSA_INSTRUMENT

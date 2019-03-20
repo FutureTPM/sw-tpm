@@ -4329,10 +4329,10 @@ LDAA_SignCommit1_COMMAND_DESCRIPTOR_t _LDAA_SignCommit1Data = {
                            (UINT32)(offsetof(LDAA_SignCommit1_In, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit1_In, bsn)),
                            (UINT32)(offsetof(LDAA_SignCommit1_In, issuer_at_ntt)),
-                           (UINT32)(offsetof(LDAA_SignCommit1_In, issuer_bntt)),
                            (UINT32)(offsetof(LDAA_SignCommit1_In, sign_state_sel)),
                            (UINT32)(offsetof(LDAA_SignCommit1_In, pe)),
                            (UINT32)(offsetof(LDAA_SignCommit1_In, pbsn)),
+                           (UINT32)(offsetof(LDAA_SignCommit1_In, seed)),
                            (UINT32)(offsetof(LDAA_SignCommit1_Out, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit1_Out, commit))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
@@ -4340,10 +4340,10 @@ LDAA_SignCommit1_COMMAND_DESCRIPTOR_t _LDAA_SignCommit1Data = {
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
                            TPM2B_LDAA_ISSUER_ATNTT_P_UNMARSHAL,
-                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_PE_P_UNMARSHAL,
                            TPM2B_LDAA_PBSN_P_UNMARSHAL,
+                           UINT32_P_UNMARSHAL,
                            END_OF_LIST,
                            UINT8_P_MARSHAL,
                            UINT8_P_MARSHAL,
@@ -4366,8 +4366,8 @@ typedef const struct {
     UINT32          inSize;
     UINT32          outSize;
     UINT32          offsetOfTypes;
-    UINT32          paramOffsets[10];
-    BYTE            types[14];
+    UINT32          paramOffsets[9];
+    BYTE            types[13];
 } LDAA_SignCommit2_COMMAND_DESCRIPTOR_t;
 LDAA_SignCommit2_COMMAND_DESCRIPTOR_t _LDAA_SignCommit2Data = {
     /* entry  */          &TPM2_LDAA_SignCommit2,
@@ -4377,22 +4377,20 @@ LDAA_SignCommit2_COMMAND_DESCRIPTOR_t _LDAA_SignCommit2Data = {
     /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit2_In, sid)),
                            (UINT32)(offsetof(LDAA_SignCommit2_In, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit2_In, bsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit2_In, issuer_bntt)),
                            (UINT32)(offsetof(LDAA_SignCommit2_In, sign_state_sel)),
                            (UINT32)(offsetof(LDAA_SignCommit2_In, pe)),
                            (UINT32)(offsetof(LDAA_SignCommit2_In, pbsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit2_In, offset)),
+                           (UINT32)(offsetof(LDAA_SignCommit2_In, seed)),
                            (UINT32)(offsetof(LDAA_SignCommit2_Out, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit2_Out, commit))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
-                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_PE_P_UNMARSHAL,
                            TPM2B_LDAA_PBSN_P_UNMARSHAL,
-                           UINT8_P_UNMARSHAL,
+                           UINT32_P_UNMARSHAL,
                            END_OF_LIST,
                            UINT8_P_MARSHAL,
                            UINT8_P_MARSHAL,
@@ -4415,8 +4413,8 @@ typedef const struct {
     UINT32          inSize;
     UINT32          outSize;
     UINT32          offsetOfTypes;
-    UINT32          paramOffsets[10];
-    BYTE            types[14];
+    UINT32          paramOffsets[9];
+    BYTE            types[13];
 } LDAA_SignCommit3_COMMAND_DESCRIPTOR_t;
 LDAA_SignCommit3_COMMAND_DESCRIPTOR_t _LDAA_SignCommit3Data = {
     /* entry  */          &TPM2_LDAA_SignCommit3,
@@ -4426,22 +4424,20 @@ LDAA_SignCommit3_COMMAND_DESCRIPTOR_t _LDAA_SignCommit3Data = {
     /* offsets */         {(UINT32)(offsetof(LDAA_SignCommit3_In, sid)),
                            (UINT32)(offsetof(LDAA_SignCommit3_In, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit3_In, bsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit3_In, issuer_bntt)),
                            (UINT32)(offsetof(LDAA_SignCommit3_In, sign_state_sel)),
                            (UINT32)(offsetof(LDAA_SignCommit3_In, pe)),
                            (UINT32)(offsetof(LDAA_SignCommit3_In, pbsn)),
-                           (UINT32)(offsetof(LDAA_SignCommit3_In, offset)),
+                           (UINT32)(offsetof(LDAA_SignCommit3_In, seed)),
                            (UINT32)(offsetof(LDAA_SignCommit3_Out, ssid)),
                            (UINT32)(offsetof(LDAA_SignCommit3_Out, commit))},
     /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_BASENAME_ISSUER_P_UNMARSHAL,
-                           TPM2B_LDAA_ISSUER_BNTT_P_UNMARSHAL,
                            UINT8_P_UNMARSHAL,
                            TPM2B_LDAA_PE_P_UNMARSHAL,
                            TPM2B_LDAA_PBSN_P_UNMARSHAL,
-                           UINT8_P_UNMARSHAL,
+                           UINT32_P_UNMARSHAL,
                            END_OF_LIST,
                            UINT8_P_MARSHAL,
                            UINT8_P_MARSHAL,

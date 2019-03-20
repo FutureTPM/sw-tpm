@@ -38,7 +38,7 @@ void ldaa_integer_matrix_sample_u(ldaa_integer_matrix_t *this)
 
   for (i = 0; i < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; i++) {
     for (j = 0; j < 1; j++) {
-      this->coeffs[i + j] = ldaa_uniform_int_sample(0, LDAA_Q);
+      this->coeffs[i + j] = ldaa_uniform_int_sample(0, LDAA_Q, NULL);
     }
   }
 }

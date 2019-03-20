@@ -1,7 +1,7 @@
 #ifndef LDAA_INTEGER_MATRIX_H
 #define LDAA_INTEGER_MATRIX_H
 
-#include "BaseTypes.h"
+#include "Tpm.h"
 #include "ldaa-params.h"
 #include "ldaa-permutation.h"
 

@@ -4,10 +4,6 @@
 #include "ldaa-params.h"
 #include "TpmTypes.h"
 
-typedef struct {
-  UINT32 coeffs[LDAA_N];
-} ldaa_poly_ntt_t;
-
 void ldaa_poly_ntt_from_canonical(ldaa_poly_ntt_t *this, ldaa_poly_t *a);
 void ldaa_poly_ntt_mul(ldaa_poly_ntt_t *this,
 		ldaa_poly_ntt_t *a,

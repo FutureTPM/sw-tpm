@@ -14,10 +14,8 @@
 
 #define LDAA_COMMIT1_LENGTH (4UL + 4UL * (2UL * (1UL << LDAA_LOG_W) - 1UL) * \
         LDAA_LOG_BETA)
-/*#define LDAA_COMMIT2_LENGTH ((2UL * (1UL << LDAA_LOG_W) - 1UL) * LDAA_LOG_BETA * \
+#define LDAA_COMMIT2_LENGTH ((2UL * (1UL << LDAA_LOG_W) - 1UL) * LDAA_LOG_BETA * \
         (LDAA_M * (2UL * LDAA_L + 3UL) + 1UL) + 2UL)
-        */
-#define LDAA_COMMIT2_LENGTH 900
 #define LDAA_COMMIT3_LENGTH LDAA_COMMIT2_LENGTH
 
 #define LDAA_SECRET_KEY_LENGTH (LDAA_M*LDAA_N) // Column of LDAA_N polynomials
