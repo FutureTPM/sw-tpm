@@ -547,11 +547,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_HierarchyChangeAuth)
     (COMMAND_ATTRIBUTES)(CC_HierarchyChangeAuth         *  // 0x0129
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND)),
 #endif
 #if (PAD_LIST  || CC_NV_DefineSpace)
     (COMMAND_ATTRIBUTES)(CC_NV_DefineSpace              *  // 0x012a
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND)),
 #endif
 #if (PAD_LIST  || CC_PCR_Allocate)
     (COMMAND_ATTRIBUTES)(CC_PCR_Allocate                *  // 0x012b
@@ -559,7 +559,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PCR_SetAuthPolicy)
     (COMMAND_ATTRIBUTES)(CC_PCR_SetAuthPolicy           *  // 0x012c
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND)),
 #endif
 #if (PAD_LIST  || CC_PP_Commands)
     (COMMAND_ATTRIBUTES)(CC_PP_Commands                 *  // 0x012d
@@ -567,11 +567,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_SetPrimaryPolicy)
     (COMMAND_ATTRIBUTES)(CC_SetPrimaryPolicy            *  // 0x012e
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND)),
 #endif
 #if (PAD_LIST  || CC_FieldUpgradeStart)
     (COMMAND_ATTRIBUTES)(CC_FieldUpgradeStart           *  // 0x012f
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_ADMIN+PP_COMMAND)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_ADMIN+PP_COMMAND)),
 #endif
 #if (PAD_LIST  || CC_ClockRateAdjust)
     (COMMAND_ATTRIBUTES)(CC_ClockRateAdjust             *  // 0x0130
@@ -579,7 +579,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_CreatePrimary)
     (COMMAND_ATTRIBUTES)(CC_CreatePrimary               *  // 0x0131
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND+ENCRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND+ENCRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_NV_GlobalWriteLock)
     (COMMAND_ATTRIBUTES)(CC_NV_GlobalWriteLock          *  // 0x0132
@@ -587,7 +587,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_GetCommandAuditDigest)
     (COMMAND_ATTRIBUTES)(CC_GetCommandAuditDigest       *  // 0x0133
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_NV_Increment)
     (COMMAND_ATTRIBUTES)(CC_NV_Increment                *  // 0x0134
@@ -599,11 +599,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_NV_Extend)
     (COMMAND_ATTRIBUTES)(CC_NV_Extend                   *  // 0x0136
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_NV_Write)
     (COMMAND_ATTRIBUTES)(CC_NV_Write                    *  // 0x0137
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_NV_WriteLock)
     (COMMAND_ATTRIBUTES)(CC_NV_WriteLock                *  // 0x0138
@@ -619,11 +619,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_NV_ChangeAuth)
     (COMMAND_ATTRIBUTES)(CC_NV_ChangeAuth               *  // 0x013b
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_ADMIN)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_ADMIN)),
 #endif
 #if (PAD_LIST  || CC_PCR_Event)
     (COMMAND_ATTRIBUTES)(CC_PCR_Event                   *  // 0x013c
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_PCR_Reset)
     (COMMAND_ATTRIBUTES)(CC_PCR_Reset                   *  // 0x013d
@@ -631,7 +631,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_SequenceComplete)
     (COMMAND_ATTRIBUTES)(CC_SequenceComplete            *  // 0x013e
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_SetAlgorithmSet)
     (COMMAND_ATTRIBUTES)(CC_SetAlgorithmSet             *  // 0x013f
@@ -643,7 +643,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_FieldUpgradeData)
     (COMMAND_ATTRIBUTES)(CC_FieldUpgradeData            *  // 0x0141
-			 (IS_IMPLEMENTED+DECRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_IncrementalSelfTest)
     (COMMAND_ATTRIBUTES)(CC_IncrementalSelfTest         *  // 0x0142
@@ -663,39 +663,39 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_StirRandom)
     (COMMAND_ATTRIBUTES)(CC_StirRandom                  *  // 0x0146
-			 (IS_IMPLEMENTED+DECRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_ActivateCredential)
     (COMMAND_ATTRIBUTES)(CC_ActivateCredential          *  // 0x0147
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_ADMIN+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_ADMIN+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Certify)
     (COMMAND_ATTRIBUTES)(CC_Certify                     *  // 0x0148
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_ADMIN+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_ADMIN+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PolicyNV)
     (COMMAND_ATTRIBUTES)(CC_PolicyNV                    *  // 0x0149
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_CertifyCreation)
     (COMMAND_ATTRIBUTES)(CC_CertifyCreation             *  // 0x014a
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Duplicate)
     (COMMAND_ATTRIBUTES)(CC_Duplicate                   *  // 0x014b
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_DUP+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_DUP+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_GetTime)
     (COMMAND_ATTRIBUTES)(CC_GetTime                     *  // 0x014c
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_GetSessionAuditDigest)
     (COMMAND_ATTRIBUTES)(CC_GetSessionAuditDigest       *  // 0x014d
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_NV_Read)
     (COMMAND_ATTRIBUTES)(CC_NV_Read                     *  // 0x014e
-			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_NV_ReadLock)
     (COMMAND_ATTRIBUTES)(CC_NV_ReadLock                 *  // 0x014f
@@ -703,69 +703,69 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_ObjectChangeAuth)
     (COMMAND_ATTRIBUTES)(CC_ObjectChangeAuth            *  // 0x0150
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_ADMIN+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_ADMIN+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PolicySecret)
     (COMMAND_ATTRIBUTES)(CC_PolicySecret                *  // 0x0151
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ALLOW_TRIAL+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ALLOW_TRIAL+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Rewrap)
     (COMMAND_ATTRIBUTES)(CC_Rewrap                      *  // 0x0152
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Create)
     (COMMAND_ATTRIBUTES)(CC_Create                      *  // 0x0153
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_ECDH_ZGen)
     (COMMAND_ATTRIBUTES)(CC_ECDH_ZGen                   *  // 0x0154
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || (CC_HMAC || CC_MAC))
     (COMMAND_ATTRIBUTES)((CC_HMAC || CC_MAC)            *  // 0x0155
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Import)
     (COMMAND_ATTRIBUTES)(CC_Import                      *  // 0x0156
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Load)
     (COMMAND_ATTRIBUTES)(CC_Load                        *  // 0x0157
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_Quote)
     (COMMAND_ATTRIBUTES)(CC_Quote                       *  // 0x0158
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_RSA_Decrypt)
     (COMMAND_ATTRIBUTES)(CC_RSA_Decrypt                 *  // 0x0159
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST )
     (COMMAND_ATTRIBUTES)(0),                               // 0x015a
 #endif
 #if (PAD_LIST  || (CC_HMAC_Start || CC_MAC_Start))
     (COMMAND_ATTRIBUTES)((CC_HMAC_Start || CC_MAC_Start) *  // 0x015b
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_SequenceUpdate)
     (COMMAND_ATTRIBUTES)(CC_SequenceUpdate              *  // 0x015c
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_Sign)
     (COMMAND_ATTRIBUTES)(CC_Sign                        *  // 0x015d
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_Unseal)
     (COMMAND_ATTRIBUTES)(CC_Unseal                      *  // 0x015e
-			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST )
     (COMMAND_ATTRIBUTES)(0),                               // 0x015f
 #endif
 #if (PAD_LIST  || CC_PolicySigned)
     (COMMAND_ATTRIBUTES)(CC_PolicySigned                *  // 0x0160
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_ContextLoad)
     (COMMAND_ATTRIBUTES)(CC_ContextLoad                 *  // 0x0161
@@ -777,11 +777,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_ECDH_KeyGen)
     (COMMAND_ATTRIBUTES)(CC_ECDH_KeyGen                 *  // 0x0163
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_EncryptDecrypt)
     (COMMAND_ATTRIBUTES)(CC_EncryptDecrypt              *  // 0x0164
-			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_FlushContext)
     (COMMAND_ATTRIBUTES)(CC_FlushContext                *  // 0x0165
@@ -792,19 +792,19 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_LoadExternal)
     (COMMAND_ATTRIBUTES)(CC_LoadExternal                *  // 0x0167
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_MakeCredential)
     (COMMAND_ATTRIBUTES)(CC_MakeCredential              *  // 0x0168
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_NV_ReadPublic)
     (COMMAND_ATTRIBUTES)(CC_NV_ReadPublic               *  // 0x0169
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PolicyAuthorize)
     (COMMAND_ATTRIBUTES)(CC_PolicyAuthorize             *  // 0x016a
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyAuthValue)
     (COMMAND_ATTRIBUTES)(CC_PolicyAuthValue             *  // 0x016b
@@ -816,11 +816,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyCounterTimer)
     (COMMAND_ATTRIBUTES)(CC_PolicyCounterTimer          *  // 0x016d
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyCpHash)
     (COMMAND_ATTRIBUTES)(CC_PolicyCpHash                *  // 0x016e
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyLocality)
     (COMMAND_ATTRIBUTES)(CC_PolicyLocality              *  // 0x016f
@@ -828,7 +828,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyNameHash)
     (COMMAND_ATTRIBUTES)(CC_PolicyNameHash              *  // 0x0170
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyOR)
     (COMMAND_ATTRIBUTES)(CC_PolicyOR                    *  // 0x0171
@@ -836,26 +836,26 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyTicket)
     (COMMAND_ATTRIBUTES)(CC_PolicyTicket                *  // 0x0172
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_ReadPublic)
     (COMMAND_ATTRIBUTES)(CC_ReadPublic                  *  // 0x0173
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_RSA_Encrypt)
     (COMMAND_ATTRIBUTES)(CC_RSA_Encrypt                 *  // 0x0174
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST )
     (COMMAND_ATTRIBUTES)(0),                               // 0x0175
 #endif
 #if (PAD_LIST  || CC_StartAuthSession)
     (COMMAND_ATTRIBUTES)(CC_StartAuthSession            *  // 0x0176
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_VerifySignature)
     (COMMAND_ATTRIBUTES)(CC_VerifySignature             *  // 0x0177
-			 (IS_IMPLEMENTED+DECRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_ECC_Parameters)
     (COMMAND_ATTRIBUTES)(CC_ECC_Parameters              *  // 0x0178
@@ -863,7 +863,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_FirmwareRead)
     (COMMAND_ATTRIBUTES)(CC_FirmwareRead                *  // 0x0179
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_GetCapability)
     (COMMAND_ATTRIBUTES)(CC_GetCapability               *  // 0x017a
@@ -871,15 +871,15 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_GetRandom)
     (COMMAND_ATTRIBUTES)(CC_GetRandom                   *  // 0x017b
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_GetTestResult)
     (COMMAND_ATTRIBUTES)(CC_GetTestResult               *  // 0x017c
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_Hash)
     (COMMAND_ATTRIBUTES)(CC_Hash                        *  // 0x017d
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PCR_Read)
     (COMMAND_ATTRIBUTES)(CC_PCR_Read                    *  // 0x017e
@@ -887,7 +887,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyPCR)
     (COMMAND_ATTRIBUTES)(CC_PolicyPCR                   *  // 0x017f
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyRestart)
     (COMMAND_ATTRIBUTES)(CC_PolicyRestart               *  // 0x0180
@@ -903,19 +903,19 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PCR_SetAuthValue)
     (COMMAND_ATTRIBUTES)(CC_PCR_SetAuthValue            *  // 0x0183
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER)),
 #endif
 #if (PAD_LIST  || CC_NV_Certify)
     (COMMAND_ATTRIBUTES)(CC_NV_Certify                  *  // 0x0184
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+HANDLE_2_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_EventSequenceComplete)
     (COMMAND_ATTRIBUTES)(CC_EventSequenceComplete       *  // 0x0185
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+HANDLE_2_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+HANDLE_2_USER)),
 #endif
 #if (PAD_LIST  || CC_HashSequenceStart)
     (COMMAND_ATTRIBUTES)(CC_HashSequenceStart           *  // 0x0186
-			 (IS_IMPLEMENTED+DECRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_PolicyPhysicalPresence)
     (COMMAND_ATTRIBUTES)(CC_PolicyPhysicalPresence      *  // 0x0187
@@ -923,11 +923,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyDuplicationSelect)
     (COMMAND_ATTRIBUTES)(CC_PolicyDuplicationSelect     *  // 0x0188
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_PolicyGetDigest)
     (COMMAND_ATTRIBUTES)(CC_PolicyGetDigest             *  // 0x0189
-			 (IS_IMPLEMENTED+ALLOW_TRIAL+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ALLOW_TRIAL+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_TestParms)
     (COMMAND_ATTRIBUTES)(CC_TestParms                   *  // 0x018a
@@ -935,7 +935,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_Commit)
     (COMMAND_ATTRIBUTES)(CC_Commit                      *  // 0x018b
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PolicyPassword)
     (COMMAND_ATTRIBUTES)(CC_PolicyPassword              *  // 0x018c
@@ -943,11 +943,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_ZGen_2Phase)
     (COMMAND_ATTRIBUTES)(CC_ZGen_2Phase                 *  // 0x018d
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_EC_Ephemeral)
     (COMMAND_ATTRIBUTES)(CC_EC_Ephemeral                *  // 0x018e
-			 (IS_IMPLEMENTED+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_PolicyNvWritten)
     (COMMAND_ATTRIBUTES)(CC_PolicyNvWritten             *  // 0x018f
@@ -955,11 +955,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_PolicyTemplate)
     (COMMAND_ATTRIBUTES)(CC_PolicyTemplate              *  // 0x0190
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 #if (PAD_LIST  || CC_CreateLoaded)
     (COMMAND_ATTRIBUTES)(CC_CreateLoaded                *  // 0x0191
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+PP_COMMAND+ENCRYPT_2+R_HANDLE)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+PP_COMMAND+ENCRYPT_4+R_HANDLE)),
 #endif
 #if (PAD_LIST  || CC_PolicyAuthorizeNV)
     (COMMAND_ATTRIBUTES)(CC_PolicyAuthorizeNV           *  // 0x0192
@@ -967,7 +967,7 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_EncryptDecrypt2)
     (COMMAND_ATTRIBUTES)(CC_EncryptDecrypt2             *  // 0x0193
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_AC_GetCapability)
     (COMMAND_ATTRIBUTES)(CC_AC_GetCapability            *  // 0x0194
@@ -975,11 +975,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 #endif
 #if (PAD_LIST  || CC_AC_Send)
     (COMMAND_ATTRIBUTES)(CC_AC_Send                     *  // 0x0195
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_DUP+HANDLE_2_USER)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_DUP+HANDLE_2_USER)),
 #endif
 #if (PAD_LIST  || CC_Policy_AC_SendSelect)
     (COMMAND_ATTRIBUTES)(CC_Policy_AC_SendSelect        *  // 0x0196
-			 (IS_IMPLEMENTED+DECRYPT_2+ALLOW_TRIAL)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ALLOW_TRIAL)),
 #endif
 
 /*****************************************************************************/
@@ -987,11 +987,11 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 #if (PAD_LIST  || CC_KYBER_Enc)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Enc                   *  // 0x019A
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_KYBER_Dec)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Dec                   *  // 0x019B
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
@@ -1002,47 +1002,47 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 #if (PAD_LIST  || CC_LDAA_Join)
     (COMMAND_ATTRIBUTES)(CC_LDAA_Join                   *  // 0x019C
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_SignCommit1)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit1            *  // 0x019D
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_CommitTokenLink)
     (COMMAND_ATTRIBUTES)(CC_LDAA_CommitTokenLink        *  // 0x019E
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_SignProof)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignProof              *  // 0x019F
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_SignProceed)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignProceed            *  // 0x01A0
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_SignCommit2)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit2            *  // 0x01A1
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_LDAA_SignCommit3)
     (COMMAND_ATTRIBUTES)(CC_LDAA_SignCommit3            *  // 0x01A2
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 #if (PAD_LIST  || CC_KYBER_Encrypt)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Encrypt               *  // 0x01A3
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_KYBER_Decrypt)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Decrypt               *  // 0x01A4
-			 (IS_IMPLEMENTED+DECRYPT_2+HANDLE_1_USER+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     (COMMAND_ATTRIBUTES)(CC_Vendor_TCG_Test             *  // 0x0000
-			 (IS_IMPLEMENTED+DECRYPT_2+ENCRYPT_2)),
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 
 #ifdef TPM_NUVOTON

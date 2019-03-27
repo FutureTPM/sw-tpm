@@ -63,10 +63,11 @@
 #define COMMANDATTRIBUTES_H
 
 /* 5.7	CommandAttributes.h */
-/* The attributes defined in this file are produced by the parser that creates the structure
-   definitions from Part 3. The attributes are defined in that parser and should track the
-   attributes being tested in CommandCodeAttributes.c. Generally, when an attribute is added to this
-   list, new code will be needed in CommandCodeAttributes.c to test it. */
+/* The attributes defined in this file are produced by the parser that creates
+ * the structure definitions from Part 3. The attributes are defined in that
+ * parser and should track the attributes being tested in
+ * CommandCodeAttributes.c. Generally, when an attribute is added to this list,
+ * new code will be needed in CommandCodeAttributes.c to test it. */
 
 typedef  UINT16             COMMAND_ATTRIBUTES;
 #define NOT_IMPLEMENTED     (COMMAND_ATTRIBUTES)(0)

@@ -61,14 +61,16 @@
 
 /* 6.4 SessionProcess.c */
 /* 6.4.1 Introduction */
-/* This file contains the subsystem that process the authorization sessions including implementation
-   of the Dictionary Attack logic. ExecCommand() uses ParseSessionBuffer() to process the
-   authorization session area of a command and BuildResponseSession() to create the authorization
-   session area of a response */
+/* This file contains the subsystem that process the authorization sessions
+ * including implementation of the Dictionary Attack logic. ExecCommand() uses
+ * ParseSessionBuffer() to process the authorization session area of a command
+ * and BuildResponseSession() to create the authorization session area of a
+ * response */
 #define SESSION_PROCESS_C
 #include "Tpm.h"
 /* 6.4.3.1 IsDAExempted() */
-/* This function indicates if a handle is exempted from DA logic. A handle is exempted if it is */
+/* This function indicates if a handle is exempted from DA logic. A handle is
+ * exempted if it is */
 /* a) a primary seed handle, */
 /* b) an object with noDA bit SET, */
 /* c) an NV Index with TPMA_NV_NO_DA bit SET, or */
@@ -111,9 +113,9 @@ IsDAExempted(
     return result;
 }
 /* 6.4.3.2 IncrementLockout() */
-/* This function is called after an authorization failure that involves use of an authValue. If the
-   entity referenced by the handle is not exempt from DA protection, then the failedTries counter
-   will be incremented. */
+/* This function is called after an authorization failure that involves use of
+ * an authValue. If the entity referenced by the handle is not exempt from DA
+ * protection, then the failedTries counter will be incremented. */
 static TPM_RC
 IncrementLockout(
 		 UINT32           sessionIndex
@@ -180,10 +182,11 @@ IncrementLockout(
     return TPM_RC_AUTH_FAIL;
 }
 /* 6.4.3.3 IsSessionBindEntity() */
-/* This function indicates if the entity associated with the handle is the entity, to which this
-   session is bound. The binding would occur by making the bind parameter in TPM2_StartAuthSession()
-   not equal to TPM_RH_NULL. The binding only occurs if the session is an HMAC session. The bind
-   value is a combination of the Name and the authValue of the entity. */
+/* This function indicates if the entity associated with the handle is the
+ * entity, to which this session is bound. The binding would occur by making
+ * the bind parameter in TPM2_StartAuthSession() not equal to TPM_RH_NULL. The
+ * binding only occurs if the session is an HMAC session. The bind value is a
+ * combination of the Name and the authValue of the entity. */
 static BOOL
 IsSessionBindEntity(
 		    TPM_HANDLE       associatedHandle,  // IN: handle to be authorized
@@ -202,17 +205,19 @@ IsSessionBindEntity(
     return FALSE;
 }
 /* 6.4.3.4 IsPolicySessionRequired() */
-/* Checks if a policy session is required for a command. If a command requires DUP or ADMIN role
-   authorization, then the handle that requires that role is the first handle in the command. This
-   simplifies this checking. If a new command is created that requires multiple ADMIN role
-   authorizations, then it will have to be special-cased in this function. A policy session is
-   required if: */
+/* Checks if a policy session is required for a command. If a command requires
+ * DUP or ADMIN role authorization, then the handle that requires that role is
+ * the first handle in the command. This simplifies this checking. If a new
+ * command is created that requires multiple ADMIN role authorizations, then it
+ * will have to be special-cased in this function. A policy session is required
+ * if: */
 /* a) the command requires the DUP role, */
-/* b) the command requires the ADMIN role and the authorized entity is an object and its
-   adminWithPolicy bit is SET, or */
-/* c) the command requires the ADMIN role and the authorized entity is a permanent handle or an NV
-   Index. */
-/* d) The authorized entity is a PCR belonging to a policy group, and has its policy initialized */
+/* b) the command requires the ADMIN role and the authorized entity is an
+ * object and its adminWithPolicy bit is SET, or */
+/* c) the command requires the ADMIN role and the authorized entity is a
+ * permanent handle or an NV Index. */
+/* d) The authorized entity is a PCR belonging to a policy group, and has its
+ * policy initialized */
 /* Return Values Meaning */
 /* TRUE policy session is required */
 /* FALSE policy session is not required */
@@ -256,14 +261,15 @@ IsPolicySessionRequired(
     return FALSE;
 }
 /* 6.4.3.5 IsAuthValueAvailable() */
-/* This function indicates if authValue is available and allowed for USER role authorization of an
-   entity. */
-/* This function is similar to IsAuthPolicyAvailable() except that it does not check the size of the
-   authValue as IsAuthPolicyAvailable() does (a null authValue is a valid authorization, but a null
-   policy is not a valid policy). */
-/* This function does not check that the handle reference is valid or if the entity is in an
-   enabled hierarchy. Those checks are assumed to have been performed during the handle
-   unmarshaling. */
+/* This function indicates if authValue is available and allowed for USER role
+ * authorization of an entity. */
+/* This function is similar to IsAuthPolicyAvailable() except that it does not
+ * check the size of the authValue as IsAuthPolicyAvailable() does (a null
+ * authValue is a valid authorization, but a null policy is not a valid
+ * policy). */
+/* This function does not check that the handle reference is valid or if the
+ * entity is in an enabled hierarchy. Those checks are assumed to have been
+ * performed during the handle unmarshaling. */
 static BOOL
 IsAuthValueAvailable(
 		     TPM_HANDLE       handle,        // IN: handle of entity
@@ -382,8 +388,9 @@ IsAuthValueAvailable(
 
 /* 6.4.3.6	IsAuthPolicyAvailable() */
 /* This function indicates if an authPolicy is available and allowed. */
-/* This function does not check that the handle reference is valid or if the entity is in an enabled
-   hierarchy. Those checks are assumed to have been performed during the handle unmarshaling. */
+/* This function does not check that the handle reference is valid or if the
+ * entity is in an enabled hierarchy. Those checks are assumed to have been
+ * performed during the handle unmarshaling. */
 /* Return Values Meaning */
 /* TRUE authPolicy is available */
 /* FALSE authPolicy is not available */
@@ -612,7 +619,8 @@ GetRpHashPointer(
     return NULL;
 }
 /* 6.4.4.4 ComputeCpHash() */
-/* This function computes the cpHash as defined in Part 2 and described in Part 1. */
+/* This function computes the cpHash as defined in Part 2 and described in
+ * Part 1. */
 static TPM2B_DIGEST *
 ComputeCpHash(
 	      COMMAND         *command,       // IN: command parsing structure
@@ -662,9 +670,9 @@ GetCpHash(
     return cpHash;
 }
 /* 6.4.4.6 CompareTemplateHash() */
-/* This function computes the template hash and compares it to the session templateHash. It is the
-   hash of the second parameter assuming that the command is TPM2_Create(), TPM2_CreatePrimary(), or
-   TPM2_CreateLoaded() */
+/* This function computes the template hash and compares it to the session
+ * templateHash. It is the hash of the second parameter assuming that the
+ * command is TPM2_Create(), TPM2_CreatePrimary(), or TPM2_CreateLoaded() */
 static BOOL
 CompareTemplateHash(
 		    COMMAND         *command,       // IN: parsing structure
@@ -857,12 +865,13 @@ ComputeCommandHMAC(
     return hmac;
 }
 /* 6.4.4.10 CheckSessionHMAC() */
-/* This function checks the HMAC of in a session. It uses ComputeCommandHMAC() to compute the
-   expected HMAC value and then compares the result with the HMAC in the authorization session. The
-   authorization is successful if they are the same. */
-/* If the authorizations are not the same, IncrementLockout() is called. It will return
-   TPM_RC_AUTH_FAIL if the failure caused the failureCount to increment. Otherwise, it will return
-   TPM_RC_BAD_AUTH. */
+/* This function checks the HMAC of in a session. It uses ComputeCommandHMAC()
+ * to compute the expected HMAC value and then compares the result with the
+ * HMAC in the authorization session. The authorization is successful if they
+ * are the same. */
+/* If the authorizations are not the same, IncrementLockout() is called. It
+ * will return TPM_RC_AUTH_FAIL if the failure caused the failureCount to
+ * increment. Otherwise, it will return TPM_RC_BAD_AUTH. */
 /* Error Returns Meaning */
 /* TPM_RC_AUTH_FAIL authorization failure caused failureCount increment */
 /* TPM_RC_BAD_AUTH authorization failure did not cause failureCount increment */
@@ -886,17 +895,18 @@ CheckSessionHMAC(
     return TPM_RC_SUCCESS;
 }
 /* 6.4.4.11 CheckPolicyAuthSession() */
-/* This function is used to validate the authorization in a policy session. This function performs
-   the following comparisons to see if a policy authorization is properly provided. The check
-   are: */
-/* a) compare policyDigest in session with authPolicy associated with the entity to be
-   authorized; */
+/* This function is used to validate the authorization in a policy session.
+ * This function performs the following comparisons to see if a policy
+ * authorization is properly provided. The check are: */
+/* a) compare policyDigest in session with authPolicy associated with the
+ * entity to be authorized; */
 /* b) compare timeout if applicable; */
 /* c) compare commandCode if applicable; */
 /* d) compare cpHash if applicable; and */
 /* e) see if PCR values have changed since computed. */
-/* If all the above checks succeed, the handle is authorized. The order of these comparisons is not
-   important because any failure will result in the same error code. */
+/* If all the above checks succeed, the handle is authorized. The order of
+ * these comparisons is not important because any failure will result in the
+ * same error code. */
 /* Error Returns Meaning */
 /* TPM_RC_PCR_CHANGED PCR value is not current */
 /* TPM_RC_POLICY_FAIL policy session fails */
@@ -1032,13 +1042,13 @@ CheckPolicyAuthSession(
     return TPM_RC_SUCCESS;
 }
 /* 6.4.4.12 RetrieveSessionData() */
-/* This function will unmarshal the sessions in the session area of a command. The values are placed
-   in the arrays that are defined at the beginning of this file. The normal unmarshaling errors are
-   possible. */
+/* This function will unmarshal the sessions in the session area of a command.
+ * The values are placed in the arrays that are defined at the beginning of
+ * this file. The normal unmarshaling errors are possible. */
 /* Error Returns Meaning */
 /* TPM_RC_SUCCSS unmarshaled without error */
-/* TPM_RC_SIZE the number of bytes unmarshaled is not the same as the value for authorizationSize in
-   the command */
+/* TPM_RC_SIZE the number of bytes unmarshaled is not the same as the value for
+ * authorizationSize in the command */
 static TPM_RC
 RetrieveSessionData(
 		    COMMAND         *command        // IN: main parsing structure for command
@@ -1190,10 +1200,12 @@ RetrieveSessionData(
     return TPM_RC_SUCCESS;
 }
 /* 6.4.4.13 CheckLockedOut() */
-/* This function checks to see if the TPM is in lockout. This function should only be called if the
-   entity being checked is subject to DA protection. The TPM is in lockout if the NV is not
-   available and a DA write is pending. Otherwise the TPM is locked out if checking for lockoutAuth
-   (lockoutAuthCheck == TRUE) and use of lockoutAuth is disabled, or failedTries >= maxTries */
+/* This function checks to see if the TPM is in lockout. This function should
+ * only be called if the entity being checked is subject to DA protection. The
+ * TPM is in lockout if the NV is not available and a DA write is pending.
+ * Otherwise the TPM is locked out if checking for lockoutAuth
+ * (lockoutAuthCheck == TRUE) and use of lockoutAuth is disabled, or
+ * failedTries >= maxTries */
 /* Error Returns Meaning */
 /* TPM_RC_NV_RATE NV is rate limiting */
 /* TPM_RC_NV_UNAVAILABLE NV is not available at this time */
@@ -1246,16 +1258,16 @@ CheckLockedOut(
     return TPM_RC_SUCCESS;
 }
 /* 6.4.4.14 CheckAuthSession() */
-/* This function checks that the authorization session properly authorizes the use of the associated
-   handle. */
+/* This function checks that the authorization session properly authorizes the
+ * use of the associated handle. */
 /* Error Returns Meaning */
-/* TPM_RC_LOCKOUT entity is protected by DA and TPM is in lockout, or TPM is locked out on NV update
-   pending on DA parameters */
+/* TPM_RC_LOCKOUT entity is protected by DA and TPM is in lockout, or TPM is
+ * locked out on NV update pending on DA parameters */
 /* TPM_RC_PP Physical Presence is required but not provided */
-/* TPM_RC_AUTH_FAIL HMAC or PW authorization failed with DA side-effects (can be a policy
-   session) */
-/* TPM_RC_BAD_AUTH HMAC or PW authorization failed without DA side-effects (can be a policy
-   session) */
+/* TPM_RC_AUTH_FAIL HMAC or PW authorization failed with DA side-effects
+ * (can be a policy session) */
+/* TPM_RC_BAD_AUTH HMAC or PW authorization failed without DA side-effects
+ * (can be a policy session) */
 /* TPM_RC_POLICY_FAIL if policy session fails */
 /* TPM_RC_POLICY_CC command code of policy was wrong */
 /* TPM_RC_EXPIRED the policy session has expired */
@@ -1568,8 +1580,8 @@ ParseSessionBuffer(
     return TPM_RC_SUCCESS;
 }
 /* 6.4.4.17 CheckAuthNoSession() */
-/* Function to process a command with no session associated. The function makes sure all the handles
-   in the command require no authorization. */
+/* Function to process a command with no session associated. The function makes
+ * sure all the handles in the command require no authorization. */
 /* Error Returns Meaning */
 /* TPM_RC_AUTH_MISSING failure - one or more handles require authorization */
 TPM_RC
@@ -1600,8 +1612,8 @@ CheckAuthNoSession(
 }
 /* 6.4.5 Response Session Processing */
 /* 6.4.5.1 Introduction */
-/* The following functions build the session area in a response, and handle the audit sessions (if
-   present). */
+/* The following functions build the session area in a response, and handle the
+ * audit sessions (if present). */
 /* 6.4.5.2 ComputeRpHash() */
 /* Function to compute rpHash (Response Parameter Hash). The rpHash is only computed if there is an
    HMAC authorization session and the return code is TPM_RC_SUCCESS. */
@@ -1722,8 +1734,8 @@ CommandAudit(
 #endif
 /* 6.4.5.7 UpdateAuditSessionStatus() */
 /* Function to update the internal audit related states of a session. It */
-/* a) initializes the session as audit session and sets it to be exclusive if this is the first time
-   it is used for audit or audit reset was requested; */
+/* a) initializes the session as audit session and sets it to be exclusive if
+ * this is the first time it is used for audit or audit reset was requested; */
 /* b) reports exclusive audit session; */
 /* c) extends audit log; and */
 /* d) clears exclusive audit session if no audit session found in the command. */

@@ -834,7 +834,6 @@ CryptParameterEncryption(
 	    // advance the buffer
 	    buffer = &buffer[2];
 	}
-#ifdef      TPM4B
     else if(leadingSizeInByte == 4)
 	{
 	    // use the first four bytes to indicate the number of bytes to encrypt
@@ -842,7 +841,6 @@ CryptParameterEncryption(
 	    //advance pointer
 	    buffer = &buffer[4];
 	}
-#endif
     else
 	{
 	    FAIL(FATAL_ERROR_INTERNAL);
@@ -873,8 +871,8 @@ CryptParameterDecryption(
 			 TPM_HANDLE       handle,            // IN: encrypted session handle
 			 TPM2B           *nonceCaller,       // IN: nonce caller
 			 UINT32           bufferSize,        // IN: size of parameter buffer
-			 UINT16           leadingSizeInByte, // IN: the size of the leading size field in
-			 //     byte
+			 UINT16           leadingSizeInByte, // IN: the size of the
+             // leading size field in byte
 			 TPM2B_AUTH      *extraKey,          // IN: the authValue
 			 BYTE            *buffer             // IN/OUT: parameter buffer to be decrypted
 			 )
@@ -895,14 +893,12 @@ CryptParameterDecryption(
 	    cipherSize = (UINT32)BYTE_ARRAY_TO_UINT16(buffer);
 	    buffer = &buffer[2];   // advance the buffer
 	}
-#ifdef  TPM4B
     else if(leadingSizeInByte == 4)
 	{
 	    // the leading size is four bytes so get the four byte size field
 	    cipherSize = BYTE_ARRAY_TO_UINT32(buffer);
 	    buffer = &buffer[4];   //advance pointer
 	}
-#endif
     else
 	{
 	    FAIL(FATAL_ERROR_INTERNAL);

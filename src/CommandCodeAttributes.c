@@ -368,8 +368,8 @@ CommandAuthRole(
     return AUTH_NONE;
 }
 /* 9.3.3.7 EncryptSize() */
-/* This function returns the size of the decrypt size field. This function returns 0 if encryption
-   is not allowed */
+/* This function returns the size of the decrypt size field. This function
+ * returns 0 if encryption is not allowed */
 /* Return Values Meaning */
 /* 0 encryption not allowed */
 /* 2 size field is two bytes */
@@ -385,8 +385,8 @@ EncryptSize(
 }
 
 /* 9.3.3.8 DecryptSize() */
-/* This function returns the size of the decrypt size field. This function returns 0 if decryption
-   is not allowed */
+/* This function returns the size of the decrypt size field. This function
+ * returns 0 if decryption is not allowed */
 /* Return Values Meaning */
 /* 0 encryption not allowed */
 /* 2 size field is two bytes */
