@@ -23,7 +23,6 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
         for (j = 0; j < 1; j++) {
             for (k = 0; k < LDAA_K_COMM; k++) {
                 ldaa_poly_sample_u(&a, &rand);
-                ldaa_poly_ntt_from_canonical(&a_ntt, &a);
                 for (l = 0; l < LDAA_N; l++) {
                     prod = ldaa_reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
@@ -56,7 +55,6 @@ void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *t
         for (j = 0; j < 1; j++) {
             for (k = 0; k < LDAA_K_COMM; k++) {
                 ldaa_poly_sample_u(&a, &rand);
-                ldaa_poly_ntt_from_canonical(&a_ntt, &a);
                 for (l = 0; l < LDAA_N; l++) {
                     prod = ldaa_reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;

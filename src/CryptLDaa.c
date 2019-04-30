@@ -462,17 +462,17 @@ CryptLDaaJoin(
     return TPM_RC_SUCCESS;
 }
 
-static void print_ldaa_state(void) {
-    printf("LDAA state:\n");
-    printf("\tcommit counter = %hd\n", gr.ldaa_commitCounter);
-    printf("\tsid = %hhd\n", gr.ldaa_sid);
-    printf("\tcommit sign state = %08x\n", gr.ldaa_commit_sign_state);
-    printf("\tHash Private Key = \n\t\t");
-    for (size_t i = 0; i < 32; i++) {
-        printf("%02x", gr.ldaa_hash_private_key[i]);
-    }
-    printf("\n");
-}
+//static void print_ldaa_state(void) {
+//    printf("LDAA state:\n");
+//    printf("\tcommit counter = %hd\n", gr.ldaa_commitCounter);
+//    printf("\tsid = %hhd\n", gr.ldaa_sid);
+//    printf("\tcommit sign state = %08x\n", gr.ldaa_commit_sign_state);
+//    printf("\tHash Private Key = \n\t\t");
+//    for (size_t i = 0; i < 32; i++) {
+//        printf("%02x", gr.ldaa_hash_private_key[i]);
+//    }
+//    printf("\n");
+//}
 
 
 LIB_EXPORT TPM_RC
@@ -482,14 +482,14 @@ CryptLDaaClearProtocolState(void) {
     gr.ldaa_commit_sign_state = 0;
     MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
     MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
-    print_ldaa_state();
+    //print_ldaa_state();
     return TPM_RC_SUCCESS;
 }
 
 LIB_EXPORT TPM_RC
 CryptLDaaCommit(void) {
     gr.ldaa_commitCounter++;
-    print_ldaa_state();
+    //print_ldaa_state();
 
     return TPM_RC_SUCCESS;
 }
@@ -589,13 +589,13 @@ CryptLDaaSignCommit(
     /* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
     if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
-        printf("Updating LDAA state\n");
-        print_ldaa_state();
+        // printf("Updating LDAA state\n");
+        // print_ldaa_state();
         ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
     //ldaa_fill_sign_state_tpm_fixed(ssi);
         gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
     }
-    print_ldaa_state();
+    //print_ldaa_state();
 
     size_t seed = (size_t) *in_seed;
     switch (*commit_sel) {
