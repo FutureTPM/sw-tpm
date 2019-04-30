@@ -5,18 +5,22 @@
 
 #define SHAKE128_RATE 168
 #define SHAKE256_RATE 136
-#define SHA3_256_RATE 136
-#define SHA3_512_RATE  72
+#define STREAM128_BLOCKBYTES SHAKE128_RATE
+#define STREAM256_BLOCKBYTES SHAKE256_RATE
 
-void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen);
-void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, uint64_t *s);
+typedef struct {
+    uint64_t s[25];
+} keccak_state;
 
-void shake256_absorb(uint64_t *s, const unsigned char *input, unsigned long long inlen);
-void shake256_squeezeblocks(unsigned char *output, unsigned long nblocks, uint64_t *s);
+void shake128_absorb(keccak_state *state, const unsigned char *input, unsigned int inputByteLen);
+void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *state);
+void shake128_stream_init(keccak_state *sate, const unsigned char *seed, uint16_t nonce);
 
-void shake128(unsigned char *output, unsigned long long outlen, const unsigned char *input, unsigned long long inlen);
-void shake256(unsigned char *output, unsigned long long outlen, const unsigned char *input,  unsigned long long inlen);
-void sha3_256(unsigned char *output, const unsigned char *input,  unsigned long long inlen);
-void sha3_512(unsigned char *output, const unsigned char *input,  unsigned long long inlen);
+void shake256_absorb(keccak_state *state, const unsigned char *input, unsigned long long inlen);
+void shake256_squeezeblocks(unsigned char *output, unsigned long nblocks, keccak_state *state);
+void shake256_stream_init(keccak_state *state, const unsigned char *seed, uint16_t nonce);
+
+typedef keccak_state stream128_state;
+typedef keccak_state stream256_state;
 
 #endif

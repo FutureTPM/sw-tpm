@@ -23,7 +23,7 @@ void dilithium_pack_pk(unsigned char *pk,
   pk += DILITHIUM_SEEDBYTES;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_polyt1_pack(pk + i*dilithium_polt1_size_packed, t1->vec+i);
+    dilithium_polyt1_pack(pk + i*dilithium_polt1_size_packed, &t1->vec[i]);
 }
 
 /*************************************************
@@ -46,7 +46,7 @@ void dilithium_unpack_pk(unsigned char rho[DILITHIUM_SEEDBYTES], dilithium_polyv
   pk += DILITHIUM_SEEDBYTES;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_polyt1_unpack(t1->vec+i, pk + i*dilithium_polt1_size_packed);
+    dilithium_polyt1_unpack(&t1->vec[i], pk + i*dilithium_polt1_size_packed);
 }
 
 /*************************************************
@@ -90,15 +90,15 @@ void dilithium_pack_sk(unsigned char *sk,
   sk += DILITHIUM_CRHBYTES;
 
   for(i = 0; i < dilithium_l; ++i)
-    dilithium_polyeta_pack(sk + i*dilithium_poleta_size_packed, s1->vec+i, dilithium_eta);
+    dilithium_polyeta_pack(sk + i*dilithium_poleta_size_packed, &s1->vec[i], dilithium_eta);
   sk += dilithium_l*dilithium_poleta_size_packed;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_polyeta_pack(sk + i*dilithium_poleta_size_packed, s2->vec+i, dilithium_eta);
+    dilithium_polyeta_pack(sk + i*dilithium_poleta_size_packed, &s2->vec[i], dilithium_eta);
   sk += dilithium_k*dilithium_poleta_size_packed;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_polyt0_pack(sk + i*dilithium_polt0_size_packed, t0->vec+i);
+    dilithium_polyt0_pack(sk + i*dilithium_polt0_size_packed, &t0->vec[i]);
 }
 
 /*************************************************
@@ -142,15 +142,15 @@ void dilithium_unpack_sk(unsigned char rho[DILITHIUM_SEEDBYTES],
   sk += DILITHIUM_CRHBYTES;
 
   for(i=0; i < dilithium_l; ++i)
-    dilithium_polyeta_unpack(s1->vec+i, sk + i*dilithium_poleta_size_packed, dilithium_eta);
+    dilithium_polyeta_unpack(&s1->vec[i], sk + i*dilithium_poleta_size_packed, dilithium_eta);
   sk += dilithium_l*dilithium_poleta_size_packed;
 
   for(i=0; i < dilithium_k; ++i)
-    dilithium_polyeta_unpack(s2->vec+i, sk + i*dilithium_poleta_size_packed, dilithium_eta);
+    dilithium_polyeta_unpack(&s2->vec[i], sk + i*dilithium_poleta_size_packed, dilithium_eta);
   sk += dilithium_k*dilithium_poleta_size_packed;
 
   for(i=0; i < dilithium_k; ++i)
-    dilithium_polyt0_unpack(t0->vec+i, sk + i*dilithium_polt0_size_packed);
+    dilithium_polyt0_unpack(&t0->vec[i], sk + i*dilithium_polt0_size_packed);
 }
 
 /*************************************************
@@ -172,7 +172,7 @@ void dilithium_pack_sig(unsigned char *sig,
   uint64_t signs, mask;
 
   for(i = 0; i < dilithium_l; ++i)
-    dilithium_polyz_pack(sig + i*dilithium_polz_size_packed, z->vec+i);
+    dilithium_polyz_pack(sig + i*dilithium_polz_size_packed, &z->vec[i]);
   sig += dilithium_l*dilithium_polz_size_packed;
 
   /* Encode h */
@@ -223,59 +223,59 @@ int dilithium_unpack_sig(dilithium_polyvecl *z, dilithium_polyveck *h, dilithium
                uint64_t dilithium_k, uint64_t dilithium_l,
                uint64_t dilithium_polz_size_packed, uint64_t dilithium_omega)
 {
-  unsigned int i, j, k;
-  uint64_t signs, mask;
+    unsigned int i, j, k;
+    uint64_t signs;
 
-  for(i = 0; i < dilithium_l; ++i)
-    dilithium_polyz_unpack(z->vec+i, sig + i*dilithium_polz_size_packed);
-  sig += dilithium_l*dilithium_polz_size_packed;
+    for(i = 0; i < dilithium_l; ++i)
+        dilithium_polyz_unpack(&z->vec[i], sig + i*dilithium_polz_size_packed);
+    sig += dilithium_l*dilithium_polz_size_packed;
 
-  /* Decode h */
-  k = 0;
-  for(i = 0; i < dilithium_k; ++i) {
-    for(j = 0; j < DILITHIUM_N; ++j)
-      h->vec[i].coeffs[j] = 0;
+    /* Decode h */
+    k = 0;
+    for(i = 0; i < dilithium_k; ++i) {
+        for(j = 0; j < DILITHIUM_N; ++j)
+            h->vec[i].coeffs[j] = 0;
 
-    if(sig[dilithium_omega + i] < k || sig[dilithium_omega + i] > dilithium_omega)
-      return 1;
+        if(sig[dilithium_omega + i] < k || sig[dilithium_omega + i] > dilithium_omega)
+            return 1;
 
-    for(j = k; j < sig[dilithium_omega + i]; ++j) {
-      /* Coefficients are ordered for strong unforgeability */
-      if(j > k && sig[j] <= sig[j-1]) return 1;
-      h->vec[i].coeffs[sig[j]] = 1;
+        for(j = k; j < sig[dilithium_omega + i]; ++j) {
+            /* Coefficients are ordered for strong unforgeability */
+            if(j > k && sig[j] <= sig[j-1]) return 1;
+            h->vec[i].coeffs[sig[j]] = 1;
+        }
+
+        k = sig[dilithium_omega + i];
     }
 
-    k = sig[dilithium_omega + i];
-  }
+    /* Extra indices are zero for strong unforgeability */
+    for(j = k; j < dilithium_omega; ++j)
+        if(sig[j])
+            return 1;
 
-  /* Extra indices are zero for strong unforgeability */
-  for(j = k; j < dilithium_omega; ++j)
-    if(sig[j])
-      return 1;
+    sig += dilithium_omega + dilithium_k;
 
-  sig += dilithium_omega + dilithium_k;
+    /* Decode c */
+    for(i = 0; i < DILITHIUM_N; ++i)
+        c->coeffs[i] = 0;
 
-  /* Decode c */
-  for(i = 0; i < DILITHIUM_N; ++i)
-    c->coeffs[i] = 0;
+    signs = 0;
+    for(i = 0; i < 8; ++i)
+        signs |= (uint64_t)sig[DILITHIUM_N/8+i] << 8*i;
 
-  signs = 0;
-  for(i = 0; i < 8; ++i)
-    signs |= (uint64_t)sig[DILITHIUM_N/8+i] << 8*i;
+    /* Extra sign bits are zero for strong unforgeability */
+    if(signs >> 60)
+        return 1;
 
-  /* Extra sign bits are zero for strong unforgeability */
-  if(signs >> 60)
-    return 1;
-
-  mask = 1;
-  for(i = 0; i < DILITHIUM_N/8; ++i) {
-    for(j = 0; j < 8; ++j) {
-      if((sig[i] >> j) & 0x01) {
-        c->coeffs[8*i+j] = (signs & mask) ? DILITHIUM_Q - 1 : 1;
-        mask <<= 1;
-      }
+    for(i = 0; i < DILITHIUM_N/8; ++i) {
+        for(j = 0; j < 8; ++j) {
+            if((sig[i] >> j) & 0x01) {
+                c->coeffs[8*i+j] = 1;
+                c->coeffs[8*i+j] ^= -(signs & 1) & (1 ^ (DILITHIUM_Q-1));
+                signs >>= 1;
+            }
+        }
     }
-  }
 
-  return 0;
+    return 0;
 }

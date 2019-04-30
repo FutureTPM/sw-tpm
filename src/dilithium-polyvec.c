@@ -19,7 +19,7 @@ void dilithium_polyvecl_freeze(dilithium_polyvecl *v, uint64_t dilithium_l) {
   unsigned int i;
 
   for(i = 0; i < dilithium_l; ++i)
-    dilithium_poly_freeze(v->vec+i);
+    dilithium_poly_freeze(&v->vec[i]);
 }
 
 /*************************************************
@@ -36,7 +36,7 @@ void dilithium_polyvecl_add(dilithium_polyvecl *w, const dilithium_polyvecl *u, 
   unsigned int i;
 
   for(i = 0; i < dilithium_l; ++i)
-    dilithium_poly_add(w->vec+i, u->vec+i, v->vec+i);
+    dilithium_poly_add(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
 
 /*************************************************
@@ -51,7 +51,7 @@ void dilithium_polyvecl_ntt(dilithium_polyvecl *v, uint64_t dilithium_l) {
   unsigned int i;
 
   for(i = 0; i < dilithium_l; ++i)
-    dilithium_poly_ntt(v->vec+i);
+    dilithium_poly_ntt(&v->vec[i]);
 }
 
 /*************************************************
@@ -72,15 +72,15 @@ void dilithium_polyvecl_pointwise_acc_invmontgomery(dilithium_poly *w,
                                           const dilithium_polyvecl *v,
                                           uint64_t dilithium_l)
 {
-  unsigned int i;
-  dilithium_poly t;
+    unsigned int i;
+    dilithium_poly t;
 
-  dilithium_poly_pointwise_invmontgomery(w, u->vec+0, v->vec+0);
+    dilithium_poly_pointwise_invmontgomery(w, u->vec+0, v->vec+0);
 
-  for(i = 1; i < dilithium_l; ++i) {
-    dilithium_poly_pointwise_invmontgomery(&t, u->vec+i, v->vec+i);
-    dilithium_poly_add(w, w, &t);
-  }
+    for(i = 1; i < dilithium_l; ++i) {
+        dilithium_poly_pointwise_invmontgomery(&t, &u->vec[i], &v->vec[i]);
+        dilithium_poly_add(w, w, &t);
+    }
 }
 
 /*************************************************
@@ -96,13 +96,13 @@ void dilithium_polyvecl_pointwise_acc_invmontgomery(dilithium_poly *w,
 * otherwise.
 **************************************************/
 int dilithium_polyvecl_chknorm(const dilithium_polyvecl *v, uint32_t bound, uint64_t dilithium_l)  {
-  unsigned int i;
-  int ret = 0;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_l; ++i)
-    ret |= dilithium_poly_chknorm(v->vec+i, bound);
+    for(i = 0; i < dilithium_l; ++i)
+        if (dilithium_poly_chknorm(&v->vec[i], bound))
+            return 1;
 
-  return ret;
+    return 0;
 }
 
 /**************************************************************/
@@ -119,10 +119,10 @@ int dilithium_polyvecl_chknorm(const dilithium_polyvecl *v, uint32_t bound, uint
 * Arguments:   - polyveck *v: pointer to input/output vector
 **************************************************/
 void dilithium_polyveck_reduce(dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_reduce(v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_reduce(&v->vec[i]);
 }
 
 /*************************************************
@@ -134,10 +134,10 @@ void dilithium_polyveck_reduce(dilithium_polyveck *v, uint64_t dilithium_k) {
 * Arguments:   - polyveck *v: pointer to input/output vector
 **************************************************/
 void dilithium_polyveck_csubq(dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_csubq(v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_csubq(&v->vec[i]);
 }
 
 /*************************************************
@@ -149,10 +149,10 @@ void dilithium_polyveck_csubq(dilithium_polyveck *v, uint64_t dilithium_k) {
 * Arguments:   - polyveck *v: pointer to input/output vector
 **************************************************/
 void dilithium_polyveck_freeze(dilithium_polyveck *v, uint64_t dilithium_k)  {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_freeze(v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_freeze(&v->vec[i]);
 }
 
 /*************************************************
@@ -166,10 +166,10 @@ void dilithium_polyveck_freeze(dilithium_polyveck *v, uint64_t dilithium_k)  {
 *              - const polyveck *v: pointer to second summand
 **************************************************/
 void dilithium_polyveck_add(dilithium_polyveck *w, const dilithium_polyveck *u, const dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_add(w->vec+i, u->vec+i, v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_add(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
 
 /*************************************************
@@ -185,26 +185,26 @@ void dilithium_polyveck_add(dilithium_polyveck *w, const dilithium_polyveck *u, 
 *                                   subtracted from first input vector
 **************************************************/
 void dilithium_polyveck_sub(dilithium_polyveck *w, const dilithium_polyveck *u, const dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_sub(w->vec+i, u->vec+i, v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_sub(&w->vec[i], &u->vec[i], &v->vec[i]);
 }
 
 /*************************************************
 * Name:        polyveck_shiftl
 *
-* Description: Multiply vector of polynomials of Length K by 2^k without modular
-*              reduction. Assumes input coefficients to be less than 2^{32-k}.
+* Description: Multiply vector of polynomials of Length K by 2^D without modular
+*              reduction. Assumes input coefficients to be less than 2^{32-D}.
 *
 * Arguments:   - polyveck *v: pointer to input/output vector
 *              - unsigned int k: exponent
 **************************************************/
-void dilithium_polyveck_shiftl(dilithium_polyveck *v, unsigned int k, uint64_t dilithium_k) {
-  unsigned int i;
+void dilithium_polyveck_shiftl(dilithium_polyveck *v, uint64_t dilithium_k) {
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_shiftl(v->vec+i, k);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_shiftl(&v->vec[i]);
 }
 
 /*************************************************
@@ -216,10 +216,10 @@ void dilithium_polyveck_shiftl(dilithium_polyveck *v, unsigned int k, uint64_t d
 * Arguments:   - polyveck *v: pointer to input/output vector
 **************************************************/
 void dilithium_polyveck_ntt(dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_ntt(v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_ntt(&v->vec[i]);
 }
 
 /*************************************************
@@ -232,10 +232,10 @@ void dilithium_polyveck_ntt(dilithium_polyveck *v, uint64_t dilithium_k) {
 * Arguments:   - polyveck *v: pointer to input/output vector
 **************************************************/
 void dilithium_polyveck_invntt_montgomery(dilithium_polyveck *v, uint64_t dilithium_k) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_invntt_montgomery(v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        dilithium_poly_invntt_montgomery(&v->vec[i]);
 }
 
 /*************************************************
@@ -251,13 +251,13 @@ void dilithium_polyveck_invntt_montgomery(dilithium_polyveck *v, uint64_t dilith
 * otherwise.
 **************************************************/
 int dilithium_polyveck_chknorm(const dilithium_polyveck *v, uint32_t bound, uint64_t dilithium_k) {
-  unsigned int i;
-  int ret = 0;
+    unsigned int i;
 
-  for(i = 0; i < dilithium_k; ++i)
-    ret |= dilithium_poly_chknorm(v->vec+i, bound);
+    for(i = 0; i < dilithium_k; ++i)
+        if (dilithium_poly_chknorm(&v->vec[i], bound))
+            return 1;
 
-  return ret;
+    return 0;
 }
 
 /*************************************************
@@ -278,7 +278,7 @@ void dilithium_polyveck_power2round(dilithium_polyveck *v1, dilithium_polyveck *
   unsigned int i;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_power2round(v1->vec+i, v0->vec+i, v->vec+i);
+    dilithium_poly_power2round(&v1->vec[i], &v0->vec[i], &v->vec[i]);
 }
 
 /*************************************************
@@ -300,7 +300,7 @@ void dilithium_polyveck_decompose(dilithium_polyveck *v1, dilithium_polyveck *v0
   unsigned int i;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_decompose(v1->vec+i, v0->vec+i, v->vec+i);
+    dilithium_poly_decompose(&v1->vec[i], &v0->vec[i], &v->vec[i]);
 }
 
 /*************************************************
@@ -309,22 +309,22 @@ void dilithium_polyveck_decompose(dilithium_polyveck *v1, dilithium_polyveck *v0
 * Description: Compute hint vector.
 *
 * Arguments:   - polyveck *h: pointer to output vector
-*              - const polyveck *u: pointer to first input vector
-*              - const polyveck *u: pointer to second input vector
+*              - const polyveck *v0: pointer to low part of input vector
+*              - const polyveck *v1: pointer to high part of input vector
 *
 * Returns number of 1 bits.
 **************************************************/
 unsigned int dilithium_polyveck_make_hint(dilithium_polyveck *h,
-                                const dilithium_polyveck *u,
-                                const dilithium_polyveck *v,
+                                const dilithium_polyveck *v0,
+                                const dilithium_polyveck *v1,
                                 uint64_t dilithium_k)
 {
-  unsigned int i, s = 0;
+    unsigned int i, s = 0;
 
-  for(i = 0; i < dilithium_k; ++i)
-    s += dilithium_poly_make_hint(h->vec+i, u->vec+i, v->vec+i);
+    for(i = 0; i < dilithium_k; ++i)
+        s += dilithium_poly_make_hint(&h->vec[i], &v0->vec[i], &v1->vec[i]);
 
-  return s;
+    return s;
 }
 
 /*************************************************
@@ -341,5 +341,5 @@ void dilithium_polyveck_use_hint(dilithium_polyveck *w, const dilithium_polyveck
   unsigned int i;
 
   for(i = 0; i < dilithium_k; ++i)
-    dilithium_poly_use_hint(w->vec+i, u->vec+i, h->vec+i);
+    dilithium_poly_use_hint(&w->vec[i], &u->vec[i], &h->vec[i]);
 }

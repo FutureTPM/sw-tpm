@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "fips202.h"
+#include "dilithium-params.h"
 
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
@@ -417,17 +418,15 @@ static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblock
                                  uint64_t *s,
                                  unsigned int r)
 {
-  unsigned int i;
-  while(nblocks > 0)
-  {
-    KeccakF1600_StatePermute(s);
-    for(i=0;i<(r>>3);i++)
-    {
-      store64(h+8*i, s[i]);
+    unsigned int i;
+    while(nblocks > 0) {
+        KeccakF1600_StatePermute(s);
+        for(i=0;i<(r>>3);i++) {
+            store64(h+8*i, s[i]);
+        }
+        h += r;
+        nblocks--;
     }
-    h += r;
-    nblocks--;
-  }
 }
 
 
@@ -441,9 +440,24 @@ static void keccak_squeezeblocks(unsigned char *h, unsigned long long int nblock
 *              - const unsigned char *input:      pointer to input to be absorbed into s
 *              - unsigned long long inputByteLen: length of input in bytes
 **************************************************/
-void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int inputByteLen)
+void shake128_absorb(keccak_state *state, const unsigned char *input, unsigned int inputByteLen)
 {
-  keccak_absorb(s, SHAKE128_RATE, input, inputByteLen, 0x1F);
+    keccak_absorb(state->s, SHAKE128_RATE, input, inputByteLen, 0x1F);
+}
+
+void shake128_stream_init(keccak_state *state,
+                          const unsigned char seed[DILITHIUM_SEEDBYTES],
+                          uint16_t nonce)
+{
+    unsigned int i;
+    unsigned char buf[DILITHIUM_SEEDBYTES + 2];
+
+    for(i = 0; i < DILITHIUM_SEEDBYTES; ++i)
+        buf[i] = seed[i];
+    buf[DILITHIUM_SEEDBYTES] = nonce;
+    buf[DILITHIUM_SEEDBYTES+1] = nonce >> 8;
+
+    keccak_absorb(state->s, SHAKE128_RATE, buf, sizeof(buf), 0x1F);
 }
 
 /*************************************************
@@ -457,9 +471,9 @@ void shake128_absorb(uint64_t *s, const unsigned char *input, unsigned int input
 *              - unsigned long long nblocks: number of blocks to be squeezed (written to output)
 *              - uint64_t *s:                pointer to in/output Keccak state
 **************************************************/
-void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, uint64_t *s)
+void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, keccak_state *state)
 {
-  keccak_squeezeblocks(output, nblocks, s, SHAKE128_RATE);
+    keccak_squeezeblocks(output, nblocks, state->s, SHAKE128_RATE);
 }
 
 /*************************************************
@@ -473,11 +487,26 @@ void shake128_squeezeblocks(unsigned char *output, unsigned long long nblocks, u
 *                                            into s
 *              - unsigned long long inlen: length of input in bytes
 **************************************************/
-void shake256_absorb(uint64_t *s,
+void shake256_absorb(keccak_state *state,
                      const unsigned char *input,
                      unsigned long long inlen)
 {
-  keccak_absorb(s, SHAKE256_RATE, input, inlen, 0x1F);
+    keccak_absorb(state->s, SHAKE256_RATE, input, inlen, 0x1F);
+}
+
+void shake256_stream_init(keccak_state *state,
+                          const unsigned char seed[DILITHIUM_CRHBYTES],
+                          uint16_t nonce)
+{
+    unsigned int i;
+    unsigned char buf[DILITHIUM_CRHBYTES + 2];
+
+    for(i = 0; i < DILITHIUM_CRHBYTES; ++i)
+        buf[i] = seed[i];
+    buf[DILITHIUM_CRHBYTES] = nonce;
+    buf[DILITHIUM_CRHBYTES+1] = nonce >> 8;
+
+    keccak_absorb(state->s, SHAKE256_RATE, buf, sizeof(buf), 0x1F);
 }
 
 /*************************************************
@@ -494,8 +523,8 @@ void shake256_absorb(uint64_t *s,
 **************************************************/
 void shake256_squeezeblocks(unsigned char *output,
                             unsigned long nblocks,
-                            uint64_t *s)
+                            keccak_state *state)
 {
-  keccak_squeezeblocks(output, nblocks, s, SHAKE256_RATE);
+    keccak_squeezeblocks(output, nblocks, state->s, SHAKE256_RATE);
 }
 

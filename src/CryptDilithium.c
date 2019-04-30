@@ -125,16 +125,15 @@ CryptDilithiumSign(
 {
     TPM_RC   retVal = TPM_RC_SUCCESS;
     DilithiumParams params;
-    unsigned long long i, j;
+    unsigned long long i;
     unsigned int n;
-    unsigned char seedbuf[2*DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES];
-    unsigned char tr[DILITHIUM_CRHBYTES];
-    unsigned char *rho, *key_, *mu;
+    unsigned char seedbuf[2*DILITHIUM_SEEDBYTES + 3*DILITHIUM_CRHBYTES];
+    unsigned char *rho, *key_, *mu, *tr, *rhoprime;
     uint16_t nonce = 0;
     dilithium_poly c, chat;
     dilithium_polyvecl mat[6], s1, y, yhat, z; // Max K in Dilithium
-    dilithium_polyveck s2, t0, w, w1;
-    dilithium_polyveck h, wcs2, wcs20, ct0, tmp;
+    dilithium_polyveck t0, s2, w0, w, w1;
+    dilithium_polyveck h, ct0, cs2;
 
     pAssert(sigOut != NULL && key != NULL && hIn != NULL);
 
@@ -162,8 +161,10 @@ CryptDilithiumSign(
     }
 
     rho = seedbuf;
-    key_ = seedbuf + DILITHIUM_SEEDBYTES;
-    mu = seedbuf + 2*DILITHIUM_SEEDBYTES;
+    tr = rho + DILITHIUM_SEEDBYTES;
+    key_ = tr + DILITHIUM_CRHBYTES;
+    mu = key_ + DILITHIUM_SEEDBYTES;
+    rhoprime = mu + DILITHIUM_CRHBYTES;
     dilithium_unpack_sk(rho, key_, tr, &s1, &s2, &t0,
             key->sensitive.sensitive.dilithium.b.buffer, params.k,
             params.l, params.poleta_size_packed, params.polt0_size_packed,
@@ -181,6 +182,10 @@ CryptDilithiumSign(
             DILITHIUM_CRHBYTES + hIn->b.size, sigOut->signature.dilithium.sig.b.buffer + params.crypto_bytes - DILITHIUM_CRHBYTES,
             DILITHIUM_CRHBYTES, mu);
 
+    CryptHashBlock(TPM_ALG_SHAKE256,
+            DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES, key_,
+            DILITHIUM_CRHBYTES, rhoprime);
+
     /* Expand matrix and transform vectors */
     dilithium_expand_mat(mat, rho, params.k, params.l);
     dilithium_polyvecl_ntt(&s1, params.l);
@@ -192,65 +197,59 @@ CryptDilithiumSign(
 
     /* Sample intermediate vector y */
     for(i = 0; i < params.l; ++i)
-      dilithium_poly_uniform_gamma1m1(y.vec+i, key_, nonce++);
+      dilithium_poly_uniform_gamma1m1(&y.vec[i], rhoprime, nonce++);
 
     /* Matrix-vector multiplication */
     yhat = y;
     dilithium_polyvecl_ntt(&yhat, params.l);
     for(i = 0; i < params.k; ++i) {
-      dilithium_polyvecl_pointwise_acc_invmontgomery(w.vec+i, mat+i, &yhat,
+      dilithium_polyvecl_pointwise_acc_invmontgomery(&w.vec[i], &mat[i], &yhat,
               params.l);
-      dilithium_poly_reduce(w.vec+i);
-      dilithium_poly_invntt_montgomery(w.vec+i);
+      dilithium_poly_reduce(&w.vec[i]);
+      dilithium_poly_invntt_montgomery(&w.vec[i]);
     }
 
     /* Decompose w and call the random oracle */
     dilithium_polyveck_csubq(&w, params.k);
-    dilithium_polyveck_decompose(&w1, &tmp, &w, params.k);
+    dilithium_polyveck_decompose(&w1, &w0, &w, params.k);
     dilithium_challenge(&c, mu, &w1, params.k, params.polw1_size_packed);
-
-    /* Compute z, reject if it reveals secret */
     chat = c;
     dilithium_poly_ntt(&chat);
+
+    /* Check that subtracting cs2 does not change high bits of w and low bits
+    * do not reveal secret information */
+    for(i = 0; i < params.k; ++i) {
+        dilithium_poly_pointwise_invmontgomery(&cs2.vec[i], &chat, &s2.vec[i]);
+        dilithium_poly_invntt_montgomery(&cs2.vec[i]);
+    }
+    dilithium_polyveck_sub(&w0, &w0, &cs2, params.k);
+    dilithium_polyveck_freeze(&w0, params.k);
+    if(dilithium_polyveck_chknorm(&w0, DILITHIUM_GAMMA2 - params.beta, params.l))
+        goto rej;
+
+    /* Compute z, reject if it reveals secret */
     for(i = 0; i < params.l; ++i) {
-      dilithium_poly_pointwise_invmontgomery(z.vec+i, &chat, s1.vec+i);
-      dilithium_poly_invntt_montgomery(z.vec+i);
+      dilithium_poly_pointwise_invmontgomery(&z.vec[i], &chat, &s1.vec[i]);
+      dilithium_poly_invntt_montgomery(&z.vec[i]);
     }
     dilithium_polyvecl_add(&z, &z, &y, params.l);
     dilithium_polyvecl_freeze(&z, params.l);
     if(dilithium_polyvecl_chknorm(&z, DILITHIUM_GAMMA1 - params.beta, params.l))
       goto rej;
 
-    /* Compute w - cs2, reject if w1 can not be computed from it */
-    for(i = 0; i < params.k; ++i) {
-      dilithium_poly_pointwise_invmontgomery(wcs2.vec+i, &chat, s2.vec+i);
-      dilithium_poly_invntt_montgomery(wcs2.vec+i);
-    }
-    dilithium_polyveck_sub(&wcs2, &w, &wcs2, params.k);
-    dilithium_polyveck_freeze(&wcs2, params.k);
-    dilithium_polyveck_decompose(&tmp, &wcs20, &wcs2, params.k);
-    dilithium_polyveck_csubq(&wcs20, params.k);
-    if(dilithium_polyveck_chknorm(&wcs20, DILITHIUM_GAMMA2 - params.beta, params.k))
-      goto rej;
-
-    for(i = 0; i < params.k; ++i)
-      for(j = 0; j < DILITHIUM_N; ++j)
-        if(tmp.vec[i].coeffs[j] != w1.vec[i].coeffs[j])
-          goto rej;
-
     /* Compute hints for w1 */
     for(i = 0; i < params.k; ++i) {
-      dilithium_poly_pointwise_invmontgomery(ct0.vec+i, &chat, t0.vec+i);
-      dilithium_poly_invntt_montgomery(ct0.vec+i);
+      dilithium_poly_pointwise_invmontgomery(&ct0.vec[i], &chat, &t0.vec[i]);
+      dilithium_poly_invntt_montgomery(&ct0.vec[i]);
     }
 
     dilithium_polyveck_csubq(&ct0, params.k);
     if(dilithium_polyveck_chknorm(&ct0, DILITHIUM_GAMMA2, params.k))
       goto rej;
 
-    dilithium_polyveck_add(&tmp, &wcs2, &ct0, params.k);
-    dilithium_polyveck_csubq(&tmp, params.k);
-    n = dilithium_polyveck_make_hint(&h, &wcs2, &tmp, params.k);
+    dilithium_polyveck_add(&w0, &w0, &ct0, params.k);
+    dilithium_polyveck_csubq(&w0, params.k);
+    n = dilithium_polyveck_make_hint(&h, &w0, &w1, params.k);
     if(n > params.omega)
       goto rej;
 
@@ -330,14 +329,14 @@ CryptDilithiumValidateSignature(
     dilithium_expand_mat(mat, rho, params.k, params.l);
     dilithium_polyvecl_ntt(&z, params.l);
     for(i = 0; i < params.k; ++i)
-      dilithium_polyvecl_pointwise_acc_invmontgomery(tmp1.vec+i, mat+i, &z, params.l);
+      dilithium_polyvecl_pointwise_acc_invmontgomery(&tmp1.vec[i], &mat[i], &z, params.l);
 
     chat = c;
     dilithium_poly_ntt(&chat);
-    dilithium_polyveck_shiftl(&t1, DILITHIUM_D, params.k);
+    dilithium_polyveck_shiftl(&t1, params.k);
     dilithium_polyveck_ntt(&t1, params.k);
     for(i = 0; i < params.k; ++i)
-      dilithium_poly_pointwise_invmontgomery(tmp2.vec+i, &chat, t1.vec+i);
+      dilithium_poly_pointwise_invmontgomery(&tmp2.vec[i], &chat, &t1.vec[i]);
 
     dilithium_polyveck_sub(&tmp1, &tmp1, &tmp2, params.k);
     dilithium_polyveck_reduce(&tmp1, params.k);
@@ -360,16 +359,16 @@ CryptDilithiumValidateSignature(
       message_tmp.b.buffer[i] = sig->signature.dilithium.sig.b.buffer[params.crypto_bytes + i];
 
     if (!MemoryEqual2B(&digest->b, &message_tmp.b)) {
-        printf("Dilithium Signature verification failed\n");
-        printf("Digest is (%d bytes):\n", digest->b.size);
-        for (size_t i = 0; i < digest->b.size; i++) {
-            printf("%02X", digest->b.buffer[i]);
-        }
-        printf("\nMessage is (%d bytes):\n", message_tmp.b.size);
-        for (size_t i = 0; i < message_tmp.b.size; i++) {
-            printf("%02X", message_tmp.b.buffer[i]);
-        }
-        printf("\n");
+        //printf("Dilithium Signature verification failed\n");
+        //printf("Digest is (%d bytes):\n", digest->b.size);
+        //for (size_t i = 0; i < digest->b.size; i++) {
+        //    printf("%02X", digest->b.buffer[i]);
+        //}
+        //printf("\nMessage is (%d bytes):\n", message_tmp.b.size);
+        //for (size_t i = 0; i < message_tmp.b.size; i++) {
+        //    printf("%02X", message_tmp.b.buffer[i]);
+        //}
+        //printf("\n");
         goto badsig;
     }
 
@@ -395,7 +394,7 @@ CryptDilithiumGenerateKey(
     unsigned int i;
     unsigned char seedbuf[3*DILITHIUM_SEEDBYTES];
     unsigned char tr[DILITHIUM_CRHBYTES];
-    unsigned char *rho, *rhoprime, *key;
+    const unsigned char *rho, *rhoprime, *key;
     uint16_t nonce = 0;
     dilithium_polyvecl mat[6]; // MAX K in Dilithium
     dilithium_polyvecl s1, s1hat;
@@ -416,34 +415,33 @@ CryptDilithiumGenerateKey(
     }
 
     /* Expand 32 bytes of randomness into rho, rhoprime and key */
-    CryptRandomGenerate(DILITHIUM_SEEDBYTES, seedbuf);
-    CryptHashBlock(TPM_ALG_SHAKE256,
-            DILITHIUM_SEEDBYTES, seedbuf,
-            3*DILITHIUM_SEEDBYTES, seedbuf);
+    CryptRandomGenerate(3*DILITHIUM_SEEDBYTES, seedbuf);
     rho = seedbuf;
-    rhoprime = rho + DILITHIUM_SEEDBYTES;
-    key = rho + 2*DILITHIUM_SEEDBYTES;
+    rhoprime = seedbuf + DILITHIUM_SEEDBYTES;
+    key = seedbuf + 2*DILITHIUM_SEEDBYTES;
 
     /* Expand matrix */
     dilithium_expand_mat(mat, rho, params.k, params.l);
 
-    /* Sample short vectors s1 and s2 */
+    /* Sample short vector s1 and s2 */
     for(i = 0; i < params.l; ++i)
-      dilithium_poly_uniform_eta(s1.vec+i, rhoprime, nonce++, params.eta);
+      dilithium_poly_uniform_eta(&s1.vec[i], rhoprime, nonce++, params.eta,
+              params.setabits);
     for(i = 0; i < params.k; ++i)
-      dilithium_poly_uniform_eta(s2.vec+i, rhoprime, nonce++, params.eta);
+      dilithium_poly_uniform_eta(&s2.vec[i], rhoprime, nonce++, params.eta,
+              params.setabits);
 
     /* Matrix-vector multiplication */
     s1hat = s1;
     dilithium_polyvecl_ntt(&s1hat, params.l);
     for(i = 0; i < params.k; ++i) {
-      dilithium_polyvecl_pointwise_acc_invmontgomery(t.vec+i, mat+i, &s1hat,
+      dilithium_polyvecl_pointwise_acc_invmontgomery(&t.vec[i], &mat[i], &s1hat,
               params.l);
-      dilithium_poly_reduce(t.vec+i);
-      dilithium_poly_invntt_montgomery(t.vec+i);
+      dilithium_poly_reduce(&t.vec[i]);
+      dilithium_poly_invntt_montgomery(&t.vec[i]);
     }
 
-    /* Add noise vector s2 */
+    /* Add error vector s2 */
     dilithium_polyveck_add(&t, &t, &s2, params.k);
 
     /* Extract t1 and write public key */

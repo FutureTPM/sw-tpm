@@ -128,7 +128,7 @@ static void kyber_gen_matrix(kyber_polyvec *a, const unsigned char *seed, int tr
   const unsigned int maxnblocks=4;
   uint8_t buf[SHAKE128_RATE*maxnblocks];
   int i,j;
-  uint64_t state[25]; // SHAKE state
+  keccak_state state; // SHAKE state
   unsigned char extseed[KYBER_SYMBYTES+2];
 
   for(i=0;i<KYBER_SYMBYTES;i++)
@@ -147,8 +147,8 @@ static void kyber_gen_matrix(kyber_polyvec *a, const unsigned char *seed, int tr
         extseed[KYBER_SYMBYTES+1] = i;
       }
 
-      shake128_absorb(state,extseed,KYBER_SYMBYTES+2);
-      shake128_squeezeblocks(buf,nblocks,state);
+      shake128_absorb(&state,extseed,KYBER_SYMBYTES+2);
+      shake128_squeezeblocks(buf,nblocks,&state);
 
       while(ctr < KYBER_N) {
         val = (buf[pos] | ((uint16_t) buf[pos+1] << 8)) & 0x1fff;
@@ -159,7 +159,7 @@ static void kyber_gen_matrix(kyber_polyvec *a, const unsigned char *seed, int tr
 
         if(pos > SHAKE128_RATE*nblocks-2) {
           nblocks = 1;
-          shake128_squeezeblocks(buf,nblocks,state);
+          shake128_squeezeblocks(buf,nblocks,&state);
           pos = 0;
         }
       }

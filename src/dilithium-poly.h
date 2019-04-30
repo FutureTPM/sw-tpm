@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "dilithium-params.h"
-#include "fips202.h"
 
 typedef struct {
   uint32_t coeffs[DILITHIUM_N];
@@ -16,7 +15,7 @@ void dilithium_poly_freeze(dilithium_poly *a);
 void dilithium_poly_add(dilithium_poly *c, const dilithium_poly *a, const dilithium_poly *b);
 void dilithium_poly_sub(dilithium_poly *c, const dilithium_poly *a, const dilithium_poly *b);
 void dilithium_poly_neg(dilithium_poly *a);
-void dilithium_poly_shiftl(dilithium_poly *a, unsigned int k);
+void dilithium_poly_shiftl(dilithium_poly *a);
 
 void dilithium_poly_ntt(dilithium_poly *a);
 void dilithium_poly_invntt_montgomery(dilithium_poly *a);
@@ -24,16 +23,20 @@ void dilithium_poly_pointwise_invmontgomery(dilithium_poly *c, const dilithium_p
 
 void dilithium_poly_power2round(dilithium_poly *a1, dilithium_poly *a0, const dilithium_poly *a);
 void dilithium_poly_decompose(dilithium_poly *a1, dilithium_poly *a0, const dilithium_poly *a);
-unsigned int dilithium_poly_make_hint(dilithium_poly *h, const dilithium_poly *a, const dilithium_poly *b);
+unsigned int dilithium_poly_make_hint(dilithium_poly *h,
+        const dilithium_poly *a0, const dilithium_poly *a1);
 void dilithium_poly_use_hint(dilithium_poly *a, const dilithium_poly *b, const dilithium_poly *h);
 
 int  dilithium_poly_chknorm(const dilithium_poly *a, uint32_t B);
-void dilithium_poly_uniform(dilithium_poly *a, const unsigned char *buf);
+void dilithium_poly_uniform(dilithium_poly *a,
+        const unsigned char seed[DILITHIUM_SEEDBYTES],
+        uint16_t nonce);
 void dilithium_poly_uniform_eta(dilithium_poly *a,
                       const unsigned char seed[DILITHIUM_SEEDBYTES],
-                      unsigned char nonce, uint64_t dilithium_eta);
+                      uint16_t nonce, uint64_t dilithium_eta,
+                      uint64_t dilithium_setabits);
 void dilithium_poly_uniform_gamma1m1(dilithium_poly *a,
-                           const unsigned char seed[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES],
+                           const unsigned char seed[DILITHIUM_CRHBYTES],
                            uint16_t nonce);
 
 void dilithium_polyeta_pack(unsigned char *r, const dilithium_poly *a, uint64_t dilithium_eta);

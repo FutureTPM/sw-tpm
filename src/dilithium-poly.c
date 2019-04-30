@@ -110,18 +110,16 @@ void dilithium_poly_neg(dilithium_poly *a) {
 /*************************************************
 * Name:        poly_shiftl
 *
-* Description: Multiply polynomial by 2^k without modular reduction. Assumes
-*              input coefficients to be less than 2^{32-k}.
+* Description: Multiply polynomial by 2^D without modular reduction. Assumes
+*              input coefficients to be less than 2^{32-D}.
 *
 * Arguments:   - poly *a: pointer to input/output polynomial
-*              - unsigned int k: exponent
 **************************************************/
-void dilithium_poly_shiftl(dilithium_poly *a, unsigned int k) {
-  unsigned int i;
+void dilithium_poly_shiftl(dilithium_poly *a) {
+    unsigned int i;
 
-  for(i = 0; i < DILITHIUM_N; ++i)
-    a->coeffs[i] <<= k;
-
+    for(i = 0; i < DILITHIUM_N; ++i)
+        a->coeffs[i] <<= DILITHIUM_D;
 }
 
 /*************************************************
@@ -184,7 +182,7 @@ void dilithium_poly_power2round(dilithium_poly *a1, dilithium_poly *a0, const di
   unsigned int i;
 
   for(i = 0; i < DILITHIUM_N; ++i)
-    a1->coeffs[i] = dilithium_power2round(a->coeffs[i], a0->coeffs+i);
+    a1->coeffs[i] = dilithium_power2round(a->coeffs[i], &a0->coeffs[i]);
 
 }
 
@@ -205,7 +203,7 @@ void dilithium_poly_decompose(dilithium_poly *a1, dilithium_poly *a0, const dili
   unsigned int i;
 
   for(i = 0; i < DILITHIUM_N; ++i)
-    a1->coeffs[i] = dilithium_decompose(a->coeffs[i], a0->coeffs+i);
+    a1->coeffs[i] = dilithium_decompose(a->coeffs[i], &a0->coeffs[i]);
 
 }
 
@@ -218,16 +216,17 @@ void dilithium_poly_decompose(dilithium_poly *a1, dilithium_poly *a0, const dili
 *              polynomials differ.
 *
 * Arguments:   - poly *h: pointer to output hint polynomial
-*              - const poly *a: pointer to first input polynomial
-*              - const poly *b: pointer to second input polynomial
+*              - const poly *a0: pointer to low part of input polynomial
+*              - const poly *a1: pointer to high part of input polynomial
 *
 * Returns number of 1 bits.
 **************************************************/
-unsigned int dilithium_poly_make_hint(dilithium_poly *h, const dilithium_poly *a, const dilithium_poly *b) {
+unsigned int dilithium_poly_make_hint(dilithium_poly *h,
+        const dilithium_poly *a0, const dilithium_poly *a1) {
   unsigned int i, s = 0;
 
   for(i = 0; i < DILITHIUM_N; ++i) {
-    h->coeffs[i] = dilithium_make_hint(a->coeffs[i], b->coeffs[i]);
+    h->coeffs[i] = dilithium_make_hint(a0->coeffs[i], a1->coeffs[i]);
     s += h->coeffs[i];
   }
 
@@ -284,30 +283,74 @@ int dilithium_poly_chknorm(const dilithium_poly *a, uint32_t B) {
 }
 
 /*************************************************
+ * Name:        rej_uniform
+ *
+ * Description: Sample uniformly random coefficients in [0, Q-1] by
+ *              performing rejection sampling using array of random bytes.
+ *
+ * Arguments:   - uint32_t *a: pointer to output array (allocated)
+ *              - unsigned int len: number of coefficients to be sampled
+ *              - const unsigned char *buf: array of random bytes
+ *              - unsigned int buflen: length of array of random bytes
+ *
+ * Returns number of sampled coefficients. Can be smaller than len if not enough
+ * random bytes were given.
+ **************************************************/
+static unsigned int rej_uniform(uint32_t *a, unsigned int len,
+        const unsigned char *buf, unsigned int buflen) {
+    unsigned int ctr, pos;
+    uint32_t t;
+
+    ctr = pos = 0;
+    while(ctr < len && pos + 3 <= buflen) {
+        t  = buf[pos++];
+        t |= (uint32_t)buf[pos++] << 8;
+        t |= (uint32_t)buf[pos++] << 16;
+        t &= 0x7FFFFF;
+
+        if(t < DILITHIUM_Q)
+            a[ctr++] = t;
+    }
+
+    return ctr;
+}
+
+/*************************************************
 * Name:        poly_uniform
 *
-* Description: Sample uniformly random polynomial using stream of random bytes.
-*              Assumes that enough random bytes are given (e.g.
-*              5*SHAKE128_RATE bytes).
+* Description: Sample polynomial with uniformly random coefficients
+*              in [0,Q-1] by performing rejection sampling using the
+*              output stream from SHAKE256(seed|nonce).
 *
 * Arguments:   - poly *a: pointer to output polynomial
-*              - const unsigned char *buf: array of random bytes
+*              - const unsigned char seed[]: byte array with seed of length
+*                                            SEEDBYTES
+*              - uint16_t nonce: 2-byte nonce
 **************************************************/
-void dilithium_poly_uniform(dilithium_poly *a, const unsigned char *buf) {
-  unsigned int ctr, pos;
-  uint32_t t;
+void dilithium_poly_uniform(dilithium_poly *a,
+                  const unsigned char seed[DILITHIUM_SEEDBYTES],
+                  uint16_t nonce)
+{
+    unsigned int i, ctr, off;
+    unsigned int nblocks = (769 + STREAM128_BLOCKBYTES)/STREAM128_BLOCKBYTES;
+    unsigned int buflen = nblocks*STREAM128_BLOCKBYTES;
+    unsigned char buf[buflen + 2];
+    stream128_state state;
 
-  ctr = pos = 0;
-  while(ctr < DILITHIUM_N) {
-    t  = buf[pos++];
-    t |= (uint32_t)buf[pos++] << 8;
-    t |= (uint32_t)buf[pos++] << 16;
-    t &= 0x7FFFFF;
+    shake128_stream_init(&state, seed, nonce);
+    shake128_squeezeblocks(buf, nblocks, &state);
 
-    if(t < DILITHIUM_Q)
-      a->coeffs[ctr++] = t;
-  }
+    ctr = rej_uniform(a->coeffs, DILITHIUM_N, buf, buflen);
 
+    while(ctr < DILITHIUM_N) {
+        off = buflen % 3;
+        for(i = 0; i < off; ++i)
+            buf[i] = buf[buflen - off + i];
+
+        buflen = STREAM128_BLOCKBYTES + off;
+        shake128_squeezeblocks(buf + off, 1, &state);
+        ctr += rej_uniform(a->coeffs + ctr, DILITHIUM_N - ctr, buf, buflen);
+    }
 }
 
 /*************************************************
@@ -331,7 +374,7 @@ static unsigned int rej_eta(uint32_t *a,
                             uint64_t dilithium_eta)
 {
   unsigned int ctr, pos;
-  unsigned char t0, t1;
+  uint32_t t0, t1;
 
   ctr = pos = 0;
   while(ctr < len && pos < buflen) {
@@ -362,31 +405,29 @@ static unsigned int rej_eta(uint32_t *a,
 * Arguments:   - poly *a: pointer to output polynomial
 *              - const unsigned char seed[]: byte array with seed of length
 *                                            SEEDBYTES
-*              - unsigned char nonce: nonce byte
+*              - uint16_t nonce: 2-byte nonce
 **************************************************/
 void dilithium_poly_uniform_eta(dilithium_poly *a,
                       const unsigned char seed[DILITHIUM_SEEDBYTES],
-                      unsigned char nonce, uint64_t dilithium_eta)
+                      uint16_t nonce, uint64_t dilithium_eta,
+                      uint64_t dilithium_setabits)
 {
-  unsigned int i, ctr;
-  unsigned char inbuf[DILITHIUM_SEEDBYTES + 1];
-  /* Probability that we need more than 2 blocks: < 2^{-84}
-     Probability that we need more than 3 blocks: < 2^{-352} */
-  unsigned char outbuf[2*SHAKE256_RATE];
-  uint64_t state[25];
+    unsigned int ctr;
+    unsigned int nblocks = ((DILITHIUM_N/2 * (1U << dilithium_setabits)) / (2*dilithium_eta + 1)
+                          + STREAM128_BLOCKBYTES) / STREAM128_BLOCKBYTES;
+    unsigned int buflen = nblocks*STREAM128_BLOCKBYTES;
+    unsigned char buf[buflen];
+    stream128_state state;
 
-  for(i= 0; i < DILITHIUM_SEEDBYTES; ++i)
-    inbuf[i] = seed[i];
-  inbuf[DILITHIUM_SEEDBYTES] = nonce;
+    shake128_stream_init(&state, seed, nonce);
+    shake128_squeezeblocks(buf, nblocks, &state);
 
-  shake256_absorb(state, inbuf, DILITHIUM_SEEDBYTES + 1);
-  shake256_squeezeblocks(outbuf, 2, state);
+    ctr = rej_eta(a->coeffs, DILITHIUM_N, buf, buflen, dilithium_eta);
 
-  ctr = rej_eta(a->coeffs, DILITHIUM_N, outbuf, 2*SHAKE256_RATE, dilithium_eta);
-  if(ctr < DILITHIUM_N) {
-    shake256_squeezeblocks(outbuf, 1, state);
-    rej_eta(a->coeffs + ctr, DILITHIUM_N - ctr, outbuf, SHAKE256_RATE, dilithium_eta);
-  }
+    while(ctr < DILITHIUM_N) {
+        shake128_squeezeblocks(buf, 1, &state);
+        ctr += rej_eta(a->coeffs + ctr, DILITHIUM_N - ctr, buf, STREAM128_BLOCKBYTES, dilithium_eta);
+    }
 }
 
 /*************************************************
@@ -446,35 +487,33 @@ static unsigned int rej_gamma1m1(uint32_t *a,
 *
 * Arguments:   - poly *a: pointer to output polynomial
 *              - const unsigned char seed[]: byte array with seed of length
-*                                            SEEDBYTES + CRHBYTES
+*                                            CRHBYTES
 *              - uint16_t nonce: 16-bit nonce
 **************************************************/
 void dilithium_poly_uniform_gamma1m1(dilithium_poly *a,
-                           const unsigned char seed[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES],
+                           const unsigned char seed[DILITHIUM_CRHBYTES],
                            uint16_t nonce)
 {
-  unsigned int i, ctr;
-  unsigned char inbuf[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES + 2];
-  /* Probability that we need more than 5 blocks: < 2^{-81}
-     Probability that we need more than 6 blocks: < 2^{-467} */
-  unsigned char outbuf[5*SHAKE256_RATE];
-  uint64_t state[25];
+    unsigned int i, ctr, off;
+    unsigned int nblocks = (641 + STREAM256_BLOCKBYTES) / STREAM256_BLOCKBYTES;
+    unsigned int buflen = nblocks * STREAM256_BLOCKBYTES;
+    unsigned char buf[buflen + 4];
+    stream256_state state;
 
-  for(i = 0; i < DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES; ++i)
-    inbuf[i] = seed[i];
-  inbuf[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES] = nonce & 0xFF;
-  inbuf[DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES + 1] = nonce >> 8;
+    shake256_stream_init(&state, seed, nonce);
+    shake256_squeezeblocks(buf, nblocks, &state);
 
-  shake256_absorb(state, inbuf, DILITHIUM_SEEDBYTES + DILITHIUM_CRHBYTES + 2);
-  shake256_squeezeblocks(outbuf, 5, state);
+    ctr = rej_gamma1m1(a->coeffs, DILITHIUM_N, buf, buflen);
 
-  ctr = rej_gamma1m1(a->coeffs, DILITHIUM_N, outbuf, 5*SHAKE256_RATE);
-  if(ctr < DILITHIUM_N) {
-    /* There are no bytes left in outbuf
-       since 5*SHAKE256_RATE is divisible by 5 */
-    shake256_squeezeblocks(outbuf, 1, state);
-    rej_gamma1m1(a->coeffs + ctr, DILITHIUM_N - ctr, outbuf, SHAKE256_RATE);
-  }
+    while(ctr < DILITHIUM_N) {
+        off = buflen % 5;
+        for(i = 0; i < off; ++i)
+            buf[i] = buf[buflen - off + i];
+
+        buflen = STREAM256_BLOCKBYTES + off;
+        shake256_squeezeblocks(buf + off, 1, &state);
+        ctr += rej_gamma1m1(a->coeffs + ctr, DILITHIUM_N - ctr, buf, buflen);
+    }
 }
 
 /*************************************************
@@ -491,35 +530,28 @@ void dilithium_polyeta_pack(unsigned char *r, const dilithium_poly *a, uint64_t 
   unsigned int i;
   unsigned char t[8];
 
-  if (dilithium_eta <= 3) {
-    for(i = 0; i < DILITHIUM_N/8; ++i) {
-      t[0] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+0];
-      t[1] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+1];
-      t[2] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+2];
-      t[3] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+3];
-      t[4] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+4];
-      t[5] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+5];
-      t[6] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+6];
-      t[7] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+7];
+    if (2*dilithium_eta <= 7) {
+        for(i = 0; i < DILITHIUM_N/8; ++i) {
+            t[0] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+0];
+            t[1] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+1];
+            t[2] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+2];
+            t[3] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+3];
+            t[4] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+4];
+            t[5] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+5];
+            t[6] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+6];
+            t[7] = DILITHIUM_Q + dilithium_eta - a->coeffs[8*i+7];
 
-      r[3*i+0]  = t[0];
-      r[3*i+0] |= t[1] << 3;
-      r[3*i+0] |= t[2] << 6;
-      r[3*i+1]  = t[2] >> 2;
-      r[3*i+1] |= t[3] << 1;
-      r[3*i+1] |= t[4] << 4;
-      r[3*i+1] |= t[5] << 7;
-      r[3*i+2]  = t[5] >> 1;
-      r[3*i+2] |= t[6] << 2;
-      r[3*i+2] |= t[7] << 5;
+            r[3*i+0]  = (t[0] >> 0) | (t[1] << 3) | (t[2] << 6);
+            r[3*i+1]  = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
+            r[3*i+2]  = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
+        }
+    } else {
+        for(i = 0; i < DILITHIUM_N/2; ++i) {
+            t[0] = DILITHIUM_Q + dilithium_eta - a->coeffs[2*i+0];
+            t[1] = DILITHIUM_Q + dilithium_eta - a->coeffs[2*i+1];
+            r[i] = t[0] | (t[1] << 4);
+        }
     }
-  } else {
-    for(i = 0; i < DILITHIUM_N/2; ++i) {
-      t[0] = DILITHIUM_Q + dilithium_eta - a->coeffs[2*i+0];
-      t[1] = DILITHIUM_Q + dilithium_eta - a->coeffs[2*i+1];
-      r[i] = t[0] | (t[1] << 4);
-    }
-  }
 
 }
 
@@ -533,36 +565,36 @@ void dilithium_polyeta_pack(unsigned char *r, const dilithium_poly *a, uint64_t 
 *              - const unsigned char *a: byte array with bit-packed polynomial
 **************************************************/
 void dilithium_polyeta_unpack(dilithium_poly *r, const unsigned char *a, uint64_t dilithium_eta) {
-  unsigned int i;
+    unsigned int i;
 
-  if (dilithium_eta <= 3) {
-      for(i = 0; i < DILITHIUM_N/8; ++i) {
-        r->coeffs[8*i+0] = a[3*i+0] & 0x07;
-        r->coeffs[8*i+1] = (a[3*i+0] >> 3) & 0x07;
-        r->coeffs[8*i+2] = (a[3*i+0] >> 6) | ((a[3*i+1] & 0x01) << 2);
-        r->coeffs[8*i+3] = (a[3*i+1] >> 1) & 0x07;
-        r->coeffs[8*i+4] = (a[3*i+1] >> 4) & 0x07;
-        r->coeffs[8*i+5] = (a[3*i+1] >> 7) | ((a[3*i+2] & 0x03) << 1);
-        r->coeffs[8*i+6] = (a[3*i+2] >> 2) & 0x07;
-        r->coeffs[8*i+7] = (a[3*i+2] >> 5);
+    if (2*dilithium_eta <= 7) {
+        for(i = 0; i < DILITHIUM_N/8; ++i) {
+            r->coeffs[8*i+0] = a[3*i+0] & 0x07;
+            r->coeffs[8*i+1] = (a[3*i+0] >> 3) & 0x07;
+            r->coeffs[8*i+2] = ((a[3*i+0] >> 6) | (a[3*i+1] << 2)) & 0x07;
+            r->coeffs[8*i+3] = (a[3*i+1] >> 1) & 0x07;
+            r->coeffs[8*i+4] = (a[3*i+1] >> 4) & 0x07;
+            r->coeffs[8*i+5] = ((a[3*i+1] >> 7) | (a[3*i+2] << 1)) & 0x07;
+            r->coeffs[8*i+6] = (a[3*i+2] >> 2) & 0x07;
+            r->coeffs[8*i+7] = (a[3*i+2] >> 5) & 0x07;
 
-        r->coeffs[8*i+0] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+0];
-        r->coeffs[8*i+1] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+1];
-        r->coeffs[8*i+2] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+2];
-        r->coeffs[8*i+3] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+3];
-        r->coeffs[8*i+4] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+4];
-        r->coeffs[8*i+5] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+5];
-        r->coeffs[8*i+6] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+6];
-        r->coeffs[8*i+7] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+7];
-      }
-  } else {
-      for(i = 0; i < DILITHIUM_N/2; ++i) {
-        r->coeffs[2*i+0] = a[i] & 0x0F;
-        r->coeffs[2*i+1] = a[i] >> 4;
-        r->coeffs[2*i+0] = DILITHIUM_Q + dilithium_eta - r->coeffs[2*i+0];
-        r->coeffs[2*i+1] = DILITHIUM_Q + dilithium_eta - r->coeffs[2*i+1];
-      }
-  }
+            r->coeffs[8*i+0] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+0];
+            r->coeffs[8*i+1] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+1];
+            r->coeffs[8*i+2] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+2];
+            r->coeffs[8*i+3] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+3];
+            r->coeffs[8*i+4] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+4];
+            r->coeffs[8*i+5] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+5];
+            r->coeffs[8*i+6] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+6];
+            r->coeffs[8*i+7] = DILITHIUM_Q + dilithium_eta - r->coeffs[8*i+7];
+        }
+    } else {
+        for(i = 0; i < DILITHIUM_N/2; ++i) {
+            r->coeffs[2*i+0] = a[i] & 0x0F;
+            r->coeffs[2*i+1] = a[i] >> 4;
+            r->coeffs[2*i+0] = DILITHIUM_Q + dilithium_eta - r->coeffs[2*i+0];
+            r->coeffs[2*i+1] = DILITHIUM_Q + dilithium_eta - r->coeffs[2*i+1];
+        }
+    }
 
 }
 
@@ -580,19 +612,19 @@ void dilithium_polyt1_pack(unsigned char *r, const dilithium_poly *a) {
 #if DILITHIUM_D != 14
 #error "polyt1_pack() assumes D == 14"
 #endif
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < DILITHIUM_N/8; ++i) {
-    r[9*i+0]  =  a->coeffs[8*i+0] & 0xFF;
-    r[9*i+1]  = (a->coeffs[8*i+0] >> 8) | ((a->coeffs[8*i+1] & 0x7F) << 1);
-    r[9*i+2]  = (a->coeffs[8*i+1] >> 7) | ((a->coeffs[8*i+2] & 0x3F) << 2);
-    r[9*i+3]  = (a->coeffs[8*i+2] >> 6) | ((a->coeffs[8*i+3] & 0x1F) << 3);
-    r[9*i+4]  = (a->coeffs[8*i+3] >> 5) | ((a->coeffs[8*i+4] & 0x0F) << 4);
-    r[9*i+5]  = (a->coeffs[8*i+4] >> 4) | ((a->coeffs[8*i+5] & 0x07) << 5);
-    r[9*i+6]  = (a->coeffs[8*i+5] >> 3) | ((a->coeffs[8*i+6] & 0x03) << 6);
-    r[9*i+7]  = (a->coeffs[8*i+6] >> 2) | ((a->coeffs[8*i+7] & 0x01) << 7);
-    r[9*i+8]  =  a->coeffs[8*i+7] >> 1;
-  }
+    for(i = 0; i < DILITHIUM_N/8; ++i) {
+        r[9*i+0]  = (a->coeffs[8*i+0] >> 0);
+        r[9*i+1]  = (a->coeffs[8*i+0] >> 8) | (a->coeffs[8*i+1] << 1);
+        r[9*i+2]  = (a->coeffs[8*i+1] >> 7) | (a->coeffs[8*i+2] << 2);
+        r[9*i+3]  = (a->coeffs[8*i+2] >> 6) | (a->coeffs[8*i+3] << 3);
+        r[9*i+4]  = (a->coeffs[8*i+3] >> 5) | (a->coeffs[8*i+4] << 4);
+        r[9*i+5]  = (a->coeffs[8*i+4] >> 4) | (a->coeffs[8*i+5] << 5);
+        r[9*i+6]  = (a->coeffs[8*i+5] >> 3) | (a->coeffs[8*i+6] << 6);
+        r[9*i+7]  = (a->coeffs[8*i+6] >> 2) | (a->coeffs[8*i+7] << 7);
+        r[9*i+8]  = (a->coeffs[8*i+7] >> 1);
+    }
 
 }
 
@@ -606,18 +638,18 @@ void dilithium_polyt1_pack(unsigned char *r, const dilithium_poly *a) {
 *              - const unsigned char *a: byte array with bit-packed polynomial
 **************************************************/
 void dilithium_polyt1_unpack(dilithium_poly *r, const unsigned char *a) {
-  unsigned int i;
+    unsigned int i;
 
-  for(i = 0; i < DILITHIUM_N/8; ++i) {
-    r->coeffs[8*i+0] =  a[9*i+0]       | ((uint32_t)(a[9*i+1] & 0x01) << 8);
-    r->coeffs[8*i+1] = (a[9*i+1] >> 1) | ((uint32_t)(a[9*i+2] & 0x03) << 7);
-    r->coeffs[8*i+2] = (a[9*i+2] >> 2) | ((uint32_t)(a[9*i+3] & 0x07) << 6);
-    r->coeffs[8*i+3] = (a[9*i+3] >> 3) | ((uint32_t)(a[9*i+4] & 0x0F) << 5);
-    r->coeffs[8*i+4] = (a[9*i+4] >> 4) | ((uint32_t)(a[9*i+5] & 0x1F) << 4);
-    r->coeffs[8*i+5] = (a[9*i+5] >> 5) | ((uint32_t)(a[9*i+6] & 0x3F) << 3);
-    r->coeffs[8*i+6] = (a[9*i+6] >> 6) | ((uint32_t)(a[9*i+7] & 0x7F) << 2);
-    r->coeffs[8*i+7] = (a[9*i+7] >> 7) | ((uint32_t)(a[9*i+8] & 0xFF) << 1);
-  }
+    for(i = 0; i < DILITHIUM_N/8; ++i) {
+        r->coeffs[8*i+0] = ((a[9*i+0] >> 0) | ((uint32_t)a[9*i+1] << 8)) & 0x1FF;
+        r->coeffs[8*i+1] = ((a[9*i+1] >> 1) | ((uint32_t)a[9*i+2] << 7)) & 0x1FF;
+        r->coeffs[8*i+2] = ((a[9*i+2] >> 2) | ((uint32_t)a[9*i+3] << 6)) & 0x1FF;
+        r->coeffs[8*i+3] = ((a[9*i+3] >> 3) | ((uint32_t)a[9*i+4] << 5)) & 0x1FF;
+        r->coeffs[8*i+4] = ((a[9*i+4] >> 4) | ((uint32_t)a[9*i+5] << 4)) & 0x1FF;
+        r->coeffs[8*i+5] = ((a[9*i+5] >> 5) | ((uint32_t)a[9*i+6] << 3)) & 0x1FF;
+        r->coeffs[8*i+6] = ((a[9*i+6] >> 6) | ((uint32_t)a[9*i+7] << 2)) & 0x1FF;
+        r->coeffs[8*i+7] = ((a[9*i+7] >> 7) | ((uint32_t)a[9*i+8] << 1)) & 0x1FF;
+    }
 
 }
 
@@ -636,10 +668,10 @@ void dilithium_polyt0_pack(unsigned char *r, const dilithium_poly *a) {
   uint32_t t[4];
 
   for(i = 0; i < DILITHIUM_N/4; ++i) {
-    t[0] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - a->coeffs[4*i+0];
-    t[1] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - a->coeffs[4*i+1];
-    t[2] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - a->coeffs[4*i+2];
-    t[3] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - a->coeffs[4*i+3];
+    t[0] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - a->coeffs[4*i+0];
+    t[1] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - a->coeffs[4*i+1];
+    t[2] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - a->coeffs[4*i+2];
+    t[3] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - a->coeffs[4*i+3];
 
     r[7*i+0]  =  t[0];
     r[7*i+1]  =  t[0] >> 8;
@@ -682,10 +714,10 @@ void dilithium_polyt0_unpack(dilithium_poly *r, const unsigned char *a) {
     r->coeffs[4*i+3]  = a[7*i+5] >> 2;
     r->coeffs[4*i+3] |= (uint32_t)a[7*i+6] << 6;
 
-    r->coeffs[4*i+0] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - r->coeffs[4*i+0];
-    r->coeffs[4*i+1] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - r->coeffs[4*i+1];
-    r->coeffs[4*i+2] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - r->coeffs[4*i+2];
-    r->coeffs[4*i+3] = DILITHIUM_Q + (1 << (DILITHIUM_D-1)) - r->coeffs[4*i+3];
+    r->coeffs[4*i+0] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - r->coeffs[4*i+0];
+    r->coeffs[4*i+1] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - r->coeffs[4*i+1];
+    r->coeffs[4*i+2] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - r->coeffs[4*i+2];
+    r->coeffs[4*i+3] = DILITHIUM_Q + (1U << (DILITHIUM_D-1)) - r->coeffs[4*i+3];
   }
 }
 
