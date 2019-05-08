@@ -1572,16 +1572,16 @@ CryptIsUniqueSizeValid(
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
         switch(publicArea->parameters.dilithiumDetail.mode) {
-            case TPM_DILITHIUM_MODE_0:
+            case TPM_DILITHIUM_MODE_1:
                 consistent = publicArea->unique.dilithium.t.size == 896;
                 break;
-            case TPM_DILITHIUM_MODE_1:
+            case TPM_DILITHIUM_MODE_2:
                 consistent = publicArea->unique.dilithium.t.size == 1184;
                 break;
-            case TPM_DILITHIUM_MODE_2:
+            case TPM_DILITHIUM_MODE_3:
                 consistent = publicArea->unique.dilithium.t.size == 1472;
                 break;
-            case TPM_DILITHIUM_MODE_3:
+            case TPM_DILITHIUM_MODE_4:
                 consistent = publicArea->unique.dilithium.t.size == 1760;
                 break;
             default:
@@ -1649,16 +1649,16 @@ CryptIsSensitiveSizeValid(
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
         switch(publicArea->parameters.dilithiumDetail.mode) {
-            case TPM_DILITHIUM_MODE_0:
+            case TPM_DILITHIUM_MODE_1:
                 consistent = sensitiveArea->sensitive.dilithium.t.size == 2096;
                 break;
-            case TPM_DILITHIUM_MODE_1:
+            case TPM_DILITHIUM_MODE_2:
                 consistent = sensitiveArea->sensitive.dilithium.t.size == 2800;
                 break;
-            case TPM_DILITHIUM_MODE_2:
+            case TPM_DILITHIUM_MODE_3:
                 consistent = sensitiveArea->sensitive.dilithium.t.size == 3504;
                 break;
-            case TPM_DILITHIUM_MODE_3:
+            case TPM_DILITHIUM_MODE_4:
                 consistent = sensitiveArea->sensitive.dilithium.t.size == 3856;
                 break;
             default:
@@ -1850,19 +1850,19 @@ CryptValidateKeys(
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
           switch(publicArea->parameters.dilithiumDetail.mode) {
-              case TPM_DILITHIUM_MODE_0:
+              case TPM_DILITHIUM_MODE_1:
                   if(publicArea->unique.dilithium.t.size != 896)
                       return TPM_RC_KEY + blamePublic;
                   break;
-              case TPM_DILITHIUM_MODE_1:
+              case TPM_DILITHIUM_MODE_2:
                   if(publicArea->unique.dilithium.t.size != 1184)
                       return TPM_RC_KEY + blamePublic;
                   break;
-              case TPM_DILITHIUM_MODE_2:
+              case TPM_DILITHIUM_MODE_3:
                   if(publicArea->unique.dilithium.t.size != 1472)
                       return TPM_RC_KEY + blamePublic;
                   break;
-              case TPM_DILITHIUM_MODE_3:
+              case TPM_DILITHIUM_MODE_4:
                   if(publicArea->unique.dilithium.t.size != 1760)
                       return TPM_RC_KEY + blamePublic;
                   break;
@@ -1872,19 +1872,19 @@ CryptValidateKeys(
 
           if (sensitive != NULL) {
             switch(publicArea->parameters.dilithiumDetail.mode) {
-                case TPM_DILITHIUM_MODE_0:
+                case TPM_DILITHIUM_MODE_1:
                     if (sensitive->sensitive.dilithium.t.size != 2096)
                         return TPM_RCS_SIZE + blameSensitive;
                     break;
-                case TPM_DILITHIUM_MODE_1:
+                case TPM_DILITHIUM_MODE_2:
                     if (sensitive->sensitive.dilithium.t.size != 2800)
                         return TPM_RCS_SIZE + blameSensitive;
                     break;
-                case TPM_DILITHIUM_MODE_2:
+                case TPM_DILITHIUM_MODE_3:
                     if (sensitive->sensitive.dilithium.t.size != 3504)
                         return TPM_RCS_SIZE + blameSensitive;
                     break;
-                case TPM_DILITHIUM_MODE_3:
+                case TPM_DILITHIUM_MODE_4:
                     if (sensitive->sensitive.dilithium.t.size == 3856)
                         return TPM_RCS_SIZE + blameSensitive;
                     break;

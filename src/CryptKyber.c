@@ -231,7 +231,6 @@ CryptKyberGenerateKey(
             params.publickeybytes, publicArea->unique.kyber.t.buffer,
             KYBER_SYMBYTES, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-2*KYBER_SYMBYTES);
     /* Value z for pseudo-random output on reject */
-    //CryptRandomGenerate(KYBER_SYMBYTES, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES);
     DRBG_Generate(rand,
             sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES,
             KYBER_SYMBYTES);
