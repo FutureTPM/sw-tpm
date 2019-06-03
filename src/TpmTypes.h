@@ -1027,10 +1027,19 @@ typedef struct {
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 #include "ldaa-params.h"
-#define MAX_LDAA_PUBLIC_KEY_SIZE   (LDAA_PUBLIC_KEY_LENGTH * 4UL)
-#define MAX_LDAA_SECRET_KEY_SIZE   (LDAA_SECRET_KEY_LENGTH * 4UL)
-#define MAX_LDAA_ISSUER_BNTT_SIZE  (LDAA_COMMIT1_LENGTH * LDAA_K_COMM * LDAA_N * 4UL) // Largest case
-#define MAX_LDAA_COMMIT_SIZE       (LDAA_C3_LENGTH) // Largest case
+#define MAX_LDAA_PUBLIC_KEY_SIZE    (LDAA_HIGH_PUBLIC_KEY_LENGTH * 4UL)
+#define MAX_LDAA_SECRET_KEY_SIZE    (LDAA_HIGH_SECRET_KEY_LENGTH * 4UL)
+#define MAX_LDAA_ISSUER_BNTT_SIZE   (LDAA_HIGH_COMMIT1_LENGTH * LDAA_HIGH_K_COMM * LDAA_HIGH_N * 4UL) // Largest case
+#define MAX_LDAA_COMMIT_SIZE        (LDAA_HIGH_C3_LENGTH) // Largest case
+#define MAX_LDAA_N                  (LDAA_HIGH_N)
+#define MAX_LDAA_K_COMM             (LDAA_HIGH_K_COMM)
+#define MAX_LDAA_M                  (LDAA_HIGH_M)
+#define MAX_LDAA_C                  (LDAA_HIGH_C)
+#define MAX_LDAA_LOG_W              (LDAA_HIGH_LOG_W)
+#define MAX_LDAA_COMMIT1_LENGTH     (LDAA_HIGH_COMMIT1_LENGTH)
+#define MAX_LDAA_COMMIT2_LENGTH     (LDAA_HIGH_COMMIT2_LENGTH)
+#define MAX_LDAA_LOG_BETA           (LDAA_HIGH_LOG_BETA)
+#define MAX_LDAA_ISSUER_BNTT_LENGTH (LDAA_HIGH_ISSUER_BNTT_LENGTH)
 
 typedef union {
     struct {
@@ -1046,8 +1055,8 @@ typedef TPM2B_LDAA_PUBLIC_KEY TPM2B_LDAA_PBSN;
 
 typedef union {
     struct {
-	UINT32                  size;
-	BYTE                    buffer[MAX_LDAA_SECRET_KEY_SIZE];
+        UINT32                  size;
+        BYTE                    buffer[MAX_LDAA_SECRET_KEY_SIZE];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_SECRET_KEY;
@@ -1057,24 +1066,24 @@ typedef TPM2B_LDAA_SECRET_KEY TPM2B_LDAA_ISSUER_ATNTT;
 
 typedef union {
     struct {
-	UINT32                  size;
-	BYTE                    buffer[MAX_LDAA_COMMIT_SIZE];
+        UINT32                  size;
+        BYTE                    buffer[MAX_LDAA_COMMIT_SIZE];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_COMMIT;
 
 typedef union {
     struct {
-	UINT32                  size;
-	BYTE                    buffer[MAX_LDAA_ISSUER_BNTT_SIZE];
+        UINT32                  size;
+        BYTE                    buffer[MAX_LDAA_ISSUER_BNTT_SIZE];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_ISSUER_BNTT;
 
 typedef union {
     struct {
-	UINT32                  size;
-	BYTE                    buffer[32];
+        UINT32                  size;
+        BYTE                    buffer[32];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_BASENAME_ISSUER;
@@ -1083,127 +1092,125 @@ typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_MESSAGE;
 typedef TPM2B_LDAA_BASENAME_ISSUER TPM2B_LDAA_BASENAME;
 
 typedef struct {
-  UINT32 coeffs[LDAA_N];
+    UINT32 coeffs[MAX_LDAA_N];
 } ldaa_poly_t;
 
 typedef struct {
-  UINT32 coeffs[LDAA_N];
+    UINT32 coeffs[MAX_LDAA_N];
 } ldaa_poly_ntt_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_K_COMM * 1];
+    ldaa_poly_t coeffs[MAX_LDAA_K_COMM * 1];
 } ldaa_poly_matrix_R_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_M*1];
+    ldaa_poly_t coeffs[MAX_LDAA_M*1];
 } ldaa_poly_matrix_xt_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[1*1];
+    ldaa_poly_t coeffs[1*1];
 } ldaa_poly_matrix_ut_t;
 
 typedef struct {
-    UINT32 v[(2*(1<<LDAA_LOG_W)-2)*LDAA_N];
+    UINT32 v[(2*(1<<MAX_LDAA_LOG_W)-2)*MAX_LDAA_N];
 } ldaa_permutation_perm_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[(LDAA_COMMIT1_LENGTH - 1)*1];
+    ldaa_poly_t coeffs[(MAX_LDAA_COMMIT1_LENGTH - 1)*1];
 } ldaa_poly_matrix_comm1_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_COMMIT1_LENGTH];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT1_LENGTH];
 } ldaa_poly_matrix_commit1_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[(LDAA_COMMIT2_LENGTH - 1)*1];
+    ldaa_poly_t coeffs[(MAX_LDAA_COMMIT2_LENGTH - 1)*1];
 } ldaa_poly_matrix_comm2_t;
 
 typedef ldaa_poly_matrix_comm2_t ldaa_poly_matrix_comm3_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH];
 } ldaa_poly_matrix_commit2_t;
 
 typedef ldaa_poly_matrix_commit2_t ldaa_poly_matrix_commit3_t;
 
 typedef struct {
-  UINT32 coeffs[LDAA_K_COMM * 1];
+    UINT32 coeffs[MAX_LDAA_K_COMM * 1];
 } ldaa_poly_matrix_R_commit_t;
 
 typedef struct {
-    UINT32 coeffs[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
+    UINT32 coeffs[(2*(1<<MAX_LDAA_LOG_W)-1)*MAX_LDAA_N];
 } ldaa_integer_matrix_t;
 
 typedef struct {
-    UINT32 v[(2*(1<<LDAA_LOG_W)-1)*LDAA_N];
+    UINT32 v[(2*(1<<MAX_LDAA_LOG_W)-1)*MAX_LDAA_N];
 } ldaa_permutation_t;
 
 typedef struct {
-  ldaa_poly_ntt_t coeffs[LDAA_M];
+    ldaa_poly_ntt_t coeffs[MAX_LDAA_M];
 } ldaa_poly_matrix_ntt_issuer_at_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_ISSUER_BNTT_LENGTH];
+    ldaa_poly_t coeffs[MAX_LDAA_ISSUER_BNTT_LENGTH];
 } ldaa_poly_matrix_ntt_B_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH * LDAA_K_COMM];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH * MAX_LDAA_K_COMM];
 } ldaa_poly_matrix_ntt_B2_t;
 
 typedef ldaa_poly_matrix_ntt_B2_t ldaa_poly_matrix_ntt_B3_t;
 
 typedef struct {
-  ldaa_poly_ntt_t coeffs[LDAA_K_COMM * 1];
+    ldaa_poly_ntt_t coeffs[MAX_LDAA_K_COMM * 1];
 } ldaa_poly_matrix_ntt_R_t;
 
-// The R polynomial matrix only needs the first order coefficient when
-// processing the commit.
 typedef struct {
-  UINT32 coeffs[LDAA_K_COMM * 1];
+    UINT32 coeffs[MAX_LDAA_K_COMM * 1];
 } ldaa_poly_matrix_ntt_R_commit_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_COMMIT1_LENGTH * 1];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT1_LENGTH * 1];
 } ldaa_poly_matrix_ntt_commit1_prod_t;
 
 typedef struct {
-  ldaa_poly_t coeffs[LDAA_COMMIT2_LENGTH * 1];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH * 1];
 } ldaa_poly_matrix_ntt_commit2_prod_t;
 
 typedef struct {
-    ldaa_integer_matrix_t x[LDAA_M*LDAA_LOG_BETA];
-    ldaa_integer_matrix_t r[LDAA_M*LDAA_LOG_BETA];
-    ldaa_integer_matrix_t v[LDAA_M*LDAA_LOG_BETA];
+    ldaa_integer_matrix_t x[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t r[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t v[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
 
-    ldaa_integer_matrix_t e[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t re[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t ve[LDAA_LOG_BETA];
+    ldaa_integer_matrix_t e[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t re[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t ve[MAX_LDAA_LOG_BETA];
 
-    ldaa_permutation_t phi[LDAA_LOG_BETA];
-    ldaa_permutation_t varphi[LDAA_LOG_BETA];
+    ldaa_permutation_t phi[MAX_LDAA_LOG_BETA];
+    ldaa_permutation_t varphi[MAX_LDAA_LOG_BETA];
 
     ldaa_poly_matrix_R_t R1, R2, R3;
 } ldaa_sign_state_i_t;
 
 typedef struct res_1_t {
-    ldaa_integer_matrix_t phi_x[LDAA_M*LDAA_LOG_BETA];
-    ldaa_integer_matrix_t varphi_e[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t varphi_r_e[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t phi_r[LDAA_M*LDAA_LOG_BETA];
+    ldaa_integer_matrix_t phi_x[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t varphi_e[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t varphi_r_e[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t phi_r[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
 } LDAA_SIGN_GROUP_1;
 
 typedef struct res_2_t {
-    ldaa_permutation_t    phi[LDAA_LOG_BETA];
-    ldaa_permutation_t    varphi[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t v_e[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t v[LDAA_M*LDAA_LOG_BETA];
+    ldaa_permutation_t    phi[MAX_LDAA_LOG_BETA];
+    ldaa_permutation_t    varphi[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t v_e[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t v[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
 } LDAA_SIGN_GROUP_2;
 
 typedef struct res_3_t {
-    ldaa_permutation_t    phi[LDAA_LOG_BETA];
-    ldaa_permutation_t    varphi[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t r_e[LDAA_LOG_BETA];
-    ldaa_integer_matrix_t r[LDAA_M*LDAA_LOG_BETA];
+    ldaa_permutation_t    phi[MAX_LDAA_LOG_BETA];
+    ldaa_permutation_t    varphi[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t r_e[MAX_LDAA_LOG_BETA];
+    ldaa_integer_matrix_t r[MAX_LDAA_M*MAX_LDAA_LOG_BETA];
 } LDAA_SIGN_GROUP_3;
 
 typedef union {
@@ -1213,32 +1220,32 @@ typedef union {
 } TPMU_LDAA_SIGN_GROUP;
 
 typedef struct {
-  /** Public part */
-  ldaa_poly_matrix_commit1_t C;
-  /** Secret randomness. Only used when opening a commitment*/
-  ldaa_poly_matrix_R_t R;
+    /** Public part */
+    ldaa_poly_matrix_commit1_t C;
+    /** Secret randomness. Only used when opening a commitment*/
+    ldaa_poly_matrix_R_t R;
 } ldaa_commitment1_t;
 
 typedef struct {
-  /** Public part */
-  ldaa_poly_matrix_commit2_t C;
-  /** Secret randomness. Only used when opening a commitment*/
-  ldaa_poly_matrix_R_t R;
+    /** Public part */
+    ldaa_poly_matrix_commit2_t C;
+    /** Secret randomness. Only used when opening a commitment*/
+    ldaa_poly_matrix_R_t R;
 } ldaa_commitment2_t;
 
 typedef ldaa_commitment2_t ldaa_commitment3_t;
 
 typedef union {
     struct {
-	UINT32                  size;
-	BYTE                    buffer[sizeof(TPMU_LDAA_SIGN_GROUP)];
+        UINT32                  size;
+        BYTE                    buffer[sizeof(TPMU_LDAA_SIGN_GROUP)];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_SIGN_GROUP;
 
 typedef union {
     struct {
-	UINT32                  size;
+        UINT32                  size;
 	BYTE                    buffer[sizeof(ldaa_poly_matrix_R_t)];
     }            t;
     TPM2B        b;
@@ -1805,7 +1812,7 @@ typedef union {
 #endif   // ALG_DILITHIUM
 #if 	ALG_LDAA
     TPMS_SIG_SCHEME_LDAA         ldaa;
-#endif   // ALG_DILITHIUM
+#endif   // ALG_LDAA
 #if 	ALG_ECC
     TPMS_SIG_SCHEME_ECDAA        ecdaa;
 #endif   // ALG_ECC
@@ -2122,6 +2129,7 @@ typedef struct {
 typedef struct {
     TPMT_SYM_DEF_OBJECT  symmetric;
     TPMT_LDAA_SCHEME     scheme;
+    BYTE                 security;
     TPM2B_LDAA_ISSUER_AT issuer_at;
 } TPMS_LDAA_PARMS;
 /*****************************************************************************/

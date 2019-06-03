@@ -510,6 +510,8 @@ TPM2_LDAA_Join(
         return TPM_RCS_KEY + RC_LDAA_Join_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // The specification requires the TPM to be able to take part in more than
     // one LDAA session simultaneously. The current implementation
@@ -529,6 +531,8 @@ TPM2_LDAA_Join(
     } else {
         // Store protocol SID
         gr.ldaa_sid = in->sid;
+        // Store Key Security Mode
+        gr.ldaa_security = ldaa_key->publicArea.parameters.ldaaDetail.security;
         // Hash private key to tie it to the current LDAA session
         CryptHashBlock(ALG_SHA256_VALUE,
                 ldaa_key->sensitive.sensitive.ldaa.t.size,
@@ -575,6 +579,8 @@ TPM2_LDAA_SignCommit1(
         return TPM_RCS_KEY + RC_LDAA_SignCommit1_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -588,7 +594,8 @@ TPM2_LDAA_SignCommit1(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -604,7 +611,8 @@ TPM2_LDAA_SignCommit1(
             &commit_sel, &in->sign_state_sel,
             &in->pbsn, &in->pe,
             &in->issuer_at_ntt,
-            &in->bsn, &in->seed);
+            &in->bsn, &in->seed,
+            ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -637,6 +645,8 @@ TPM2_LDAA_SignCommit2(
         return TPM_RCS_KEY + RC_LDAA_SignCommit2_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit2_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -650,7 +660,8 @@ TPM2_LDAA_SignCommit2(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -665,7 +676,8 @@ TPM2_LDAA_SignCommit2(
             &ldaa_key->sensitive,
             &commit_sel, &in->sign_state_sel,
             &in->pbsn, &in->pe,
-            NULL, &in->bsn, &in->seed);
+            NULL, &in->bsn, &in->seed,
+            ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -698,6 +710,8 @@ TPM2_LDAA_SignCommit3(
         return TPM_RCS_KEY + RC_LDAA_SignCommit3_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit3_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -711,7 +725,8 @@ TPM2_LDAA_SignCommit3(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -726,7 +741,8 @@ TPM2_LDAA_SignCommit3(
             &ldaa_key->sensitive,
             &commit_sel, &in->sign_state_sel,
             &in->pbsn, &in->pe,
-            NULL, &in->bsn, &in->seed);
+            NULL, &in->bsn, &in->seed,
+            ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -759,6 +775,8 @@ TPM2_LDAA_CommitTokenLink(
         return TPM_RCS_KEY + RC_LDAA_CommitTokenLink_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_CommitTokenLink_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -772,7 +790,8 @@ TPM2_LDAA_CommitTokenLink(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter != 2 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -782,7 +801,8 @@ TPM2_LDAA_CommitTokenLink(
             // Outputs
             &out->nym, &out->pbsn, &out->pe,
             // Inputs
-            &ldaa_key->sensitive, &in->bsn);
+            &ldaa_key->sensitive, &in->bsn,
+            ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS)
@@ -815,6 +835,8 @@ TPM2_LDAA_SignProof(
         return TPM_RCS_KEY + RC_LDAA_SignProof_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -828,7 +850,8 @@ TPM2_LDAA_SignProof(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter < 27 || gr.ldaa_commitCounter > 34 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;
@@ -843,7 +866,8 @@ TPM2_LDAA_SignProof(
             &in->R1,
             &in->R2,
             &in->sign_state_sel,
-            &in->sign_state_type);
+            &in->sign_state_type,
+            ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
     if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 34)
@@ -877,6 +901,8 @@ TPM2_LDAA_SignProceed(
         return TPM_RCS_KEY + RC_LDAA_SignProceed_key_handle;
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignProceed_key_handle;
+    if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
+        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -890,7 +916,8 @@ TPM2_LDAA_SignProceed(
     // if commit counter isn't in the correct state.
     if (gr.ldaa_commitCounter != 1 ||
             in->sid != gr.ldaa_sid ||
-            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE)) {
+            !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
+            ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
         // Clear current state of the protocol
         CryptLDaaClearProtocolState();
         return TPM_RC_NO_RESULT;

@@ -27,6 +27,11 @@
 BOOL CryptLDaaInit(void);
 BOOL CryptLDaaStartup(void);
 
+LIB_EXPORT BOOL CryptLDaaIsModeValid(
+            // IN: the security mode
+            TPM_LDAA_SECURITY  security
+        );
+
 LIB_EXPORT TPM_RC
 CryptLDaaGenerateKey(
             // IN/OUT: The object structure in which the key is created.
@@ -74,7 +79,9 @@ CryptLDaaSignCommit(
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn,
         // IN: Offset to process the Commit 2 and 3
-        UINT32              *seed
+        UINT32              *seed,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         );
 
 LIB_EXPORT TPM_RC
@@ -88,7 +95,9 @@ CryptLDaaCommitTokenLink(
         // IN: Serialized private key
         TPMT_SENSITIVE *sensitive,
         // IN: Basename to be used in the commit
-        TPM2B_LDAA_BASENAME *bsn
+        TPM2B_LDAA_BASENAME *bsn,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         );
 
 LIB_EXPORT TPM_RC
@@ -106,6 +115,8 @@ CryptLDaaSignProof(
         // IN: sign state selection
         BYTE                    *sign_state_sel,
         // IN: Sign State type
-        BYTE                    *sign_state_type
+        BYTE                    *sign_state_type,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         );
 #endif

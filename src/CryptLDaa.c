@@ -48,6 +48,88 @@ BOOL CryptLDaaStartup(void) {
     return TRUE;
 }
 
+BOOL CryptLDaaIsModeValid(
+            // IN: the security mode
+            TPM_LDAA_SECURITY  security
+        ) {
+    switch (security) {
+        case TPM_LDAA_SECURITY_WEAK:
+        case TPM_LDAA_SECURITY_MEDIUM:
+        case TPM_LDAA_SECURITY_HIGH:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+typedef struct {
+    uint64_t m;
+    uint64_t n;
+    uint64_t q;
+    uint64_t s;
+    uint64_t l;
+    uint64_t c;
+    uint64_t log_beta;
+    uint64_t log_w;
+    uint64_t k_comm;
+    uint64_t alpha2;
+    uint64_t commit1_len;
+    uint64_t commit2_len;
+} LDaaParams;
+
+static LDaaParams generate_ldaa_params(BYTE security_mode) {
+    LDaaParams params;
+
+    switch (security_mode) {
+        case TPM_LDAA_SECURITY_WEAK:
+            params.m =           LDAA_WEAK_M;
+            params.n =           LDAA_WEAK_N;
+            params.q =           LDAA_WEAK_Q;
+            params.s =           LDAA_WEAK_S;
+            params.l =           LDAA_WEAK_L;
+            params.c =           LDAA_WEAK_C;
+            params.log_beta =    LDAA_WEAK_LOG_BETA;
+            params.log_w =       LDAA_WEAK_LOG_W;
+            params.k_comm =      LDAA_WEAK_K_COMM;
+            params.alpha2 =      LDAA_WEAK_ALPHA2;
+            params.commit1_len = LDAA_WEAK_COMMIT1_LENGTH;
+            params.commit2_len = LDAA_WEAK_COMMIT2_LENGTH;
+            break;
+        case TPM_LDAA_SECURITY_MEDIUM:
+            params.m =           LDAA_MEDIUM_M;
+            params.n =           LDAA_MEDIUM_N;
+            params.q =           LDAA_MEDIUM_Q;
+            params.s =           LDAA_MEDIUM_S;
+            params.l =           LDAA_MEDIUM_L;
+            params.c =           LDAA_MEDIUM_C;
+            params.log_beta =    LDAA_MEDIUM_LOG_BETA;
+            params.log_w =       LDAA_MEDIUM_LOG_W;
+            params.k_comm =      LDAA_MEDIUM_K_COMM;
+            params.alpha2 =      LDAA_MEDIUM_ALPHA2;
+            params.commit1_len = LDAA_MEDIUM_COMMIT1_LENGTH;
+            params.commit2_len = LDAA_MEDIUM_COMMIT2_LENGTH;
+            break;
+        case TPM_LDAA_SECURITY_HIGH:
+            params.m =           LDAA_HIGH_M;
+            params.n =           LDAA_HIGH_N;
+            params.q =           LDAA_HIGH_Q;
+            params.s =           LDAA_HIGH_S;
+            params.l =           LDAA_HIGH_L;
+            params.c =           LDAA_HIGH_C;
+            params.log_beta =    LDAA_HIGH_LOG_BETA;
+            params.log_w =       LDAA_HIGH_LOG_W;
+            params.k_comm =      LDAA_HIGH_K_COMM;
+            params.alpha2 =      LDAA_HIGH_ALPHA2;
+            params.commit1_len = LDAA_HIGH_COMMIT1_LENGTH;
+            params.commit2_len = LDAA_HIGH_COMMIT2_LENGTH;
+            break;
+        default:
+            break;
+    }
+
+    return params;
+}
+
 /* Serialize coefficient to Big Endian */
 static inline void Coeff2Bytes(BYTE *out, UINT32 in) {
     for (size_t i = 0; i < 4; i++) {
@@ -72,7 +154,8 @@ static void CryptLDaaSerializeSignGroup(
         // IN: sign group
         TPMU_LDAA_SIGN_GROUP  *sign_group,
         // IN: type of sign group
-        UINT8                 *sign_state_type
+        UINT8                 *sign_state_type,
+        LDaaParams params
         ) {
 
     switch (*sign_state_type) {
@@ -80,127 +163,127 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             // Serialize phi_x
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.m * params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_1.phi_x[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size = LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size = params.m * params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize varphi_e
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_1.varphi_e[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize varphi_r_e
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_1.varphi_r_e[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize phi_r
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.m * params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_1.phi_r[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.m * params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             break;
         case RES1:
             ///////////////////////////
             // Serialize phi
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_2.phi[i].v[j]);
                 }
             }
-            sign_group_serial->t.size = LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size = params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize varphi
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_2.varphi[i].v[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize v_e
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_2.v_e[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize v
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.m * params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_2.v[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.m * params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             break;
         case RES2:
             ///////////////////////////
             // Serialize phi
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_3.phi[i].v[j]);
                 }
             }
-            sign_group_serial->t.size = LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size = params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize varphi
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_3.varphi[i].v[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize r_e
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_3.r_e[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             ///////////////////////////
             // Serialize r
             ///////////////////////////
-            for (size_t i = 0; i < LDAA_M * LDAA_LOG_BETA; i++) {
-                for (size_t j = 0; j < (2*(1<<LDAA_LOG_W)-1)*LDAA_N; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * LDAA_N + j)*4),
+            for (size_t i = 0; i < params.m * params.log_beta; i++) {
+                for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
+                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
                             sign_group->res_3.r[i].coeffs[j]);
                 }
             }
-            sign_group_serial->t.size += LDAA_M * LDAA_LOG_BETA * (2*(1<<LDAA_LOG_W)-1)*LDAA_N * 4;
+            sign_group_serial->t.size += params.m * params.log_beta * (2*(1<<params.log_w)-1)*params.n * 4;
             break;
         default:
             return;
@@ -211,32 +294,36 @@ static void CryptLDaaSerializeSignState(
         // OUT: The serialized sign state
         TPM2B_LDAA_SIGN_STATE *R_serial,
         // In: sign state
-        ldaa_poly_matrix_R_t *R
+        ldaa_poly_matrix_R_t *R,
+        uint64_t k_comm,
+        uint64_t n
         ) {
     // Loop polynomial matrix
-    for (size_t i = 0; i < LDAA_K_COMM; i++) {
+    for (size_t i = 0; i < k_comm; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
-            Coeff2Bytes((BYTE *)&R_serial->t.buffer+((i * LDAA_N + j)*4),
+        for (size_t j = 0; j < n; j++) {
+            Coeff2Bytes((BYTE *)&R_serial->t.buffer+((i * n + j)*4),
                     R->coeffs[i].coeffs[j]);
         }
     }
 
-    R_serial->t.size = LDAA_K_COMM * LDAA_N * 4;
+    R_serial->t.size = k_comm * n * 4;
 }
 
 static void CryptLDaaDeserializeSignState(
         // OUT: deserialized sign state
         ldaa_poly_matrix_R_t *R,
         // IN: The serialized sign state
-        TPM2B_LDAA_SIGN_STATE *R_serial
+        TPM2B_LDAA_SIGN_STATE *R_serial,
+        uint64_t k_comm,
+        uint64_t n
         ) {
     // Loop polynomial matrix
-    for (size_t i = 0; i < LDAA_K_COMM; i++) {
+    for (size_t i = 0; i < k_comm; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
+        for (size_t j = 0; j < n; j++) {
            R->coeffs[i].coeffs[j] =
-               Bytes2Coeff((BYTE*) &R_serial->t.buffer+((i*LDAA_N+j)*4));
+               Bytes2Coeff((BYTE*) &R_serial->t.buffer+((i*n+j)*4));
         }
     }
 }
@@ -246,14 +333,16 @@ static void CryptLDaaDeserializeIssuerAT(
         ldaa_poly_matrix_xt_t *at,
         // IN: The public area parameter which contains the serialized at from
         // the issuer
-        TPM2B_LDAA_ISSUER_AT *issuer_at
+        TPM2B_LDAA_ISSUER_AT *issuer_at,
+        uint64_t m,
+        uint64_t n
         ) {
     // Loop polynomial matrix (Mx1)
-    for (size_t i = 0; i < LDAA_M; i++) {
+    for (size_t i = 0; i < m; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
+        for (size_t j = 0; j < n; j++) {
            at->coeffs[i].coeffs[j] =
-               Bytes2Coeff((BYTE*) &issuer_at->t.buffer+((i*LDAA_N+j)*4));
+               Bytes2Coeff((BYTE*) &issuer_at->t.buffer+((i*n+j)*4));
         }
     }
 }
@@ -263,13 +352,15 @@ static void CryptLDaaDeserializeIssuerATNTT(
         ldaa_poly_matrix_ntt_issuer_at_t *at_ntt,
         // IN: The public area parameter which contains the serialized
         // NTT matrix of A from the issuer
-        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt) {
+        TPM2B_LDAA_ISSUER_ATNTT *issuer_atntt,
+        uint64_t m,
+        uint64_t n) {
     // Loop polynomial matrix (1xM)
-    for (size_t i = 0; i < LDAA_M; i++) {
+    for (size_t i = 0; i < m; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
+        for (size_t j = 0; j < n; j++) {
            at_ntt->coeffs[i].coeffs[j] =
-               Bytes2Coeff((BYTE*) &issuer_atntt->t.buffer+((i*LDAA_N+j)*4));
+               Bytes2Coeff((BYTE*) &issuer_atntt->t.buffer+((i*n+j)*4));
         }
     }
 }
@@ -278,72 +369,80 @@ static void CryptLDaaSerializeCommit1(
         // OUT: serialized commit
         TPM2B_LDAA_COMMIT *commit_serial,
         // IN: The public key in polynomial form
-        ldaa_poly_matrix_commit1_t *commit
+        ldaa_poly_matrix_commit1_t *commit,
+        uint64_t commit1_len,
+        uint64_t n
         ) {
-    for (size_t i = 0; i < LDAA_COMMIT1_LENGTH; i++) {
-        for (size_t j = 0; j < LDAA_N; j++) {
-            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * LDAA_N + j)*4),
+    for (size_t i = 0; i < commit1_len; i++) {
+        for (size_t j = 0; j < n; j++) {
+            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * n + j)*4),
                     commit->coeffs[i].coeffs[j]);
         }
     }
 
-    commit_serial->t.size = LDAA_C1_LENGTH;
+    commit_serial->t.size = commit1_len * n * 4;
 }
 
 static void CryptLDaaSerializeCommit2(
         // OUT: serialized commit
         TPM2B_LDAA_COMMIT *commit_serial,
         // IN: The public key in polynomial form
-        ldaa_poly_matrix_commit2_t *commit
+        ldaa_poly_matrix_commit2_t *commit,
+        uint64_t commit2_len,
+        uint64_t n
         ) {
-    for (size_t i = 0; i < LDAA_COMMIT2_LENGTH; i++) {
-        for (size_t j = 0; j < LDAA_N; j++) {
-            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * LDAA_N + j)*4),
+    for (size_t i = 0; i < commit2_len; i++) {
+        for (size_t j = 0; j < n; j++) {
+            Coeff2Bytes((BYTE *)&commit_serial->t.buffer+((i * n + j)*4),
                     commit->coeffs[i].coeffs[j]);
         }
     }
 
-    commit_serial->t.size = LDAA_C2_LENGTH;
+    commit_serial->t.size = commit2_len * n * 4;
 }
 
 static void CryptLDaaSerializePublicKey(
         // OUT: serialized secret key
         TPM2B_LDAA_PUBLIC_KEY *ut,
         // IN: The public key in polynomial form
-        ldaa_poly_t *public_key
+        ldaa_poly_t *public_key,
+        uint64_t n
         ) {
-    for (size_t i = 0; i < LDAA_N; i++) {
+    for (size_t i = 0; i < n; i++) {
         Coeff2Bytes((BYTE *)&ut->t.buffer+(i*4), public_key->coeffs[i]);
     }
 
-    ut->t.size = MAX_LDAA_PUBLIC_KEY_SIZE;
+    ut->t.size = n * 4;
 }
 
 static void CryptLDaaSerializeSecretKey(
         // OUT: serialized secret key
         TPM2B_LDAA_SECRET_KEY *xt,
         // IN: The secret key in matrix polynomial form
-        ldaa_poly_matrix_xt_t *secret_key
+        ldaa_poly_matrix_xt_t *secret_key,
+        uint64_t m,
+        uint64_t n
         ) {
     // Loop polynomial matrix (Mx1)
-    for (size_t i = 0; i < LDAA_M; i++) {
+    for (size_t i = 0; i < m; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
-            Coeff2Bytes((BYTE*)&xt->t.buffer+((i*LDAA_N+j)*4),
+        for (size_t j = 0; j < n; j++) {
+            Coeff2Bytes((BYTE*)&xt->t.buffer+((i*n+j)*4),
                     secret_key->coeffs[i].coeffs[j]);
         }
     }
 
-    xt->t.size = MAX_LDAA_SECRET_KEY_SIZE;
+    xt->t.size = m * n * 4;
 }
 
 static void CryptLDaaDeserializePublicKey(
         // OUT: The public key in polynomial form
         ldaa_poly_t *public_key,
         // IN: serialized secret key
-        TPM2B_LDAA_PUBLIC_KEY *ut
+        TPM2B_LDAA_PUBLIC_KEY *ut,
+        uint64_t n
         ) {
-    for (size_t i = 0; i < LDAA_N; i++) {
+    for (size_t i = 0; i < n; i++) {
         public_key->coeffs[i] = Bytes2Coeff((BYTE *)&ut->t.buffer+(i*4));
     }
 }
@@ -352,14 +451,16 @@ static void CryptLDaaDeserializeSecretKey(
         // OUT: The secret key in matrix polynomial form
         ldaa_poly_matrix_xt_t *secret_key,
         // IN: serialized secret key
-        TPM2B_LDAA_SECRET_KEY *xt
+        TPM2B_LDAA_SECRET_KEY *xt,
+        uint64_t m,
+        uint64_t n
         ) {
     // Loop polynomial matrix (Mx1)
-    for (size_t i = 0; i < LDAA_M; i++) {
+    for (size_t i = 0; i < m; i++) {
         // Loop coefficients of each polynomial
-        for (size_t j = 0; j < LDAA_N; j++) {
+        for (size_t j = 0; j < n; j++) {
             secret_key->coeffs[i].coeffs[j] =
-                Bytes2Coeff((BYTE*)&xt->t.buffer+((i*LDAA_N+j)*4));
+                Bytes2Coeff((BYTE*)&xt->t.buffer+((i*n+j)*4));
         }
     }
 }
@@ -385,24 +486,28 @@ CryptLDaaGenerateKey(
     if (!IS_ATTRIBUTE(publicArea->objectAttributes, TPMA_OBJECT, sign))
         ERROR_RETURN(TPM_RC_NO_RESULT);
 
+    LDaaParams params = generate_ldaa_params(publicArea->parameters.ldaaDetail.security);
+
     // TODO: Pass rand state to the sample_z function
     // Private key generation
-    ldaa_poly_matrix_sample_z_xt(&xt);
+    ldaa_poly_matrix_sample_z_xt(&xt, params.m, params.n, params.s, params.q);
 
     // Public Key generation
     CryptLDaaDeserializeIssuerAT(&at,
-            &publicArea->parameters.ldaaDetail.issuer_at);
+            &publicArea->parameters.ldaaDetail.issuer_at, params.m, params.n);
 
     // Set prod coefficients to zero
-    for (size_t i = 0; i < LDAA_N; i++) {
+    for (size_t i = 0; i < params.n; i++) {
         prod.coeffs[0].coeffs[i] = 0;
     }
-    ldaa_poly_matrix_product(&prod, &at, &xt);
+    ldaa_poly_matrix_product(&prod, &at, &xt, params.m, params.n, params.q);
 
     // Serialization is simply splitting each coefficient into 4 bytes and
     // inserting into the buffer.
-    CryptLDaaSerializePublicKey(&publicArea->unique.ldaa, &prod.coeffs[0]);
-    CryptLDaaSerializeSecretKey(&sensitive->sensitive.ldaa, &xt);
+    CryptLDaaSerializePublicKey(&publicArea->unique.ldaa, &prod.coeffs[0],
+            params.n);
+    CryptLDaaSerializeSecretKey(&sensitive->sensitive.ldaa, &xt,
+            params.m, params.n);
 
     retVal = TPM_RC_SUCCESS;
 Exit:
@@ -429,10 +534,13 @@ CryptLDaaJoin(
     HASH_STATE             hash_state;
     BYTE                   digest[SHA256_DIGEST_SIZE];
 
-    MemorySet(&pbsn.coeffs, 0, LDAA_N * sizeof(UINT32));
+    LDaaParams params = generate_ldaa_params(publicArea->parameters.ldaaDetail.security);
+
+    MemorySet(&pbsn.coeffs, 0, params.n * sizeof(UINT32));
 
     /* Deserialize keys */
-    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa,
+            params.m, params.n);
 
     /* ********************************************************************* */
     /* Token Link Calculation                                                */
@@ -440,12 +548,12 @@ CryptLDaaJoin(
     CryptHashStart(&hash_state, ALG_SHA256_VALUE);
     CryptDigestUpdate(&hash_state, bsn_I->t.size, bsn_I->t.buffer);
     CryptHashEnd(&hash_state, SHA256_DIGEST_SIZE, digest);
-    ldaa_poly_from_hash(&pbsn, digest);
+    ldaa_poly_from_hash(&pbsn, digest, params.n, params.q);
 
-    ldaa_poly_sample_z(&pe);
+    ldaa_poly_sample_z(&pe, params.n, params.s, params.q);
 
-    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
-    ldaa_poly_add(&nym, &nym, &pe);
+    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn, params.n, params.q);
+    ldaa_poly_add(&nym, &nym, &pe, params.n, params.q);
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
     /* Token Link Calculation                                                */
     /* ********************************************************************* */
@@ -457,7 +565,7 @@ CryptLDaaJoin(
     MemoryCopy2B(&public_key_serial->b,
             &publicArea->unique.ldaa.b, publicArea->unique.ldaa.t.size);
     // Serialize Token link
-    CryptLDaaSerializePublicKey(nym_serial, &nym);
+    CryptLDaaSerializePublicKey(nym_serial, &nym, params.n);
 
     return TPM_RC_SUCCESS;
 }
@@ -480,6 +588,7 @@ CryptLDaaClearProtocolState(void) {
     gr.ldaa_commitCounter = 0;
     gr.ldaa_sid = 0;
     gr.ldaa_commit_sign_state = 0;
+    gr.ldaa_security = TPM_LDAA_SECURITY_NONE;
     MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
     MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
     //print_ldaa_state();
@@ -505,7 +614,9 @@ CryptLDaaCommitTokenLink(
         // IN: Serialized private key
         TPMT_SENSITIVE *sensitive,
         // IN: Basename to be used in the commit
-        TPM2B_LDAA_BASENAME *bsn
+        TPM2B_LDAA_BASENAME *bsn,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         ) {
     ldaa_poly_t           pe;
     ldaa_poly_t           nym;
@@ -514,27 +625,30 @@ CryptLDaaCommitTokenLink(
     HASH_STATE            hash_state;
     BYTE                  digest[SHA256_DIGEST_SIZE];
 
-    MemorySet(&pbsn.coeffs, 0, LDAA_N * sizeof(UINT32));
+    LDaaParams params = generate_ldaa_params(security);
 
-    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
+    MemorySet(&pbsn.coeffs, 0, params.n * sizeof(UINT32));
+
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa,
+            params.m, params.n);
 
     CryptHashStart(&hash_state, ALG_SHA256_VALUE);
     CryptDigestUpdate(&hash_state, bsn->t.size, bsn->t.buffer);
     CryptHashEnd(&hash_state, SHA256_DIGEST_SIZE, digest);
-    ldaa_poly_from_hash(&pbsn, digest);
+    ldaa_poly_from_hash(&pbsn, digest, params.n, params.q);
 
-    ldaa_poly_sample_z(&pe);
+    ldaa_poly_sample_z(&pe, params.n, params.s, params.q);
 
-    for (size_t i = 0; i < LDAA_N; i++) {
+    for (size_t i = 0; i < params.n; i++) {
         nym.coeffs[i] = 0;
     }
-    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn);
-    ldaa_poly_add(&nym, &nym, &pe);
+    ldaa_poly_mul(&nym, &xt.coeffs[0], &pbsn, params.n, params.q);
+    ldaa_poly_add(&nym, &nym, &pe, params.n, params.q);
 
     // Serialize All outputs
-    CryptLDaaSerializePublicKey(nym_serial, &nym);
-    CryptLDaaSerializePublicKey(pe_serial, &pe);
-    CryptLDaaSerializePublicKey(pbsn_serial, &pbsn);
+    CryptLDaaSerializePublicKey(nym_serial, &nym, params.n);
+    CryptLDaaSerializePublicKey(pe_serial, &pe, params.n);
+    CryptLDaaSerializePublicKey(pbsn_serial, &pbsn, params.n);
 
     return TPM_RC_SUCCESS;
 }
@@ -558,7 +672,9 @@ CryptLDaaSignCommit(
         // IN: Basename to be used in the commit
         TPM2B_LDAA_BASENAME *bsn,
         // IN: Seed to generate the B NTT matrices
-        UINT32              *in_seed
+        UINT32              *in_seed,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         ) {
     ldaa_poly_t                      pe;   // 1KB
     ldaa_poly_t                      pbsn; // 1KB
@@ -566,14 +682,18 @@ CryptLDaaSignCommit(
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
     static LDAA_LOCAL_COMMITS        ldaa_commits; // 39.5MB + 65KB
 
+    LDaaParams params = generate_ldaa_params(security);
+
     /* Deserialize keys */
-    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa);
-    CryptLDaaDeserializePublicKey(&pbsn, pbsn_serial);
-    CryptLDaaDeserializePublicKey(&pe, pe_serial);
+    CryptLDaaDeserializeSecretKey(&xt, &sensitive->sensitive.ldaa,
+            params.m, params.n);
+    CryptLDaaDeserializePublicKey(&pbsn, pbsn_serial, params.n);
+    CryptLDaaDeserializePublicKey(&pe, pe_serial, params.n);
 
     switch(*commit_sel) {
         case 1:
-            CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial);
+            CryptLDaaDeserializeIssuerATNTT(&issuer_at_ntt, issuer_atntt_serial,
+                    params.m, params.n);
             break;
         case 2:
         case 3:
@@ -591,7 +711,8 @@ CryptLDaaSignCommit(
     if (((gr.ldaa_commit_sign_state >> (*sign_state_sel)) & 0x00000001) == 0) {
         // printf("Updating LDAA state\n");
         // print_ldaa_state();
-        ldaa_fill_sign_state_tpm(ssi, &xt, &pe);
+        ldaa_fill_sign_state_tpm(ssi, &xt, &pe, params.m, params.log_beta,
+                params.log_w, params.n, params.q);
     //ldaa_fill_sign_state_tpm_fixed(ssi);
         gr.ldaa_commit_sign_state |= 1 << (*sign_state_sel);
     }
@@ -601,16 +722,25 @@ CryptLDaaSignCommit(
     switch (*commit_sel) {
         case 1:
             ldaa_tpm_comm_1(ssi, &pbsn, &issuer_at_ntt,
-                    &ldaa_commits.commited1, seed);
-            CryptLDaaSerializeCommit1(c_out, &ldaa_commits.commited1.C);
+                    &ldaa_commits.commited1, seed, params.m, params.log_beta,
+                params.log_w, params.n, params.q, params.commit1_len,
+                params.k_comm, params.alpha2);
+            CryptLDaaSerializeCommit1(c_out, &ldaa_commits.commited1.C,
+                    params.commit1_len, params.n);
             break;
         case 2:
-            ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2, seed);
-            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C);
+            ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2, seed, params.m,
+                    params.log_beta, params.log_w, params.n, params.q,
+                    params.commit2_len, params.k_comm, params.l, params.alpha2);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C,
+                    params.commit2_len, params.n);
             break;
         case 3:
-            ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3, seed);
-            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C);
+            ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3, seed, params.m,
+                    params.log_beta, params.log_w, params.n, params.q,
+                    params.commit2_len, params.k_comm, params.l, params.alpha2);
+            CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C,
+                    params.commit2_len, params.n);
             break;
         default:
             // This should never happen. The caller should verify the validity
@@ -639,110 +769,139 @@ CryptLDaaSignProof(
         // IN: sign state selection
         BYTE                    *sign_state_sel,
         // IN: Sign State type
-        BYTE                    *sign_state_type
+        BYTE                    *sign_state_type,
+        // IN: Security Mode used in the LDAA key
+        BYTE security
         ) {
     ldaa_poly_matrix_R_t   R1, R2;     // 64kB each
     TPMU_LDAA_SIGN_GROUP   sign_group; // 1.2MB
     size_t                 j, jj;
+    LDaaParams params = generate_ldaa_params(security);
 
     /* Deserialize objects */
-    CryptLDaaDeserializeSignState(&R1, R1_in_serial);
-    CryptLDaaDeserializeSignState(&R2, R2_in_serial);
+    CryptLDaaDeserializeSignState(&R1, R1_in_serial, params.k_comm, params.n);
+    CryptLDaaDeserializeSignState(&R2, R2_in_serial, params.k_comm, params.n);
 
     ldaa_sign_state_i_t *ssi = &gr.sign_states_tpm[*sign_state_sel];
 
     switch (*sign_state_type) {
         case RES0:
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                for (jj = 0; jj < LDAA_M; jj++) {
+            for (j = 0; j < params.log_beta; j++) {
+                for (jj = 0; jj < params.m; jj++) {
                     ldaa_integer_matrix_t phi_xij;
-                    ldaa_integer_matrix_copy(&ssi->x[jj * LDAA_LOG_BETA + j], &phi_xij);
-                    ldaa_integer_matrix_permute(&phi_xij, &ssi->phi[j]);
+                    ldaa_integer_matrix_copy(&ssi->x[jj * params.log_beta + j],
+                            &phi_xij, params.log_w, params.n);
+                    ldaa_integer_matrix_permute(&phi_xij, &ssi->phi[j],
+                            params.log_w, params.n);
 
                     ldaa_integer_matrix_copy(&phi_xij,
-                            &sign_group.res_1.phi_x[j * LDAA_M + jj]);
+                            &sign_group.res_1.phi_x[j * params.m + jj],
+                            params.log_w, params.n);
                 }
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
+            for (j = 0; j < params.log_beta; j++) {
                 ldaa_integer_matrix_t varphi_ej;
-                ldaa_integer_matrix_copy(&ssi->e[j], &varphi_ej);
-                ldaa_integer_matrix_permute(&varphi_ej, &ssi->varphi[j]);
+                ldaa_integer_matrix_copy(&ssi->e[j], &varphi_ej,
+                            params.log_w, params.n);
+                ldaa_integer_matrix_permute(&varphi_ej, &ssi->varphi[j],
+                            params.log_w, params.n);
 
                 ldaa_integer_matrix_copy(&varphi_ej,
-                        &sign_group.res_1.varphi_e[j]);
+                        &sign_group.res_1.varphi_e[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
+            for (j = 0; j < params.log_beta; j++) {
                 ldaa_integer_matrix_t varphi_rej;
-                ldaa_integer_matrix_copy(&ssi->re[j], &varphi_rej);
-                ldaa_integer_matrix_permute(&varphi_rej, &ssi->varphi[j]);
+                ldaa_integer_matrix_copy(&ssi->re[j], &varphi_rej,
+                        params.log_w, params.n);
+                ldaa_integer_matrix_permute(&varphi_rej, &ssi->varphi[j],
+                        params.log_w, params.n);
 
                 ldaa_integer_matrix_copy(&varphi_rej,
-                        &sign_group.res_1.varphi_r_e[j]);
+                        &sign_group.res_1.varphi_r_e[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                for (jj = 0; jj < LDAA_M; jj++) {
+            for (j = 0; j < params.log_beta; j++) {
+                for (jj = 0; jj < params.m; jj++) {
                     ldaa_integer_matrix_t phi_rij;
-                    ldaa_integer_matrix_copy(&ssi->r[jj * LDAA_LOG_BETA + j], &phi_rij);
-                    ldaa_integer_matrix_permute(&phi_rij, &ssi->phi[j]);
+                    ldaa_integer_matrix_copy(&ssi->r[jj * params.log_beta + j], &phi_rij,
+                            params.log_w, params.n);
+                    ldaa_integer_matrix_permute(&phi_rij, &ssi->phi[j],
+                            params.log_w, params.n);
 
                     ldaa_integer_matrix_copy(&phi_rij,
-                            &sign_group.res_1.phi_r[j * LDAA_M + jj]);
+                            &sign_group.res_1.phi_r[j * params.m + jj],
+                            params.log_w, params.n);
                 }
             }
 
             // R1 = R2 from Host
             // R2 = R3 from Host
-            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R2);
-            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3);
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R2,
+                    params.k_comm, params.n, params.q);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3,
+                    params.k_comm, params.n, params.q);
             break;
 
         case RES1:
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_2.phi[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_2.phi[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_2.varphi[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_2.varphi[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_integer_matrix_copy(&ssi->ve[j], &sign_group.res_2.v_e[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_integer_matrix_copy(&ssi->ve[j], &sign_group.res_2.v_e[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_M * LDAA_LOG_BETA; j++) {
-                ldaa_integer_matrix_copy(&ssi->v[j], &sign_group.res_2.v[j]);
+            for (j = 0; j < params.m * params.log_beta; j++) {
+                ldaa_integer_matrix_copy(&ssi->v[j], &sign_group.res_2.v[j],
+                        params.log_w, params.n);
             }
 
             // R1 = R1 from Host
             // R2 = R3 from Host
-            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1);
-            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3);
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1,
+                    params.k_comm, params.n, params.q);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R3,
+                    params.k_comm, params.n, params.q);
             break;
 
         case RES2:
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_3.phi[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_permutation_copy(&ssi->phi[j], &sign_group.res_3.phi[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_3.varphi[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_permutation_copy(&ssi->varphi[j], &sign_group.res_3.varphi[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_LOG_BETA; j++) {
-                ldaa_integer_matrix_copy(&ssi->re[j], &sign_group.res_3.r_e[j]);
+            for (j = 0; j < params.log_beta; j++) {
+                ldaa_integer_matrix_copy(&ssi->re[j], &sign_group.res_3.r_e[j],
+                        params.log_w, params.n);
             }
 
-            for (j = 0; j < LDAA_M * LDAA_LOG_BETA; j++) {
-                ldaa_integer_matrix_copy(&ssi->r[j], &sign_group.res_3.r[j]);
+            for (j = 0; j < params.m * params.log_beta; j++) {
+                ldaa_integer_matrix_copy(&ssi->r[j], &sign_group.res_3.r[j],
+                        params.log_w, params.n);
             }
 
             // R1 = R1 from Host
             // R2 = R2 from Host
-            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1);
-            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R2);
+            ldaa_poly_matrix_R_add(&R1, &R1, &ssi->R1,
+                    params.k_comm, params.n, params.q);
+            ldaa_poly_matrix_R_add(&R2, &R2, &ssi->R2,
+                    params.k_comm, params.n, params.q);
             break;
 
         default:
@@ -750,10 +909,10 @@ CryptLDaaSignProof(
     }
 
     /* Serialize objects */
-    CryptLDaaSerializeSignState(R1_out_serial, &R1);
-    CryptLDaaSerializeSignState(R2_out_serial, &R2);
+    CryptLDaaSerializeSignState(R1_out_serial, &R1, params.k_comm, params.n);
+    CryptLDaaSerializeSignState(R2_out_serial, &R2, params.k_comm, params.n);
     CryptLDaaSerializeSignGroup(sign_group_serial, &sign_group,
-            sign_state_type);
+            sign_state_type, params);
 
     return TPM_RC_SUCCESS;
 }
