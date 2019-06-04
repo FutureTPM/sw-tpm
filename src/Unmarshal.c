@@ -4351,10 +4351,10 @@ TPMS_LDAA_PARMS_Unmarshal(TPMS_LDAA_PARMS *target, BYTE **buffer, UINT32 *size)
         rc = TPMT_LDAA_SCHEME_Unmarshal(&target->scheme, buffer, size, YES);
     }
     if (rc == TPM_RC_SUCCESS) {
-        rc = UINT8_Unmarshal(&target->security, buffer, size);
+        rc = TPM2B_LDAA_ISSUER_AT_Unmarshal(&target->issuer_at, buffer, size);
     }
     if (rc == TPM_RC_SUCCESS) {
-        rc = TPM2B_LDAA_ISSUER_AT_Unmarshal(&target->issuer_at, buffer, size);
+        rc = UINT8_Unmarshal(&target->security, buffer, size);
     }
     return rc;
 }

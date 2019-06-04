@@ -29,7 +29,7 @@ BOOL CryptLDaaStartup(void);
 
 LIB_EXPORT BOOL CryptLDaaIsModeValid(
             // IN: the security mode
-            TPM_LDAA_SECURITY  security
+            TPM_LDAA_SECURITY_MODE  security
         );
 
 LIB_EXPORT TPM_RC

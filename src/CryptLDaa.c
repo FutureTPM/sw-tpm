@@ -32,8 +32,8 @@
 
 typedef union {
     ldaa_commitment1_t         commited1;      // 102.4KB + 65KB
-    ldaa_commitment2_t         commited2;      // 40MB + 65KB
-    ldaa_commitment3_t         commited3;      // 40MB + 65KB
+    ldaa_commitment2_t         commited2;      // 80MB + 65KB
+    ldaa_commitment3_t         commited3;      // 80MB + 65KB
 } LDAA_LOCAL_COMMITS;
 
 #define RES0 0
@@ -50,12 +50,12 @@ BOOL CryptLDaaStartup(void) {
 
 BOOL CryptLDaaIsModeValid(
             // IN: the security mode
-            TPM_LDAA_SECURITY  security
+            TPM_LDAA_SECURITY_MODE  security
         ) {
     switch (security) {
-        case TPM_LDAA_SECURITY_WEAK:
-        case TPM_LDAA_SECURITY_MEDIUM:
-        case TPM_LDAA_SECURITY_HIGH:
+        case TPM_LDAA_SECURITY_MODE_WEAK:
+        case TPM_LDAA_SECURITY_MODE_MEDIUM:
+        case TPM_LDAA_SECURITY_MODE_HIGH:
             return TRUE;
         default:
             return FALSE;
@@ -81,7 +81,7 @@ static LDaaParams generate_ldaa_params(BYTE security_mode) {
     LDaaParams params;
 
     switch (security_mode) {
-        case TPM_LDAA_SECURITY_WEAK:
+        case TPM_LDAA_SECURITY_MODE_WEAK:
             params.m =           LDAA_WEAK_M;
             params.n =           LDAA_WEAK_N;
             params.q =           LDAA_WEAK_Q;
@@ -95,7 +95,7 @@ static LDaaParams generate_ldaa_params(BYTE security_mode) {
             params.commit1_len = LDAA_WEAK_COMMIT1_LENGTH;
             params.commit2_len = LDAA_WEAK_COMMIT2_LENGTH;
             break;
-        case TPM_LDAA_SECURITY_MEDIUM:
+        case TPM_LDAA_SECURITY_MODE_MEDIUM:
             params.m =           LDAA_MEDIUM_M;
             params.n =           LDAA_MEDIUM_N;
             params.q =           LDAA_MEDIUM_Q;
@@ -109,7 +109,7 @@ static LDaaParams generate_ldaa_params(BYTE security_mode) {
             params.commit1_len = LDAA_MEDIUM_COMMIT1_LENGTH;
             params.commit2_len = LDAA_MEDIUM_COMMIT2_LENGTH;
             break;
-        case TPM_LDAA_SECURITY_HIGH:
+        case TPM_LDAA_SECURITY_MODE_HIGH:
             params.m =           LDAA_HIGH_M;
             params.n =           LDAA_HIGH_N;
             params.q =           LDAA_HIGH_Q;
@@ -588,7 +588,7 @@ CryptLDaaClearProtocolState(void) {
     gr.ldaa_commitCounter = 0;
     gr.ldaa_sid = 0;
     gr.ldaa_commit_sign_state = 0;
-    gr.ldaa_security = TPM_LDAA_SECURITY_NONE;
+    gr.ldaa_security = TPM_LDAA_SECURITY_MODE_NONE;
     MemorySet(gr.sign_states_tpm, 0, sizeof(gr.sign_states_tpm));
     MemorySet(gr.ldaa_hash_private_key, 0, sizeof(gr.ldaa_hash_private_key));
     //print_ldaa_state();

@@ -2197,8 +2197,8 @@ TPMS_LDAA_PARMS_Marshal(TPMS_LDAA_PARMS *source, BYTE **buffer, UINT32 *size)
 
     written += TPMT_SYM_DEF_OBJECT_Marshal(&source->symmetric, buffer, size);
     written += TPMT_LDAA_SCHEME_Marshal(&source->scheme, buffer, size);
-    written += UINT8_Marshal(&source->security, buffer, size);
     written += TPM2B_LDAA_ISSUER_AT_Marshal(&source->issuer_at, buffer, size);
+    written += UINT8_Marshal(&source->security, buffer, size);
     return written;
 }
 /*****************************************************************************/

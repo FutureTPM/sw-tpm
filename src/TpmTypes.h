@@ -2127,10 +2127,10 @@ typedef struct {
 /*                                LDAA Mods                                  */
 /*****************************************************************************/
 typedef struct {
-    TPMT_SYM_DEF_OBJECT  symmetric;
-    TPMT_LDAA_SCHEME     scheme;
-    BYTE                 security;
-    TPM2B_LDAA_ISSUER_AT issuer_at;
+    TPMT_SYM_DEF_OBJECT    symmetric;
+    TPMT_LDAA_SCHEME       scheme;
+    TPM2B_LDAA_ISSUER_AT   issuer_at;
+    TPM_LDAA_SECURITY_MODE security;
 } TPMS_LDAA_PARMS;
 /*****************************************************************************/
 /*                                LDAA Mods                                  */

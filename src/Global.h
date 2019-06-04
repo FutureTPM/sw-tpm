@@ -887,7 +887,7 @@ typedef struct state_reset_data
     // command.
     UINT32              ldaa_commit_sign_state;
     // Store the key security type being used in the LDAA session
-    TPM_LDAA_SECURITY   ldaa_security;
+    TPM_LDAA_SECURITY_MODE   ldaa_security;
 #endif // ALG_LDAA
 } STATE_RESET_DATA;
 extern STATE_RESET_DATA gr;
