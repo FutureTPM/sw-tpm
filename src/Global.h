@@ -1149,7 +1149,7 @@ extern int               s_freeSessionSlots;
 #if defined IO_BUFFER_C || defined GLOBAL_C
 /* The value of s_actionIoAllocation is the number of UINT64 values allocated. It is used to set the
    pointer for the response structure.  */
-extern UINT64   s_actionIoBuffer[8388608];      // action I/O buffer
+extern UINT64   s_actionIoBuffer[17000000];      // action I/O buffer
 extern UINT32   s_actionIoAllocation;       // number of UIN64 allocated for the action input
 					    // structure
 #endif // MEMORY_LIB_C

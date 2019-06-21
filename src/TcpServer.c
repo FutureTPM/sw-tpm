@@ -86,9 +86,9 @@ typedef int SOCKET;
 void RsaKeyCacheControl(int state);
 #ifndef __IGNORE_STATE__
 static uint32_t ServerVersion = 1;
-#define MAX_BUFFER 67108863 // IO Buffers are now 67MB due to LDAA.
-                            // This buffer size is subject to change. Do not
-                            // rely on it.
+#define MAX_BUFFER 134217728 // IO Buffers are now 128MiB due to LDAA.
+                             // This buffer size is subject to change. Do not
+                             // rely on it.
 char InputBuffer[MAX_BUFFER];       //The input data buffer for the simulator.
 char OutputBuffer[MAX_BUFFER];      //The output data buffer for the simulator.
 struct

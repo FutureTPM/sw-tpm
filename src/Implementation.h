@@ -212,12 +212,12 @@
 #define  MIN_EVICT_OBJECTS              7	/* for PC Client */
 #define  NUM_POLICY_PCR_GROUP           1
 #define  NUM_AUTHVALUE_PCR_GROUP        1
-#define  MAX_CONTEXT_SIZE               63176704
+#define  MAX_CONTEXT_SIZE               134217728
 #define  MAX_DIGEST_BUFFER              2048
 #define  MAX_NV_INDEX_SIZE              2048
 #define  MAX_NV_BUFFER_SIZE             1024
 #define  MAX_CAP_BUFFER                 1024
-#define  NV_MEMORY_SIZE                 34971520 // NV increase due to LDAA (20MB)
+#define  NV_MEMORY_SIZE                 34971520 // NV increase due to LDAA (31MB)
 #define  MIN_COUNTER_INDICES            8
 #define  NUM_STATIC_PCR                 16
 #define  MAX_ALG_LIST_SIZE              64
@@ -225,8 +225,8 @@
 #define  CONTEXT_ENCRYPT_ALGORITHM      AES
 #define  NV_CLOCK_UPDATE_INTERVAL       12
 #define  NUM_POLICY_PCR                 1
-#define  MAX_COMMAND_SIZE               67108863
-#define  MAX_RESPONSE_SIZE              67108863
+#define  MAX_COMMAND_SIZE               140000000
+#define  MAX_RESPONSE_SIZE              140000000
 #define  ORDERLY_BITS                   8
 #define  MAX_SYM_DATA                   128
 #define  MAX_RNG_ENTROPY_SIZE           64
