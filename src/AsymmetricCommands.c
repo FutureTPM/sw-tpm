@@ -580,7 +580,7 @@ TPM2_LDAA_SignCommit1(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -589,10 +589,24 @@ TPM2_LDAA_SignCommit1(
             SHA256_DIGEST_SIZE,
             digest);
 
+    uint8_t lower_limit, higher_limit;
+    if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_WEAK) {
+        lower_limit = 3;
+        higher_limit = 14;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_MEDIUM) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_HIGH) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else {
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit1_key_handle;
+    }
+
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < lower_limit || gr.ldaa_commitCounter > higher_limit ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
             ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
@@ -646,7 +660,7 @@ TPM2_LDAA_SignCommit2(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit2_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit2_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -655,10 +669,24 @@ TPM2_LDAA_SignCommit2(
             SHA256_DIGEST_SIZE,
             digest);
 
+    uint8_t lower_limit, higher_limit;
+    if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_WEAK) {
+        lower_limit = 3;
+        higher_limit = 14;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_MEDIUM) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_HIGH) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else {
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit2_key_handle;
+    }
+
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < lower_limit || gr.ldaa_commitCounter > higher_limit ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
             ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
@@ -711,7 +739,7 @@ TPM2_LDAA_SignCommit3(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignCommit3_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit3_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -720,10 +748,24 @@ TPM2_LDAA_SignCommit3(
             SHA256_DIGEST_SIZE,
             digest);
 
+    uint8_t lower_limit, higher_limit;
+    if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_WEAK) {
+        lower_limit = 3;
+        higher_limit = 14;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_MEDIUM) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_HIGH) {
+        lower_limit = 3;
+        higher_limit = 26;
+    } else {
+        return TPM_RCS_SCHEME + RC_LDAA_SignCommit3_key_handle;
+    }
+
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 3 || gr.ldaa_commitCounter > 26 ||
+    if (gr.ldaa_commitCounter < lower_limit || gr.ldaa_commitCounter > higher_limit ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
             ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
@@ -776,7 +818,7 @@ TPM2_LDAA_CommitTokenLink(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_CommitTokenLink_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_CommitTokenLink_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -836,7 +878,7 @@ TPM2_LDAA_SignProof(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
@@ -845,10 +887,24 @@ TPM2_LDAA_SignProof(
             SHA256_DIGEST_SIZE,
             digest);
 
+    uint8_t lower_limit, higher_limit;
+    if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_WEAK) {
+        lower_limit = 27;
+        higher_limit = 30;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_MEDIUM) {
+        lower_limit = 27;
+        higher_limit = 34;
+    } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_HIGH) {
+        lower_limit = 27;
+        higher_limit = 34;
+    } else {
+        return TPM_RCS_SCHEME + RC_LDAA_SignProof_key_handle;
+    }
+
     // Fail if the private key passed is different than the tied key to
     // the LDAA session, if the SID stored and passed are different, or
     // if commit counter isn't in the correct state.
-    if (gr.ldaa_commitCounter < 27 || gr.ldaa_commitCounter > 34 ||
+    if (gr.ldaa_commitCounter < lower_limit || gr.ldaa_commitCounter > higher_limit ||
             in->sid != gr.ldaa_sid ||
             !MemoryEqual(digest, gr.ldaa_hash_private_key, SHA256_DIGEST_SIZE) ||
             ldaa_key->publicArea.parameters.ldaaDetail.security != gr.ldaa_security) {
@@ -870,7 +926,7 @@ TPM2_LDAA_SignProof(
             ldaa_key->publicArea.parameters.ldaaDetail.security);
 
     // Run Commit command
-    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != 34)
+    if (retVal == TPM_RC_SUCCESS && gr.ldaa_commitCounter != higher_limit)
         retVal = CryptLDaaCommit();
     else
         retVal = CryptLDaaClearProtocolState();
@@ -902,7 +958,7 @@ TPM2_LDAA_SignProceed(
     if(!CryptIsSchemeAnonymous(ldaa_key->publicArea.parameters.ldaaDetail.scheme.scheme))
         return TPM_RCS_SCHEME + RC_LDAA_SignProceed_key_handle;
     if(!CryptLDaaIsModeValid(ldaa_key->publicArea.parameters.ldaaDetail.security))
-        return TPM_RCS_SCHEME + RC_LDAA_Join_key_handle;
+        return TPM_RCS_SCHEME + RC_LDAA_SignProceed_key_handle;
 
     // Hash private key
     CryptHashBlock(ALG_SHA256_VALUE,
