@@ -2,7 +2,7 @@
 #define LDAA_PARAMS_H
 
 // Weak Security Parameters
-#define LDAA_WEAK_M        24UL
+#define LDAA_WEAK_M        13UL
 #define LDAA_WEAK_Q        3329UL
 #define LDAA_WEAK_N        128UL
 #define LDAA_WEAK_S        2UL
