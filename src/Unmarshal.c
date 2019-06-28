@@ -5032,17 +5032,6 @@ TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer
 }
 
 TPM_RC
-TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, UINT32 *size)
-{
-    TPM_RC rc = TPM_RC_SUCCESS;
-
-    if (rc == TPM_RC_SUCCESS) {
-        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
-    }
-    return rc;
-}
-
-TPM_RC
 TPM2B_LDAA_SIGN_STATE_Unmarshal(TPM2B_LDAA_SIGN_STATE *target, BYTE **buffer, UINT32 *size)
 {
     TPM_RC rc = TPM_RC_SUCCESS;

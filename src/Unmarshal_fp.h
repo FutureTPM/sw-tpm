@@ -547,8 +547,6 @@ extern "C" {
     LIB_EXPORT TPM_RC
     TPM2B_LDAA_ISSUER_ATNTT_Unmarshal(TPM2B_LDAA_ISSUER_ATNTT *target, BYTE **buffer, UINT32 *size);
     LIB_EXPORT TPM_RC
-    TPM2B_LDAA_ISSUER_BNTT_Unmarshal(TPM2B_LDAA_ISSUER_BNTT *target, BYTE **buffer, UINT32 *size);
-    LIB_EXPORT TPM_RC
     TPM2B_LDAA_SIGN_STATE_Unmarshal(TPM2B_LDAA_SIGN_STATE *target, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                               LDAA Mods                                   */
