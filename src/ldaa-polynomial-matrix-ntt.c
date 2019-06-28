@@ -39,7 +39,7 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
             for (k = 0; k < k_comm; k++) {
                 ldaa_poly_ntt_sample_u(&a_ntt, &rand, n, q);
                 for (l = 0; l < n; l++) {
-                    prod = reduce((UINT64)/*a_ntt.coeffs[l]*/1 * b->coeffs[k * 1 + j].coeffs[l]);
+                    prod = reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] += prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= q;
@@ -86,7 +86,7 @@ void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *t
             for (k = 0; k < k_comm; k++) {
                 ldaa_poly_ntt_sample_u(&a_ntt, &rand, n, q);
                 for (l = 0; l < n; l++) {
-                    prod = reduce((UINT64)/*a_ntt.coeffs[l]*/1 * b->coeffs[k * 1 + j].coeffs[l]);
+                    prod = reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= q;
