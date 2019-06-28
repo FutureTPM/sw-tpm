@@ -889,8 +889,8 @@ TPM2_LDAA_SignProof(
 
     uint8_t lower_limit, higher_limit;
     if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_WEAK) {
-        lower_limit = 27;
-        higher_limit = 30;
+        lower_limit = 15;
+        higher_limit = 18;
     } else if (ldaa_key->publicArea.parameters.ldaaDetail.security == TPM_LDAA_SECURITY_MODE_MEDIUM) {
         lower_limit = 27;
         higher_limit = 34;
