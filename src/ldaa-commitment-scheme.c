@@ -12,12 +12,13 @@ static void compute_commitment_1(ldaa_poly_matrix_R_commit_t *R,
            uint64_t n, uint64_t q, uint64_t k_comm)
 {
     ldaa_poly_matrix_commit1_t prod;
+    memset(prod.coeffs, 0, sizeof(ldaa_poly_matrix_commit1_t));
     ldaa_poly_matrix_commit1_product_ntt_1(&prod, R, seed, commit1_len,
             n, q, k_comm);
 
     ldaa_poly_matrix_commit1_t S2;
     // Append S rows to S2
-    for (size_t i = 0; i < commit1_len; i++) {
+    for (size_t i = 0; i < commit1_len + 1; i++) {
         if (i == 0) {
             for (size_t j = 0; j < n; j++) {
                 S2.coeffs[i].coeffs[j] = 0;
@@ -28,10 +29,11 @@ static void compute_commitment_1(ldaa_poly_matrix_R_commit_t *R,
             }
         }
     }
+
     ldaa_poly_matrix_commit1_add(&S2, &S2, &prod, commit1_len, n, q);
 
     // Copy results to output struct
-    for (size_t i = 0; i < commit1_len; i++) {
+    for (size_t i = 0; i < commit1_len + 1; i++) {
         for (size_t j = 0; j < n; j++) {
             commited->C.coeffs[i].coeffs[j] = S2.coeffs[i].coeffs[j];
         }
@@ -62,12 +64,14 @@ static void compute_commitment_2(ldaa_poly_matrix_R_commit_t *R,
            uint64_t n, uint64_t q, uint64_t k_comm)
 {
     static ldaa_poly_matrix_commit2_t prod;
+    memset(prod.coeffs, 0, sizeof(ldaa_poly_matrix_commit2_t));
     ldaa_poly_matrix_commit2_product_ntt_1(&prod, R, seed, commit2_len,
             n, q, k_comm);
 
     static ldaa_poly_matrix_commit2_t S2;
+    memset(S2.coeffs, 0, sizeof(ldaa_poly_matrix_commit2_t));
     // Append S rows to S2
-    for (size_t i = 0; i < commit2_len; i++) {
+    for (size_t i = 0; i < commit2_len + 1; i++) {
         if (i == 0) {
             for (size_t j = 0; j < n; j++) {
                 S2.coeffs[i].coeffs[j] = 0;
@@ -81,7 +85,7 @@ static void compute_commitment_2(ldaa_poly_matrix_R_commit_t *R,
     ldaa_poly_matrix_commit2_add(&S2, &S2, &prod, commit2_len, n, q);
 
     // Copy results to output struct
-    for (size_t i = 0; i < commit2_len; i++) {
+    for (size_t i = 0; i < commit2_len + 1; i++) {
         for (size_t j = 0; j < n; j++) {
             commited->C.coeffs[i].coeffs[j] = S2.coeffs[i].coeffs[j];
         }

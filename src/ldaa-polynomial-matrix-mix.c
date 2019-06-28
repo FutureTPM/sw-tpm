@@ -8,7 +8,7 @@ void ldaa_poly_matrix_commit1_prod_from_ntt(ldaa_poly_matrix_commit1_t *this,
 {
     size_t i, k;
 
-    for (i = 0; i < commit1_len; i++) {
+    for (i = 0; i < commit1_len + 1; i++) {
         for (k = 0; k < n; k++) {
             this->coeffs[i].coeffs[k] = a->coeffs[i].coeffs[k];
         }
@@ -24,7 +24,7 @@ void ldaa_poly_matrix_commit1_product_ntt_1(ldaa_poly_matrix_commit1_t *this,
     ldaa_poly_matrix_ntt_R_commit_from_canonical(&b, ba, n, k_comm, q);
     static ldaa_poly_matrix_ntt_commit1_prod_t prod;
     // Zero prod
-    MemorySet(prod.coeffs, 0, commit1_len * n * sizeof(UINT32));
+    MemorySet(prod.coeffs, 0, sizeof(ldaa_poly_matrix_ntt_commit1_prod_t));
     ldaa_poly_matrix_ntt_commit1_product(&prod, &b, seed, commit1_len,
             n, k_comm, q);
 
@@ -37,7 +37,7 @@ void ldaa_poly_matrix_commit2_prod_from_ntt(ldaa_poly_matrix_commit2_t *this,
 {
     size_t i, k;
 
-    for (i = 0; i < commit2_len; i++) {
+    for (i = 0; i < commit2_len + 1; i++) {
         for (k = 0; k < n; k++) {
             this->coeffs[i].coeffs[k] = a->coeffs[i].coeffs[k];
         }
@@ -54,7 +54,7 @@ void ldaa_poly_matrix_commit2_product_ntt_1(ldaa_poly_matrix_commit2_t *this,
     ldaa_poly_matrix_ntt_R_commit_from_canonical(&b, ba, n, k_comm, q);
     static ldaa_poly_matrix_ntt_commit2_prod_t prod;
     // Zero prod
-    MemorySet(prod.coeffs, 0, commit2_len * n * sizeof(UINT32));
+    MemorySet(prod.coeffs, 0, sizeof(ldaa_poly_matrix_ntt_commit2_prod_t));
     ldaa_poly_matrix_ntt_commit2_product(&prod, &b, seed, commit2_len,
             n, k_comm, q);
 

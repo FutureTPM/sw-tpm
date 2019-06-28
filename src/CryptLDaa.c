@@ -165,7 +165,9 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.m * params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_1.phi_x[i].coeffs[j]);
                 }
             }
@@ -175,7 +177,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_1.varphi_e[i].coeffs[j]);
                 }
             }
@@ -185,7 +190,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_1.varphi_r_e[i].coeffs[j]);
                 }
             }
@@ -195,7 +203,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.m * params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_1.phi_r[i].coeffs[j]);
                 }
             }
@@ -207,7 +218,9 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_2.phi[i].v[j]);
                 }
             }
@@ -217,7 +230,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_2.varphi[i].v[j]);
                 }
             }
@@ -227,7 +243,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_2.v_e[i].coeffs[j]);
                 }
             }
@@ -237,7 +256,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.m * params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_2.v[i].coeffs[j]);
                 }
             }
@@ -249,7 +271,9 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_3.phi[i].v[j]);
                 }
             }
@@ -259,7 +283,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer+
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_3.varphi[i].v[j]);
                 }
             }
@@ -269,7 +296,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer+
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_3.r_e[i].coeffs[j]);
                 }
             }
@@ -279,7 +309,10 @@ static void CryptLDaaSerializeSignGroup(
             ///////////////////////////
             for (size_t i = 0; i < params.m * params.log_beta; i++) {
                 for (size_t j = 0; j < (2*(1<<params.log_w)-1)*params.n; j++) {
-                    Coeff2Bytes((BYTE *)&sign_group_serial->t.buffer+((i * params.n + j)*4),
+                    Coeff2Bytes(
+                            (BYTE *)&sign_group_serial->t.buffer +
+                            sign_group_serial->t.size +
+                            ((i * (2*(1<<params.log_w)-1)*params.n + j)*4),
                             sign_group->res_3.r[i].coeffs[j]);
                 }
             }
@@ -680,7 +713,8 @@ CryptLDaaSignCommit(
     ldaa_poly_t                      pbsn; // 1KB
     ldaa_poly_matrix_xt_t            xt;   // 24.5KB
     ldaa_poly_matrix_ntt_issuer_at_t issuer_at_ntt;  // 24.5KB
-    static LDAA_LOCAL_COMMITS        ldaa_commits; // 39.5MB + 65KB
+    static LDAA_LOCAL_COMMITS        ldaa_commits; // 80MB + 65KB
+    memset(&ldaa_commits, 0, sizeof(ldaa_commits));
 
     LDaaParams params = generate_ldaa_params(security);
 
@@ -726,21 +760,21 @@ CryptLDaaSignCommit(
                 params.log_w, params.n, params.q, params.commit1_len,
                 params.k_comm, params.alpha2);
             CryptLDaaSerializeCommit1(c_out, &ldaa_commits.commited1.C,
-                    params.commit1_len, params.n);
+                    params.commit1_len + 1, params.n);
             break;
         case 2:
             ldaa_tpm_comm_2(ssi, &ldaa_commits.commited2, seed, params.m,
                     params.log_beta, params.log_w, params.n, params.q,
                     params.commit2_len, params.k_comm, params.l, params.alpha2);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited2.C,
-                    params.commit2_len, params.n);
+                    params.commit2_len + 1, params.n);
             break;
         case 3:
             ldaa_tpm_comm_3(ssi, &ldaa_commits.commited3, seed, params.m,
                     params.log_beta, params.log_w, params.n, params.q,
                     params.commit2_len, params.k_comm, params.l, params.alpha2);
             CryptLDaaSerializeCommit2(c_out, &ldaa_commits.commited3.C,
-                    params.commit2_len, params.n);
+                    params.commit2_len + 1, params.n);
             break;
         default:
             // This should never happen. The caller should verify the validity

@@ -8,9 +8,8 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
             uint64_t n, uint64_t k_comm, uint64_t q)
 {
     size_t i, j, k, l;
-    UINT32 prod;
+    UINT32 prod = 0;
     TPM2B_SEED tpm2b_seed;
-    ldaa_poly_t a;
     ldaa_poly_ntt_t a_ntt;
     DRBG_STATE rand;
     UINT32 (*reduce)(UINT64 x);
@@ -35,13 +34,13 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
     DRBG_InstantiateSeeded(&rand, &tpm2b_seed.b,
             HOST_B_NTT_GENERATION, NULL, NULL);
 
-    for (i = 0; i < commit1_len; i++) {
+    for (i = 0; i < commit1_len + 1; i++) {
         for (j = 0; j < 1; j++) {
             for (k = 0; k < k_comm; k++) {
-                ldaa_poly_sample_u(&a, &rand, n, q);
+                ldaa_poly_ntt_sample_u(&a_ntt, &rand, n, q);
                 for (l = 0; l < n; l++) {
-                    prod = reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
-                    this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
+                    prod = reduce((UINT64)/*a_ntt.coeffs[l]*/1 * b->coeffs[k * 1 + j].coeffs[l]);
+                    this->coeffs[i * 1 + j].coeffs[l] += prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= q;
                     }
@@ -56,9 +55,8 @@ void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *t
             uint64_t n, uint64_t k_comm, uint64_t q)
 {
     size_t i, j, k, l;
-    UINT32 prod;
+    UINT32 prod = 0;
     TPM2B_SEED tpm2b_seed;
-    ldaa_poly_t a;
     ldaa_poly_ntt_t a_ntt;
     DRBG_STATE rand;
     UINT32 (*reduce)(UINT64 x);
@@ -83,12 +81,12 @@ void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *t
     DRBG_InstantiateSeeded(&rand, &tpm2b_seed.b,
             HOST_B_NTT_GENERATION, NULL, NULL);
 
-    for (i = 0; i < commit2_len; i++) {
+    for (i = 0; i < commit2_len + 1; i++) {
         for (j = 0; j < 1; j++) {
             for (k = 0; k < k_comm; k++) {
-                ldaa_poly_sample_u(&a, &rand, n, q);
+                ldaa_poly_ntt_sample_u(&a_ntt, &rand, n, q);
                 for (l = 0; l < n; l++) {
-                    prod = reduce((UINT64)a_ntt.coeffs[l] * b->coeffs[k * 1 + j].coeffs[l]);
+                    prod = reduce((UINT64)/*a_ntt.coeffs[l]*/1 * b->coeffs[k * 1 + j].coeffs[l]);
                     this->coeffs[i * 1 + j].coeffs[l] = this->coeffs[i * 1 + j].coeffs[l] + prod;
                     if (this->coeffs[i * 1 + j].coeffs[l] >= q) {
                         this->coeffs[i * 1 + j].coeffs[l] -= q;

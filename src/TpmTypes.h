@@ -1108,21 +1108,21 @@ typedef struct {
 } ldaa_permutation_perm_t;
 
 typedef struct {
-    ldaa_poly_t coeffs[(MAX_LDAA_COMMIT1_LENGTH - 1)*1];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT1_LENGTH*1];
 } ldaa_poly_matrix_comm1_t;
 
 typedef struct {
-    ldaa_poly_t coeffs[MAX_LDAA_COMMIT1_LENGTH];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT1_LENGTH + 1];
 } ldaa_poly_matrix_commit1_t;
 
 typedef struct {
-    ldaa_poly_t coeffs[(MAX_LDAA_COMMIT2_LENGTH - 1)*1];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH*1];
 } ldaa_poly_matrix_comm2_t;
 
 typedef ldaa_poly_matrix_comm2_t ldaa_poly_matrix_comm3_t;
 
 typedef struct {
-    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH];
+    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH + 1];
 } ldaa_poly_matrix_commit2_t;
 
 typedef ldaa_poly_matrix_commit2_t ldaa_poly_matrix_commit3_t;

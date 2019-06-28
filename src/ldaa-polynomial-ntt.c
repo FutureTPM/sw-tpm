@@ -1,5 +1,6 @@
 #include "ldaa-polynomial-ntt.h"
 #include "ldaa-polynomial.h"
+#include "ldaa-uniform-int.h"
 #include <stddef.h>
 
 void ldaa_poly_ntt_mul(ldaa_poly_ntt_t *this,
@@ -55,4 +56,13 @@ void ldaa_poly_ntt_from_canonical(ldaa_poly_ntt_t *this,
     }
 
     ldaa_poly_ntt(this->coeffs, n, q);
+}
+
+void ldaa_poly_ntt_sample_u(ldaa_poly_ntt_t *out, DRBG_STATE *state, uint64_t n, uint64_t q)
+{
+    size_t i;
+
+    for (i = 0; i < n; i++) {
+        out->coeffs[i] = ldaa_uniform_int_sample(0, q, state);
+    }
 }

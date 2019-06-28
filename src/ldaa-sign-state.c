@@ -79,9 +79,10 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
     ldaa_poly_t ps[numpols];
 
     ldaa_poly_matrix_comm1_t comm;
+    memset(comm.coeffs, 0, sizeof(ldaa_poly_matrix_comm1_t));
 
     // Zero commit matrix
-    for (i = 0; i < commit1_len - 1; i++) {
+    for (i = 0; i < commit1_len; i++) {
         for (j = 0; j < n; j++) {
             comm.coeffs[i].coeffs[j] = 0;
         }
@@ -107,19 +108,24 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
     for (i = 0; i < m; i++) {
         ldaa_poly_t v;
         fold_embed(&s->r[i * log_beta], &v, log_beta, log_w, n);
-        if (i == 0)
+        if (i == 0) {
+            // Checked pbsn, v and snd
             ldaa_poly_mul(&snd, pbsn, &v, n, q);
+        }
         ldaa_poly_mul_ntt_1(&v, &rotat[i], &v, n, q);
         ldaa_poly_add(&fst, &fst, &v, n, q);
     }
+
     for (i = 0; i < n; i++) {
         comm.coeffs[0].coeffs[i] = fst.coeffs[i];
     }
 
     /* entry 1 */
     ldaa_poly_t v2;
+    // Checked s->re, and v2
     fold_embed(&s->re[0], &v2, log_beta, log_w, n);
     ldaa_poly_add(&snd, &snd, &v2, n, q);
+
     for (i = 0; i < n; i++) {
         comm.coeffs[1].coeffs[i] = snd.coeffs[i];
     }
@@ -127,6 +133,7 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
     /* entry 2 filled by host */
     /* entries 3..3+3*log_beta-1 */
 
+    // Checked
     for (i = 0; i < log_beta; i++) {
         ldaa_permutation_embed(&s->phi[i], ps, log_w, n);
         ldaa_poly_matrix_comm1_set_v_entries(&comm,
@@ -138,11 +145,13 @@ void ldaa_tpm_comm_1(ldaa_sign_state_i_t *s,
     /* entries 3+6*log_beta..3+9*log_beta-1 filled by host */
 
     /* entries 3+9*log_beta..3+12*log_beta-1 */
+    // Checked
     for (i = 0; i < log_beta; i++) {
         ldaa_permutation_embed(&s->varphi[i], ps, log_w, n);
         ldaa_poly_matrix_comm1_set_v_entries(&comm,
                 3 + 3*(2*w-1)*log_beta + i*(2*w-1),
                 0, ps, 2*w-1, n);
+
     }
 
     ldaa_commit_scheme_commit_1(&comm, commited, seed, commit1_len,
@@ -165,12 +174,7 @@ void ldaa_tpm_comm_2(ldaa_sign_state_i_t *s,
     const size_t w = (1<<log_w);
 
     static ldaa_poly_matrix_comm2_t comm;
-    // Zero commit matrix
-    for (i = 0; i < commit2_len - 1; i++) {
-        for (j = 0; j < n; j++) {
-            comm.coeffs[i].coeffs[j] = 0;
-        }
-    }
+    memset(comm.coeffs, 0, sizeof(ldaa_poly_matrix_comm2_t));
 
     const size_t m_loop = (2*(1<<log_w)-1)*n;
     const size_t numpols = (m_loop + ((n - (m_loop % n)) % n)) / n;
@@ -223,12 +227,7 @@ void ldaa_tpm_comm_3(ldaa_sign_state_i_t *s,
     const size_t w = (1ULL<<log_w);
 
     static ldaa_poly_matrix_comm3_t comm;
-    // Zero commit matrix
-    for (i = 0; i < commit3_len - 1; i++) {
-        for (j = 0; j < n; j++) {
-            comm.coeffs[i].coeffs[j] = 0;
-        }
-    }
+    memset(comm.coeffs, 0, sizeof(ldaa_poly_matrix_comm2_t));
 
     const size_t m_loop = (2*(1<<log_w)-1)*n;
     const size_t numpols = (m_loop + ((n - (m_loop % n)) % n)) / n;
