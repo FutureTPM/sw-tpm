@@ -1075,14 +1075,6 @@ typedef union {
 typedef union {
     struct {
         UINT32                  size;
-        BYTE                    buffer[MAX_LDAA_ISSUER_BNTT_SIZE];
-    }            t;
-    TPM2B        b;
-} TPM2B_LDAA_ISSUER_BNTT;
-
-typedef union {
-    struct {
-        UINT32                  size;
         BYTE                    buffer[32];
     }            t;
     TPM2B        b;
@@ -1150,16 +1142,6 @@ typedef struct {
 typedef struct {
     ldaa_poly_ntt_t coeffs[MAX_LDAA_M];
 } ldaa_poly_matrix_ntt_issuer_at_t;
-
-typedef struct {
-    ldaa_poly_t coeffs[MAX_LDAA_ISSUER_BNTT_LENGTH];
-} ldaa_poly_matrix_ntt_B_t;
-
-typedef struct {
-    ldaa_poly_t coeffs[MAX_LDAA_COMMIT2_LENGTH * MAX_LDAA_K_COMM];
-} ldaa_poly_matrix_ntt_B2_t;
-
-typedef ldaa_poly_matrix_ntt_B2_t ldaa_poly_matrix_ntt_B3_t;
 
 typedef struct {
     ldaa_poly_ntt_t coeffs[MAX_LDAA_K_COMM * 1];
@@ -1246,7 +1228,7 @@ typedef union {
 typedef union {
     struct {
         UINT32                  size;
-	BYTE                    buffer[sizeof(ldaa_poly_matrix_R_t)];
+        BYTE                    buffer[sizeof(ldaa_poly_matrix_R_t)];
     }            t;
     TPM2B        b;
 } TPM2B_LDAA_SIGN_STATE;
