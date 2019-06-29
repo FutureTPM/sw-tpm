@@ -431,7 +431,7 @@ TPM2_Kyber_Encrypt(
         return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
     // Check static key validity
     if (CryptValidateKeys(&key_handle->publicArea,
-                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+                NULL, 0, 0) != TPM_RC_SUCCESS)
         return TPM_RCS_KEY + RC_Kyber_Encrypt_key_handle;
 
     retVal = CryptKyberEncrypt(&out->outData, key_handle, &in->message.b);
