@@ -836,9 +836,9 @@ ComputeQualifiedName(
     return;
 }
 /* 8.6.3.29 ObjectIsStorage() */
-/* This function determines if an object has the attributes associated with a parent. A parent is an
-   asymmetric or symmetric block cipher key that has its restricted and decrypt attributes SET, and
-   sign CLEAR. */
+/* This function determines if an object has the attributes associated with a
+ * parent. A parent is an asymmetric or symmetric block cipher key that has its
+ * restricted and decrypt attributes SET, and sign CLEAR. */
 /* Return Values Meaning */
 /* TRUE if the object is a storage key */
 /* FALSE if the object is not a storage key */
@@ -855,7 +855,8 @@ ObjectIsStorage(
 	    && IS_ATTRIBUTE(publicArea->objectAttributes, TPMA_OBJECT, decrypt)
 	    && !IS_ATTRIBUTE(publicArea->objectAttributes, TPMA_OBJECT, sign)
 	    && (object->publicArea.type == ALG_RSA_VALUE
-		|| object->publicArea.type == ALG_ECC_VALUE));
+		|| object->publicArea.type == ALG_ECC_VALUE
+        || object->publicArea.type == ALG_KYBER_VALUE));
 }
 /* 8.6.3.30 ObjectCapGetLoaded() */
 /* This function returns a a list of handles of loaded object, starting from handle. Handle must be
