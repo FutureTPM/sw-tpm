@@ -73,11 +73,13 @@
 #if MATH_LIB == OSSL
 #include "TpmToOsslMath_fp.h"
 /* B.2.3.2.3.1. OsslToTpmBn() */
-/* This function converts an OpenSSL() BIGNUM to a TPM bignum. In this implementation it is assumed
-   that OpenSSL() used the same format for a big number as does the TPM -- an array of native-endian
-   words in little-endian order. */
-/* If the array allocated for the OpenSSL() BIGNUM is not the space within the TPM bignum, then the
-   data is copied. Otherwise, just the size field of the BIGNUM is copied. */
+/* This function converts an OpenSSL() BIGNUM to a TPM bignum. In this
+ * implementation it is assumed that OpenSSL() used the same format for a big
+ * number as does the TPM -- an array of native-endian words in little-endian
+ * order. */
+/* If the array allocated for the OpenSSL() BIGNUM is not the space within the
+ * TPM bignum, then the data is copied. Otherwise, just the size field of the
+ * BIGNUM is copied. */
 void
 OsslToTpmBn(
 	    bigNum          bn,
@@ -105,7 +107,7 @@ BigInitialized(
     BIGNUM *toInit = NULL;
     unsigned char buffer[LARGEST_NUMBER + 1];
     NUMBYTES buffer_len = (NUMBYTES )sizeof(buffer);
-    
+
     if (initializer == NULL) {
 	return NULL;
     }

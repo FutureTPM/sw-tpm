@@ -369,8 +369,8 @@ PlatformSvcRoutine(
 
 // D.3.3.4.	PlatformSignalService()
 
-// This function starts a new thread waiting for platform signals. Platform signals are processed
-// one at a time in the order in which they are received.
+// This function starts a new thread waiting for platform signals. Platform
+// signals are processed one at a time in the order in which they are received.
 
 int
 PlatformSignalService(

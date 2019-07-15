@@ -230,7 +230,7 @@
 #define  ORDERLY_BITS                   8
 #define  MAX_SYM_DATA                   128
 #define  MAX_RNG_ENTROPY_SIZE           64
-#define  RAM_INDEX_SPACE                512
+#define  RAM_INDEX_SPACE                2048
 #define  RSA_DEFAULT_PUBLIC_EXPONENT    0x00010001
 #define  ENABLE_PCR_NO_INCREMENT        YES
 #define  CRT_FORMAT_RSA                 YES

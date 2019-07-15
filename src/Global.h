@@ -1049,11 +1049,11 @@ extern UINT64       s_lockoutTimer;
 #endif // DA_C
 #if defined NV_C || defined GLOBAL_C
 /* From NV.c */
-/* This marks the end of the NV area. This is a run-time variable as it might not be compile-time
-   constant. */
+/* This marks the end of the NV area. This is a run-time variable as it might
+ * not be compile-time constant. */
 extern NV_REF   s_evictNvEnd;
-/* This space is used to hold the index data for an orderly Index. It also contains the attributes
-   for the index. */
+/* This space is used to hold the index data for an orderly Index. It also
+ * contains the attributes for the index. */
 extern BYTE      s_indexOrderlyRam[RAM_INDEX_SPACE];   // The orderly NV Index data
 /* This value contains the current max counter value. It is written to the end of allocatable NV
    space each time an index is deleted or added. This value is initialized on Startup. The indices

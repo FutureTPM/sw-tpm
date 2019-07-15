@@ -66,12 +66,15 @@
 #include "PlatformData.h"
 /* 8.4.3 Local Functions */
 /* 8.4.3.1 NvNext() */
-/* This function provides a method to traverse every data entry in NV dynamic area. */
-/* To begin with, parameter iter should be initialized to NV_REF_INIT indicating the first element.
-   Every time this function is called, the value in iter would be adjusted pointing to the next
-   element in traversal.  If there is no next element, iter value would be 0. This function returns
-   the address of the 'data entry' pointed by the iter.  If there is no more element in the set, a 0
-   value is returned indicating the end of traversal. */
+/* This function provides a method to traverse every data entry in NV dynamic
+ * area. */
+/* To begin with, parameter iter should be initialized to NV_REF_INIT
+ * indicating the first element. Every time this function is called, the value
+ * in iter would be adjusted pointing to the next element in traversal.  If
+ * there is no next element, iter value would be 0. This function returns the
+ * address of the 'data entry' pointed by the iter.  If there is no more
+ * element in the set, a 0 value is returned indicating the end of traversal.
+ * */
 static NV_REF
 NvNext(
        NV_REF          *iter,          // IN/OUT: the list iterator
@@ -378,7 +381,8 @@ NvRamGetEnd(
     return iter;
 }
 /*     8.4.4.3 NvRamTestSpaceIndex() */
-/* This function indicates if there is enough RAM space to add a data for a new NV Index. */
+/* This function indicates if there is enough RAM space to add a data for a
+ * new NV Index. */
 /* Return Values Meaning */
 /* TRUE space available */
 /* FALSE no enough space */
@@ -732,10 +736,11 @@ NvIndexCacheInit(
     return;
 }
 /* 8.4.5.6 NvGetIndexData() */
-/* This function is used to access the data in an NV Index. The data is returned as a byte
-   sequence. */
-/* This function requires that the NV Index be defined, and that the required data is within the
-   data range.  It also requires that TPMA_NV_WRITTEN of the Index is SET. */
+/* This function is used to access the data in an NV Index. The data is
+ * returned as a byte sequence. */
+/* This function requires that the NV Index be defined, and that the required
+ * data is within the data range.  It also requires that TPMA_NV_WRITTEN of the
+ * Index is SET. */
 void
 NvGetIndexData(
 	       NV_INDEX        *nvIndex,       // IN: the in RAM index descriptor
@@ -838,11 +843,12 @@ NvWriteIndexAuth(
     }
 }
 /* 8.4.5.10 NvGetIndexInfo() */
-/* This function loads the nvIndex Info into the NV cache and returns a pointer to the NV_INDEX. If
-   the returned value is zero, the index was not found. The locator parameter, if not NULL, will be
-   set to the offset in NV of the Index (the location of the handle of the Index). */
-/* This function will set the index cache. If the index is orderly, the attributes from RAM are
-   substituted for the attributes in the cached index */
+/* This function loads the nvIndex Info into the NV cache and returns a pointer
+ * to the NV_INDEX. If the returned value is zero, the index was not found. The
+ * locator parameter, if not NULL, will be set to the offset in NV of the
+ * Index (the location of the handle of the Index). */
+/* This function will set the index cache. If the index is orderly, the
+ * attributes from RAM are substituted for the attributes in the cached index */
 NV_INDEX *
 NvGetIndexInfo(
 	       TPM_HANDLE       nvHandle,      // IN: the index handle
