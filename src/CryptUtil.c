@@ -1555,13 +1555,13 @@ CryptIsUniqueSizeValid(
 	  case TPM_ALG_KYBER:
         switch(publicArea->parameters.kyberDetail.security) {
             case TPM_KYBER_SECURITY_2:
-                consistent = publicArea->unique.kyber.t.size == 736; /* Kyber512 */
+                consistent = publicArea->unique.kyber.t.size == 800; /* Kyber512 */
                 break;
             case TPM_KYBER_SECURITY_3:
-                consistent = publicArea->unique.kyber.t.size == 1088; /* Kyber768 */
+                consistent = publicArea->unique.kyber.t.size == 1184; /* Kyber768 */
                 break;
             case TPM_KYBER_SECURITY_4:
-                consistent = publicArea->unique.kyber.t.size == 1440; /* Kyber1024 */
+                consistent = publicArea->unique.kyber.t.size == 1568; /* Kyber1024 */
                 break;
             default:
                 consistent = FALSE;
@@ -1812,15 +1812,15 @@ CryptValidateKeys(
 	  case TPM_ALG_KYBER:
           switch(publicArea->parameters.kyberDetail.security) {
               case TPM_KYBER_SECURITY_2:
-                  if(publicArea->unique.kyber.t.size != 736)
+                  if(publicArea->unique.kyber.t.size != 800)
                       return TPM_RC_KEY + blamePublic; /* Kyber512 */
                   break;
               case TPM_KYBER_SECURITY_3:
-                  if(publicArea->unique.kyber.t.size != 1088)
+                  if(publicArea->unique.kyber.t.size != 1184)
                       return TPM_RC_KEY + blamePublic; /* Kyber768 */
                   break;
               case TPM_KYBER_SECURITY_4:
-                  if(publicArea->unique.kyber.t.size != 1440)
+                  if(publicArea->unique.kyber.t.size != 1568)
                       return TPM_RC_KEY + blamePublic; /* Kyber1024 */
                   break;
               default:

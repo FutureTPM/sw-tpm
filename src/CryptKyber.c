@@ -26,8 +26,16 @@
 #include "kyber-params.h"
 #include "kyber-indcpa.h"
 #include "kyber-verify.h"
+#include "kyber-rng.h"
 
 BOOL CryptKyberInit(void) {
+    unsigned char entropy_input[48];
+    for (int i=0; i<48; i++) {
+        entropy_input[i] = i;
+    }
+
+    // FIXME?
+    kyber_randombytes_init(entropy_input, NULL, 256);
     return TRUE;
 }
 
@@ -58,17 +66,17 @@ CryptKyberValidateCipherTextSize(
             // IN: the security mode being used to decapsulate the cipher text
             TPM_KYBER_SECURITY  k
 		 ) {
-    TPM_RC   retVal             = TPM_RC_SUCCESS;
+    TPM_RC   retVal = TPM_RC_SUCCESS;
 
     switch (k) {
         case TPM_KYBER_SECURITY_2:
-            if (ct->t.size != 800) return TPM_RC_VALUE;
+            if (ct->t.size != 736) return TPM_RC_VALUE;
             break;
         case TPM_KYBER_SECURITY_3:
-            if (ct->t.size != 1152) return TPM_RC_VALUE;
+            if (ct->t.size != 1088) return TPM_RC_VALUE;
             break;
         case TPM_KYBER_SECURITY_4:
-            if (ct->t.size != 1504) return TPM_RC_VALUE;
+            if (ct->t.size != 1568) return TPM_RC_VALUE;
             break;
         default:
             /* This should not be possible. The caller should have already
@@ -84,7 +92,9 @@ typedef struct {
     uint64_t eta;
     uint64_t publickeybytes;
     uint64_t secretkeybytes;
+    uint64_t polycompressedbytes;
     uint64_t polyveccompressedbytes;
+    uint64_t polyvecbytes;
     uint64_t indcpa_secretkeybytes;
     uint64_t indcpa_publickeybytes;
     uint64_t ciphertextbytes;
@@ -92,35 +102,33 @@ typedef struct {
 
 static KyberParams generate_kyber_params(TPM_KYBER_SECURITY kyber_k) {
     KyberParams params;
-    uint64_t kyber_polyvecbytes = 0;
-
-    params.k = kyber_k;
-    kyber_polyvecbytes            = kyber_k * KYBER_POLYBYTES;
-    params.polyveccompressedbytes = kyber_k * 352;
-
-    params.indcpa_publickeybytes = params.polyveccompressedbytes +
-        KYBER_SYMBYTES;
-    params.indcpa_secretkeybytes = kyber_polyvecbytes;
-
-    params.publickeybytes =  params.indcpa_publickeybytes;
-    params.secretkeybytes =  params.indcpa_secretkeybytes +
-        params.indcpa_publickeybytes + 2*KYBER_SYMBYTES;
-    params.ciphertextbytes = params.polyveccompressedbytes +
-        KYBER_POLYCOMPRESSEDBYTES;
+    params.polyvecbytes = kyber_k * KYBER_POLYBYTES;
 
     switch (kyber_k) {
         case TPM_KYBER_SECURITY_2:
-            params.eta = 5; /* Kyber512 */
+            params.polycompressedbytes = 96;
+            params.polyveccompressedbytes = kyber_k * 320;
             break;
         case TPM_KYBER_SECURITY_3:
-            params.eta = 4; /* Kyber768 */
+            params.polycompressedbytes = 128;
+            params.polyveccompressedbytes = kyber_k * 320;
             break;
         case TPM_KYBER_SECURITY_4:
-            params.eta = 3; /* Kyber1024 */
+            params.polycompressedbytes = 160;
+            params.polyveccompressedbytes = kyber_k * 352;
             break;
         default:
             break;
     }
+
+    params.k = kyber_k;
+    params.indcpa_publickeybytes = params.polyvecbytes + KYBER_SYMBYTES;
+    params.indcpa_secretkeybytes = params.polyvecbytes;
+
+    params.publickeybytes =  params.indcpa_publickeybytes;
+    params.secretkeybytes =  params.indcpa_secretkeybytes + params.indcpa_publickeybytes + 2*KYBER_SYMBYTES;
+    params.ciphertextbytes = params.polyveccompressedbytes + params.polycompressedbytes;
+    params.eta = 2;
 
     return params;
 }
@@ -222,7 +230,7 @@ CryptKyberGenerateKey(
     // Command Output
     indcpa_keypair(publicArea->unique.kyber.t.buffer,
             sensitive->sensitive.kyber.t.buffer,
-            params.k, params.polyveccompressedbytes, params.eta, rand);
+            params.k, params.polyvecbytes, params.eta, rand);
     for (size_t i = 0; i < params.indcpa_publickeybytes; i++) {
       sensitive->sensitive.kyber.t.buffer[i+params.indcpa_secretkeybytes] = publicArea->unique.kyber.t.buffer[i];
     }
@@ -231,9 +239,7 @@ CryptKyberGenerateKey(
             params.publickeybytes, publicArea->unique.kyber.t.buffer,
             KYBER_SYMBYTES, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-2*KYBER_SYMBYTES);
     /* Value z for pseudo-random output on reject */
-    DRBG_Generate(rand,
-            sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES,
-            KYBER_SYMBYTES);
+    kyber_randombytes(sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES);
 
     publicArea->unique.kyber.t.size = params.publickeybytes;
     sensitive->sensitive.kyber.t.size = params.secretkeybytes;
@@ -268,7 +274,10 @@ CryptKyberEncapsulate(
     params = generate_kyber_params(publicArea->parameters.kyberDetail.security);
 
     // Create secret data from RNG
-    CryptRandomGenerate(KYBER_SYMBYTES, buf);
+    // kyber_randombytes(buf, KYBER_SYMBYTES);
+    for (size_t i = 0; i < KYBER_SYMBYTES; i++) {
+        buf[i] = 0;
+    }
     /* Don't release system RNG output */
     CryptHashBlock(TPM_ALG_SHA3_256,
             KYBER_SYMBYTES, buf,
@@ -282,18 +291,20 @@ CryptKyberEncapsulate(
             2*KYBER_SYMBYTES, buf,
             2*KYBER_SYMBYTES, kr);
 
+    // OK up to here
     /* coins are in kr+KYBER_SYMBYTES */
     indcpa_enc(ct->t.buffer, buf,
             publicArea->unique.kyber.t.buffer,
             kr+KYBER_SYMBYTES, params.k,
-            params.polyveccompressedbytes, params.eta);
+            params.polyveccompressedbytes, params.eta,
+            params.polyvecbytes, params.polycompressedbytes);
 
     /* overwrite coins in kr with H(c) */
     CryptHashBlock(TPM_ALG_SHA3_256,
             params.ciphertextbytes, ct->t.buffer,
             KYBER_SYMBYTES, kr+KYBER_SYMBYTES);
     /* hash concatenation of pre-k and H(c) to k */
-    CryptHashBlock(TPM_ALG_SHA3_256,
+    CryptHashBlock(TPM_ALG_SHAKE256,
             2*KYBER_SYMBYTES, kr,
             KYBER_SYMBYTES, ss->t.buffer);
 
@@ -335,7 +346,7 @@ CryptKyberDecapsulate(
         unsigned char cmp[params.ciphertextbytes];
 
         indcpa_dec(buf, ct->t.buffer, sensitive->sensitive.kyber.t.buffer, params.k,
-                params.polyveccompressedbytes, params.eta);
+                params.polyveccompressedbytes, params.polycompressedbytes);
 
         /* Multitarget countermeasure for coins + contributory KEM */
         for(i=0;i<KYBER_SYMBYTES;i++) {
@@ -348,7 +359,8 @@ CryptKyberDecapsulate(
 
         /* coins are in kr+KYBER_SYMBYTES */
         indcpa_enc(cmp, buf, pk, kr+KYBER_SYMBYTES, params.k,
-                params.polyveccompressedbytes, params.eta);
+                params.polyveccompressedbytes, params.eta,
+                params.polyvecbytes, params.polycompressedbytes);
 
         fail = kyber_verify(ct->t.buffer, cmp, params.ciphertextbytes);
 
@@ -361,7 +373,7 @@ CryptKyberDecapsulate(
         kyber_cmov(kr, sensitive->sensitive.kyber.t.buffer+params.secretkeybytes-KYBER_SYMBYTES, KYBER_SYMBYTES, fail);
 
         /* hash concatenation of pre-k and H(c) to k */
-        CryptHashBlock(TPM_ALG_SHA3_256,
+        CryptHashBlock(TPM_ALG_SHAKE256,
                 2*KYBER_SYMBYTES, kr,
                 KYBER_SYMBYTES, ss->t.buffer);
 

@@ -3,7 +3,6 @@
 #include "kyber-cbd.h"
 #include "kyber-reduce.h"
 
-
 /*************************************************
 * Name:        polyvec_compress
 *
@@ -12,15 +11,17 @@
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void kyber_polyvec_compress(unsigned char *r, const kyber_polyvec *a,
+void kyber_polyvec_compress(unsigned char *r, kyber_polyvec *a,
         const uint64_t kyber_k, const uint64_t kyber_polyveccompressedbytes)
 {
+    kyber_polyvec_csubq(a, kyber_k);
+
     if (kyber_polyveccompressedbytes == (kyber_k * 352)) {
       uint16_t t[8];
       for(size_t i = 0; i < kyber_k; i++) {
         for(size_t j = 0; j < KYBER_N/8; j++) {
           for(size_t k = 0; k < 8; k++)
-            t[k] = ((((uint32_t)kyber_freeze(a->vec[i].coeffs[8*j+k]) << 11) + KYBER_Q/2)/ KYBER_Q) & 0x7ff;
+              t[k] = ((((uint32_t)a->vec[i].coeffs[8*j+k] << 11) + KYBER_Q/2) / KYBER_Q) & 0x7ff;
 
           r[11*j+ 0] =  t[0] & 0xff;
           r[11*j+ 1] = (t[0] >>  8) | ((t[1] & 0x1f) << 3);
@@ -41,7 +42,7 @@ void kyber_polyvec_compress(unsigned char *r, const kyber_polyvec *a,
       for(size_t i = 0; i < kyber_k; i++) {
         for(size_t j = 0; j < KYBER_N/4; j++) {
           for(size_t k = 0; k < 4; k++)
-            t[k] = ((((uint32_t)kyber_freeze(a->vec[i].coeffs[4*j+k]) << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
+              t[k] = ((((uint32_t)a->vec[i].coeffs[4*j+k] << 10) + KYBER_Q/2) / KYBER_Q) & 0x3ff;
 
           r[5*j+ 0] =  t[0] & 0xff;
           r[5*j+ 1] = (t[0] >>  8) | ((t[1] & 0x3f) << 2);
@@ -50,32 +51,6 @@ void kyber_polyvec_compress(unsigned char *r, const kyber_polyvec *a,
           r[5*j+ 4] = (t[3] >>  2);
         }
         r += 320;
-      }
-    } else if (kyber_polyveccompressedbytes == (kyber_k * 288)) {
-      uint16_t t[8];
-      for(size_t i = 0; i < kyber_k; i++) {
-        for(size_t j = 0; j < KYBER_N/8; j++) {
-          for(size_t k = 0; k < 8; k++)
-            t[k] = ((((uint32_t)kyber_freeze(a->vec[i].coeffs[8*j+k]) << 9) + KYBER_Q/2)/ KYBER_Q) & 0x1ff;
-
-          r[9*j+ 0] =  t[0] & 0xff;
-          r[9*j+ 1] = (t[0] >>  8) | ((t[1] & 0x7f) << 1);
-          r[9*j+ 2] = (t[1] >>  7) | ((t[2] & 0x3f) << 2);
-          r[9*j+ 3] = (t[2] >>  6) | ((t[3] & 0x1f) << 3);
-          r[9*j+ 4] = (t[3] >>  5) | ((t[4] & 0x0f) << 4);
-          r[9*j+ 5] = (t[4] >>  4) | ((t[5] & 0x07) << 5);
-          r[9*j+ 6] = (t[5] >>  3) | ((t[6] & 0x03) << 6);
-          r[9*j+ 7] = (t[6] >>  2) | ((t[7] & 0x01) << 7);
-          r[9*j+ 8] = (t[7] >>  1);
-        }
-        r += 288;
-      }
-    } else if (kyber_polyveccompressedbytes == (kyber_k * 256)) {
-      for(size_t i = 0; i < kyber_k; i++) {
-        for(size_t j = 0; j < KYBER_N; j++) {
-          r[j] = ((((uint32_t)kyber_freeze(a->vec[i].coeffs[j]) << 8) + KYBER_Q/2)/ KYBER_Q) & 0xff;
-        }
-        r += 256;
       }
     }
 }
@@ -115,27 +90,6 @@ void kyber_polyvec_decompress(kyber_polyvec *r, const unsigned char *a,
         }
         a += 320;
       }
-    } else if (kyber_polyveccompressedbytes == (kyber_k * 288)) {
-      for(size_t i = 0; i < kyber_k; i++) {
-        for(size_t j = 0; j < KYBER_N/8; j++) {
-          r->vec[i].coeffs[8*j+0] =  (((a[9*j+ 0]       | (((uint32_t)a[9*j+ 1] & 0x01) << 8)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+1] = ((((a[9*j+ 1] >> 1) | (((uint32_t)a[9*j+ 2] & 0x03) << 7)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+2] = ((((a[9*j+ 2] >> 2) | (((uint32_t)a[9*j+ 3] & 0x07) << 6)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+3] = ((((a[9*j+ 3] >> 3) | (((uint32_t)a[9*j+ 4] & 0x0f) << 5)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+4] = ((((a[9*j+ 4] >> 4) | (((uint32_t)a[9*j+ 5] & 0x1f) << 4)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+5] = ((((a[9*j+ 5] >> 5) | (((uint32_t)a[9*j+ 6] & 0x3f) << 3)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+6] = ((((a[9*j+ 6] >> 6) | (((uint32_t)a[9*j+ 7] & 0x7f) << 2)) * KYBER_Q) + 256) >> 9;
-          r->vec[i].coeffs[8*j+7] = ((((a[9*j+ 7] >> 7) | (((uint32_t)a[9*j+ 8] & 0xff) << 1)) * KYBER_Q) + 256) >> 9;
-        }
-        a += 288;
-      }
-    } else if (kyber_polyveccompressedbytes == (kyber_k * 256)) {
-      for(size_t i = 0; i < kyber_k; i++) {
-        for(size_t j = 0; j < KYBER_N; j++) {
-          r->vec[i].coeffs[j] = ((a[j] * KYBER_Q) + 128) >> 8;
-        }
-        a += 256;
-      }
     }
 }
 
@@ -147,7 +101,7 @@ void kyber_polyvec_decompress(kyber_polyvec *r, const unsigned char *a,
 * Arguments:   - unsigned char *r: pointer to output byte array
 *              - const polyvec *a: pointer to input vector of polynomials
 **************************************************/
-void kyber_polyvec_tobytes(unsigned char *r, const kyber_polyvec *a, const uint64_t kyber_k) {
+void kyber_polyvec_tobytes(unsigned char *r, kyber_polyvec *a, const uint64_t kyber_k) {
   for(size_t i = 0; i < kyber_k; i++)
     kyber_poly_tobytes(r+i*KYBER_POLYBYTES, &a->vec[i]);
 }
@@ -201,16 +155,45 @@ void kyber_polyvec_invntt(kyber_polyvec *r, const uint64_t kyber_k) {
 **************************************************/
 void kyber_polyvec_pointwise_acc(kyber_poly *r, const kyber_polyvec *a, const kyber_polyvec *b,
         const uint64_t kyber_k) {
-  uint16_t t;
-  for(size_t j = 0; j < KYBER_N; j++) {
-    t = kyber_montgomery_reduce(4613* (uint32_t)b->vec[0].coeffs[j]); // 4613 = 2^{2*18} % q
-    r->coeffs[j] = kyber_montgomery_reduce(a->vec[0].coeffs[j] * t);
-    for(size_t i = 1; i < kyber_k; i++) {
-      t = kyber_montgomery_reduce(4613* (uint32_t)b->vec[i].coeffs[j]);
-      r->coeffs[j] += kyber_montgomery_reduce(a->vec[i].coeffs[j] * t);
-    }
-    r->coeffs[j] = kyber_barrett_reduce(r->coeffs[j]);
+  kyber_poly t;
+
+  kyber_poly_basemul(r, &a->vec[0], &b->vec[0]);
+  for(size_t i=1;i<kyber_k;i++) {
+    kyber_poly_basemul(&t, &a->vec[i], &b->vec[i]);
+    kyber_poly_add(r, r, &t);
   }
+
+  kyber_poly_reduce(r);
+}
+
+/*************************************************
+* Name:        polyvec_reduce
+*
+* Description: Applies Barrett reduction to each coefficient
+*              of each element of a vector of polynomials
+*              for details of the Barrett reduction see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
+void kyber_polyvec_reduce(kyber_polyvec *r, const uint64_t kyber_k)
+{
+  for(size_t i=0;i<kyber_k;i++)
+    kyber_poly_reduce(&r->vec[i]);
+}
+
+/*************************************************
+* Name:        polyvec_csubq
+*
+* Description: Applies conditional subtraction of q to each coefficient
+*              of each element of a vector of polynomials
+*              for details of conditional subtraction of q see comments in reduce.c
+*
+* Arguments:   - poly *r:       pointer to input/output polynomial
+**************************************************/
+void kyber_polyvec_csubq(kyber_polyvec *r, const uint64_t kyber_k)
+{
+  for(size_t i=0;i<kyber_k;i++)
+    kyber_poly_csubq(&r->vec[i]);
 }
 
 /*************************************************

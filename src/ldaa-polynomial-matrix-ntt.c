@@ -25,7 +25,7 @@ void ldaa_poly_matrix_ntt_commit1_product(ldaa_poly_matrix_ntt_commit1_prod_t *t
             reduce = ldaa_reduce_8380417;
             break;
         default:
-            break;
+            return;
     }
 
     MemoryCopy(tpm2b_seed.b.buffer, &seed, sizeof(size_t));
@@ -72,7 +72,7 @@ void ldaa_poly_matrix_ntt_commit2_product(ldaa_poly_matrix_ntt_commit2_prod_t *t
             reduce = ldaa_reduce_8380417;
             break;
         default:
-            break;
+            return;
     }
 
     MemoryCopy(tpm2b_seed.b.buffer, &seed, sizeof(size_t));

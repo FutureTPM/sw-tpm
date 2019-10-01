@@ -1283,9 +1283,9 @@ typedef union {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#define MAX_KYBER_PUBLIC_KEY_SIZE 1440
+#define MAX_KYBER_PUBLIC_KEY_SIZE 1568
 #define MAX_KYBER_SECRET_KEY_SIZE 3168
-#define MAX_KYBER_CIPHER_TEXT_SIZE 1504
+#define MAX_KYBER_CIPHER_TEXT_SIZE 1568
 #define MAX_KYBER_SHARED_KEY_SIZE 32
 
 typedef union {

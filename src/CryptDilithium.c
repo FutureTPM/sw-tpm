@@ -173,9 +173,9 @@ CryptDilithiumSign(
     /* Copy tr and message into the sm buffer,
      * backwards since m and sm can be equal in SUPERCOP API */
     for(i = 1; i <= hIn->b.size; ++i)
-      sigOut->signature.dilithium.sig.b.buffer[params.crypto_bytes + hIn->b.size - i] = hIn->b.buffer[hIn->b.size - i];
+      sigOut->signature.dilithium.sig.t.buffer[params.crypto_bytes + hIn->b.size - i] = hIn->b.buffer[hIn->b.size - i];
     for(i = 0; i < DILITHIUM_CRHBYTES; ++i)
-      sigOut->signature.dilithium.sig.b.buffer[params.crypto_bytes - DILITHIUM_CRHBYTES + i] = tr[i];
+      sigOut->signature.dilithium.sig.t.buffer[params.crypto_bytes - DILITHIUM_CRHBYTES + i] = tr[i];
 
     /* Compute CRH(tr, msg) */
     CryptHashBlock(TPM_ALG_SHAKE256,

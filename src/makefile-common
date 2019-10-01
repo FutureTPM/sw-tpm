@@ -279,6 +279,7 @@ HEADERS = 				\
 	kyber-poly.h \
 	kyber-polyvec.h \
 	kyber-indcpa.h \
+	kyber-rng.h \
 	kyber-reduce.h \
 	kyber-verify.h \
 	dilithium-ntt.h \
@@ -332,12 +333,13 @@ OBJFILES = \
 	dilithium-sign.o \
 	CryptKyber.o \
 	kyber-poly.o \
+	kyber-symmetric-fips202.o \
+	kyber-rng.o \
 	kyber-polyvec.o \
 	fips202.o \
 	kyber-reduce.o \
 	kyber-verify.o \
 	kyber-cbd.o \
-	kyber-precomp.o \
 	kyber-ntt.o \
 	kyber-indcpa.o \
 	AlgorithmCap.o			\
