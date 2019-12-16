@@ -204,7 +204,11 @@ void indcpa_keypair(unsigned char *pk,
   unsigned char *noiseseed = buf+KYBER_SYMBYTES;
   unsigned char nonce=0;
 
-  kyber_randombytes(buf, KYBER_SYMBYTES);
+  if (rand != NULL) {
+      DRBG_Generate(rand, buf, KYBER_SYMBYTES);
+  } else {
+      kyber_randombytes(buf, KYBER_SYMBYTES);
+  }
   CryptHashBlock(TPM_ALG_SHA3_512,
           KYBER_SYMBYTES, buf,
           2*KYBER_SYMBYTES, buf);
