@@ -3146,6 +3146,17 @@ TPMS_ENC_SCHEME_KYBER_Unmarshal(TPMS_ENC_SCHEME_KYBER *target, BYTE **buffer, UI
     return rc;
 }
 
+TPM_RC
+TPMS_ENC_SCHEME_NTTRU_Unmarshal(TPMS_ENC_SCHEME_NTTRU *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMS_SCHEME_HASH_Unmarshal(target, buffer, size);
+    }
+    return rc;
+}
+
 /* Table 146 - Definition of Types for {RSA} Encryption Schemes */
 
 TPM_RC
@@ -3418,6 +3429,11 @@ TPMU_ASYM_SCHEME_Unmarshal(TPMU_ASYM_SCHEME *target, BYTE **buffer, UINT32 *size
         rc = TPMS_ENC_SCHEME_KYBER_Unmarshal(&target->kyber, buffer, size);
         break;
 #endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        rc = TPMS_ENC_SCHEME_NTTRU_Unmarshal(&target->nttru, buffer, size);
+        break;
+#endif
       case TPM_ALG_NULL:
         break;
       default:
@@ -3534,6 +3550,26 @@ TPMT_KYBER_SCHEME_Unmarshal(TPMT_KYBER_SCHEME *target, BYTE **buffer, UINT32 *si
 }
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+TPM_RC
+TPMT_NTTRU_SCHEME_Unmarshal(TPMT_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMI_ALG_NTTRU_SCHEME_Unmarshal(&target->scheme, buffer, size, allowNull);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMU_ASYM_SCHEME_Unmarshal(&target->details, buffer, size, target->scheme);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -3811,6 +3847,37 @@ TPMI_ALG_KYBER_SCHEME_Unmarshal(TPMI_ALG_KYBER_SCHEME *target, BYTE **buffer, UI
 }
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+TPM_RC
+TPMI_ALG_NTTRU_SCHEME_Unmarshal(TPMI_ALG_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+	rc = TPM_ALG_ID_Unmarshal(target, buffer, size);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+	switch (*target) {
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
+#endif
+	    break;
+	  case TPM_ALG_NULL:
+	    if (allowNull) {
+            break;
+	    }
+	  default:
+	    rc = TPM_RC_SCHEME;
+	}
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -4177,6 +4244,9 @@ TPMI_ALG_PUBLIC_Unmarshal(TPMI_ALG_PUBLIC *target, BYTE **buffer, UINT32 *size)
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 #endif
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
+#endif
 #if ALG_SYMCIPHER
 	  case TPM_ALG_SYMCIPHER:
 #endif
@@ -4224,6 +4294,11 @@ TPMU_PUBLIC_ID_Unmarshal(TPMU_PUBLIC_ID *target, BYTE **buffer, UINT32 *size, UI
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         rc = TPM2B_KYBER_PUBLIC_KEY_Unmarshal(&target->kyber, buffer, size);
+        break;
+#endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        rc = TPM2B_NTTRU_PUBLIC_KEY_Unmarshal(&target->nttru, buffer, size);
         break;
 #endif
 #if ALG_ECC
@@ -4337,6 +4412,27 @@ TPMS_KYBER_PARMS_Unmarshal(TPMS_KYBER_PARMS *target, BYTE **buffer, UINT32 *size
 /*****************************************************************************/
 
 /*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+TPM_RC
+TPMS_NTTRU_PARMS_Unmarshal(TPMS_NTTRU_PARMS *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_SYM_DEF_OBJECT_Unmarshal(&target->symmetric, buffer, size, YES);
+    }
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPMT_NTTRU_SCHEME_Unmarshal(&target->scheme, buffer, size, YES);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
+
+/*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 TPM_RC
@@ -4420,6 +4516,11 @@ TPMU_PUBLIC_PARMS_Unmarshal(TPMU_PUBLIC_PARMS *target, BYTE **buffer, UINT32 *si
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         rc = TPMS_KYBER_PARMS_Unmarshal(&target->kyberDetail, buffer, size);
+        break;
+#endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        rc = TPMS_NTTRU_PARMS_Unmarshal(&target->nttruDetail, buffer, size);
         break;
 #endif
 #if ALG_ECC
@@ -4561,6 +4662,11 @@ TPMU_SENSITIVE_COMPOSITE_Unmarshal(TPMU_SENSITIVE_COMPOSITE *target, BYTE **buff
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         rc = TPM2B_KYBER_SECRET_KEY_Unmarshal(&target->kyber, buffer, size);
+        break;
+#endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        rc = TPM2B_NTTRU_SECRET_KEY_Unmarshal(&target->nttru, buffer, size);
         break;
 #endif
 #if ALG_ECC
@@ -4921,6 +5027,56 @@ TPM2B_KYBER_ENCRYPT_Unmarshal(TPM2B_KYBER_ENCRYPT *target, BYTE **buffer, UINT32
 }
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+TPM_RC
+TPM2B_NTTRU_PUBLIC_KEY_Unmarshal(TPM2B_NTTRU_PUBLIC_KEY *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_NTTRU_SECRET_KEY_Unmarshal(TPM2B_NTTRU_SECRET_KEY *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_NTTRU_SHARED_KEY_Unmarshal(TPM2B_NTTRU_SHARED_KEY *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+
+TPM_RC
+TPM2B_NTTRU_CIPHER_TEXT_Unmarshal(TPM2B_NTTRU_CIPHER_TEXT *target, BYTE **buffer, UINT32 *size)
+{
+    TPM_RC rc = TPM_RC_SUCCESS;
+
+    if (rc == TPM_RC_SUCCESS) {
+        rc = TPM2B_Unmarshal(&target->b, MAX_CONTEXT_SIZE, buffer, size);
+    }
+    return rc;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
 /*****************************************************************************/
 
 /*****************************************************************************/

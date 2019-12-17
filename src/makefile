@@ -48,7 +48,9 @@ CCFLAGS = -Wall  			\
 	-DTPM_POSIX			\
 	-D_POSIX_			\
 	-DTPM_NUVOTON			\
+	-ldl				\
 	-I../utils			\
+	-march=native	\
 	-I.
 
 LNFLAGS = -ggdb 			\
@@ -58,6 +60,7 @@ LNFLAGS = -ggdb 			\
 	-lcrypto			\
 	-lpthread			\
 	-lrt				\
+	-ldl				\
 	-I.
 
 all:	tpm_server

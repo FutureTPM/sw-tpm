@@ -501,6 +501,29 @@ extern "C" {
     /*****************************************************************************/
 
     /*****************************************************************************/
+    /*                                NTTRU Mods                                 */
+    /*****************************************************************************/
+    LIB_EXPORT TPM_RC
+    TPM2B_NTTRU_PUBLIC_KEY_Unmarshal(TPM2B_NTTRU_PUBLIC_KEY *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPM2B_NTTRU_SECRET_KEY_Unmarshal(TPM2B_NTTRU_SECRET_KEY *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPM2B_NTTRU_CIPHER_TEXT_Unmarshal(TPM2B_NTTRU_CIPHER_TEXT *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPM2B_NTTRU_SHARED_KEY_Unmarshal(TPM2B_NTTRU_SHARED_KEY *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPMS_ENC_SCHEME_NTTRU_Unmarshal(TPMS_ENC_SCHEME_NTTRU *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPMS_NTTRU_PARMS_Unmarshal(TPMS_NTTRU_PARMS *target, BYTE **buffer, UINT32 *size);
+    LIB_EXPORT TPM_RC
+    TPMT_NTTRU_SCHEME_Unmarshal(TPMT_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
+    LIB_EXPORT TPM_RC
+    TPMI_ALG_NTTRU_SCHEME_Unmarshal(TPMI_ALG_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
+    /*****************************************************************************/
+    /*                                NTTRU Mods                                 */
+    /*****************************************************************************/
+
+    /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
     LIB_EXPORT TPM_RC

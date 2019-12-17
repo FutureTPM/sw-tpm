@@ -1441,6 +1441,14 @@ TPMS_ENC_SCHEME_KYBER_Marshal(TPMS_ENC_SCHEME_KYBER *source, BYTE **buffer, UINT
     return written;
 }
 
+UINT32
+TPMS_ENC_SCHEME_NTTRU_Marshal(TPMS_ENC_SCHEME_NTTRU *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPMS_SCHEME_HASH_Marshal(source, buffer, size);
+    return written;
+}
+
 /* Table 146 - Definition of Types for {RSA} Encryption Schemes */
 
 UINT32
@@ -1603,6 +1611,11 @@ TPMU_ASYM_SCHEME_Marshal(TPMU_ASYM_SCHEME  *source, BYTE **buffer, UINT32 *size,
         written += TPMS_ENC_SCHEME_KYBER_Marshal(&source->kyber, buffer, size);
         break;
 #endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        written += TPMS_ENC_SCHEME_NTTRU_Marshal(&source->nttru, buffer, size);
+        break;
+#endif
 #if ALG_LDAA
       case TPM_ALG_LDAA:
         written += TPMS_SIG_SCHEME_LDAA_Marshal(&source->ldaa, buffer, size);
@@ -1695,6 +1708,20 @@ TPMI_ALG_KYBER_SCHEME_Marshal(TPMI_ALG_KYBER_SCHEME *source, BYTE **buffer, UINT
 /*****************************************************************************/
 
 /*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+UINT32
+TPMI_ALG_NTTRU_SCHEME_Marshal(TPMI_ALG_NTTRU_SCHEME *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM_ALG_ID_Marshal(source, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 UINT32
@@ -1750,6 +1777,22 @@ TPMT_KYBER_SCHEME_Marshal(TPMT_KYBER_SCHEME *source, BYTE **buffer, UINT32 *size
 }
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+UINT32
+TPMT_NTTRU_SCHEME_Marshal(TPMT_NTTRU_SCHEME *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+
+    written += TPMI_ALG_NTTRU_SCHEME_Marshal(&source->scheme, buffer, size);
+    written += TPMU_ASYM_SCHEME_Marshal(&source->details, buffer, size, source->scheme);
+    return written;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -2099,6 +2142,11 @@ TPMU_PUBLIC_ID_Marshal(TPMU_PUBLIC_ID *source, BYTE **buffer, UINT32 *size, UINT
         written += TPM2B_KYBER_PUBLIC_KEY_Marshal(&source->kyber, buffer, size);
         break;
 #endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        written += TPM2B_NTTRU_PUBLIC_KEY_Marshal(&source->nttru, buffer, size);
+        break;
+#endif
 #if ALG_LDAA
       case TPM_ALG_LDAA:
         written += TPM2B_LDAA_PUBLIC_KEY_Marshal(&source->ldaa, buffer, size);
@@ -2188,6 +2236,22 @@ TPMS_KYBER_PARMS_Marshal(TPMS_KYBER_PARMS *source, BYTE **buffer, UINT32 *size)
 /*****************************************************************************/
 
 /*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+UINT32
+TPMS_NTTRU_PARMS_Marshal(TPMS_NTTRU_PARMS *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+
+    written += TPMT_SYM_DEF_OBJECT_Marshal(&source->symmetric, buffer, size);
+    written += TPMT_NTTRU_SCHEME_Marshal(&source->scheme, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
 UINT32
@@ -2236,6 +2300,11 @@ TPMU_PUBLIC_PARMS_Marshal(TPMU_PUBLIC_PARMS *source, BYTE **buffer, UINT32 *size
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         written += TPMS_KYBER_PARMS_Marshal(&source->kyberDetail, buffer, size);
+        break;
+#endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        written += TPMS_NTTRU_PARMS_Marshal(&source->nttruDetail, buffer, size);
         break;
 #endif
 #if ALG_LDAA
@@ -2343,6 +2412,11 @@ TPMU_SENSITIVE_COMPOSITE_Marshal(TPMU_SENSITIVE_COMPOSITE *source, BYTE **buffer
 #if ALG_KYBER
       case TPM_ALG_KYBER:
         written += TPM2B_KYBER_SECRET_KEY_Marshal(&source->kyber, buffer, size);
+        break;
+#endif
+#if ALG_NTTRU
+      case TPM_ALG_NTTRU:
+        written += TPM2B_NTTRU_SECRET_KEY_Marshal(&source->nttru, buffer, size);
         break;
 #endif
       default:
@@ -2539,6 +2613,44 @@ TPM2B_KYBER_ENCRYPT_Marshal(TPM2B_KYBER_ENCRYPT *source, BYTE **buffer, UINT32 *
 }
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+UINT32
+TPM2B_NTTRU_PUBLIC_KEY_Marshal(TPM2B_NTTRU_PUBLIC_KEY *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT32
+TPM2B_NTTRU_SECRET_KEY_Marshal(TPM2B_NTTRU_SECRET_KEY *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT32
+TPM2B_NTTRU_SHARED_KEY_Marshal(TPM2B_NTTRU_SHARED_KEY *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+
+UINT32
+TPM2B_NTTRU_CIPHER_TEXT_Marshal(TPM2B_NTTRU_CIPHER_TEXT *source, BYTE **buffer, UINT32 *size)
+{
+    UINT32 written = 0;
+    written += TPM2B_Marshal(&source->b, buffer, size);
+    return written;
+}
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
 /*****************************************************************************/
 
 /*****************************************************************************/

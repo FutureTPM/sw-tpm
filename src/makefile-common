@@ -93,6 +93,7 @@ HEADERS = 				\
 	CryptDilithium_fp.h \
 	CryptKyber_fp.h \
 	CryptLDaa_fp.h \
+	CryptNTTRU_fp.h \
 	CryptPrimeSieve_fp.h		\
 	CryptPrime_fp.h			\
 	CryptRand.h			\
@@ -306,6 +307,13 @@ HEADERS = 				\
 	ldaa-commitment-scheme.h \
 	ldaa-polynomial-matrix-mix.h \
 	ldaa-polynomial-mix.h \
+	nttru-crypto-stream.h \
+	nttru-fq.h \
+	nttru-kem.h \
+	nttru-ntt.h \
+	nttru.h \
+	nttru-params.h \
+	nttru-poly.h \
 
 OBJFILES = \
 	ldaa-polynomial-mix.o \
@@ -324,6 +332,7 @@ OBJFILES = \
 	ldaa-uniform-int.o \
 	CryptLDaa.o \
 	CryptDilithium.o \
+	CryptNTTRU.o \
 	dilithium-ntt.o \
 	dilithium-packing.o \
 	dilithium-poly.o \
@@ -342,6 +351,12 @@ OBJFILES = \
 	kyber-cbd.o \
 	kyber-ntt.o \
 	kyber-indcpa.o \
+	nttru-aes256ctr.o \
+	nttru-fq.o \
+	nttru-kem.o \
+	nttru-ntt.o \
+	nttru.o \
+	nttru-poly.o \
 	AlgorithmCap.o			\
 	AlgorithmTests.o		\
 	AsymmetricCommands.o		\
@@ -445,15 +460,7 @@ OBJFILES = \
 	ntc2lib.o			\
 	ntc2.o
 
-cbd.o: $(HEADERS)
 fips202.o : $(HEADERS)
-ntt.o : $(HEADERS)
-poly.o : $(HEADERS)
-polyvec.o : $(HEADERS)
-randombytes.o : $(HEADERS)
-reduce.o : $(HEADERS)
-rng.o : $(HEADERS)
-verify.o: $(HEADERS)
 AlgorithmCap.o			: $(HEADERS)
 AlgorithmTests.o		: $(HEADERS)
 AsymmetricCommands.o		: $(HEADERS)

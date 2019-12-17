@@ -394,6 +394,9 @@ CryptInit(
 #if ALG_LDAA
     ok = ok && CryptLDaaInit();
 #endif // TPM_ALG_LDAA
+#if ALG_NTTRU
+    ok = ok && CryptNTTRUInit();
+#endif // TPM_ALG_NTTRU
     return ok;
 }
 /* 10.2.6.5.2 CryptStartup() */
@@ -426,6 +429,9 @@ CryptStartup(
 #if ALG_LDAA
     && CryptLDaaStartup()
 #endif // TPM_ALG_LDAA
+#if ALG_NTTRU
+    && CryptNTTRUStartup()
+#endif // TPM_ALG_NTTRU
 	 ;
 #if ALG_ECC
     // Don't directly check for SU_RESET because that is the default
@@ -485,6 +491,9 @@ CryptIsAsymAlgorithm(
 #endif
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
+#endif
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
 #endif
 #if ALG_LDAA
 	  case TPM_ALG_LDAA:
@@ -1038,6 +1047,12 @@ CryptCreateObject(
 	    result = CryptKyberGenerateKey(object, rand);
 	    break;
 #endif // TPM_ALG_KYBER
+#if ALG_NTTRU
+	    // Create NTTRU key
+	  case TPM_ALG_NTTRU:
+	    result = CryptNTTRUGenerateKey(object, rand);
+	    break;
+#endif // TPM_ALG_NTTRU
 	  case TPM_ALG_SYMCIPHER:
 	    result = CryptGenerateKeySymmetric(&object->publicArea,
 					       &object->sensitive,
@@ -1293,6 +1308,18 @@ CryptIsAsymDecryptScheme(
         }
 	    break;
 #endif //TPM_ALG_KYBER
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
+	    switch(scheme)
+		{
+            case TPM_ALG_NTTRU:
+                break;
+            default:
+                isDecryptScheme = FALSE;
+                break;
+        }
+	    break;
+#endif //TPM_ALG_NTTRU
 	  default:
 	    isDecryptScheme = FALSE;
 	    break;
@@ -1569,6 +1596,11 @@ CryptIsUniqueSizeValid(
         }
 	    break;
 #endif //TPM_ALG_KYBER
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
+        consistent = publicArea->unique.nttru.t.size == NTTRU_PUBLICKEYBYTES;
+        break;
+#endif //TPM_ALG_NTTRU
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
         switch(publicArea->parameters.dilithiumDetail.mode) {
@@ -1646,6 +1678,11 @@ CryptIsSensitiveSizeValid(
         }
 	    break;
 #endif //TPM_ALG_KYBER
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU:
+        consistent = sensitiveArea->sensitive.nttru.t.size == NTTRU_SECRETKEYBYTES;
+        break;
+#endif //TPM_ALG_NTTRU
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:
         switch(publicArea->parameters.dilithiumDetail.mode) {
@@ -1846,6 +1883,18 @@ CryptValidateKeys(
             }
           }
 	    break;
+#endif
+#if ALG_NTTRU
+	  case TPM_ALG_NTTRU: {
+                              if(publicArea->unique.nttru.t.size != NTTRU_PUBLICKEYBYTES)
+                                  return TPM_RC_KEY + blamePublic;
+
+                              if (sensitive != NULL) {
+                                  if (sensitive->sensitive.nttru.t.size != NTTRU_SECRETKEYBYTES)
+                                      return TPM_RCS_SIZE + blameSensitive;
+                              }
+                              break;
+                          }
 #endif
 #if ALG_DILITHIUM
 	  case TPM_ALG_DILITHIUM:

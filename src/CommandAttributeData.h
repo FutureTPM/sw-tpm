@@ -482,6 +482,19 @@ const TPMA_CC    s_ccAttr [] = {
     TPMA_CC_INITIALIZER(0x01A4, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
 
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_NTTRU_Enc)
+    TPMA_CC_INITIALIZER(0x01A5, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_NTTRU_Dec)
+    TPMA_CC_INITIALIZER(0x01A6, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     TPMA_CC_INITIALIZER(0x0000, 0, 0, 0, 0, 0, 0, 1, 0),
 #endif
@@ -1039,6 +1052,21 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
     (COMMAND_ATTRIBUTES)(CC_KYBER_Decrypt               *  // 0x01A4
 			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#if (PAD_LIST  || CC_NTTRU_Enc)
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Enc                   *  // 0x01A5
+			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
+#endif
+#if (PAD_LIST  || CC_NTTRU_Dec)
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Dec                   *  // 0x01A6
+			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
+#endif
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
 
 #if (PAD_LIST  || CC_Vendor_TCG_Test)
     (COMMAND_ATTRIBUTES)(CC_Vendor_TCG_Test             *  // 0x0000

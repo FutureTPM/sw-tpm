@@ -403,6 +403,29 @@ extern "C" {
     /*****************************************************************************/
 
     /*****************************************************************************/
+    /*                                NTTRU Mods                                 */
+    /*****************************************************************************/
+    UINT32
+    TPM2B_NTTRU_PUBLIC_KEY_Marshal(TPM2B_NTTRU_PUBLIC_KEY *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_NTTRU_SECRET_KEY_Marshal(TPM2B_NTTRU_SECRET_KEY *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_NTTRU_SHARED_KEY_Marshal(TPM2B_NTTRU_SHARED_KEY *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPM2B_NTTRU_CIPHER_TEXT_Marshal(TPM2B_NTTRU_CIPHER_TEXT *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPMS_ENC_SCHEME_NTTRU_Marshal(TPMS_ENC_SCHEME_NTTRU *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPMI_ALG_NTTRU_SCHEME_Marshal(TPMI_ALG_NTTRU_SCHEME *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPMT_NTTRU_SCHEME_Marshal(TPMT_NTTRU_SCHEME *source, BYTE **buffer, UINT32 *size);
+    UINT32
+    TPMS_NTTRU_PARMS_Marshal(TPMS_NTTRU_PARMS *source, BYTE **buffer, UINT32 *size);
+    /*****************************************************************************/
+    /*                                NTTRU Mods                                 */
+    /*****************************************************************************/
+
+    /*****************************************************************************/
     /*                             Dilithium Mods                                */
     /*****************************************************************************/
     UINT32

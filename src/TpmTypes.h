@@ -1331,6 +1331,46 @@ typedef union {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#include "nttru-params.h"
+
+typedef union {
+    struct {
+	UINT32                  size;
+	BYTE                    buffer[NTTRU_CIPHERTEXTBYTES];
+    }            t;
+    TPM2B        b;
+} TPM2B_NTTRU_CIPHER_TEXT;
+
+typedef union {
+    struct {
+	UINT32                  size;
+	BYTE                    buffer[NTTRU_PUBLICKEYBYTES];
+    }            t;
+    TPM2B        b;
+} TPM2B_NTTRU_PUBLIC_KEY;
+
+typedef union {
+    struct {
+	UINT32                  size;
+	BYTE                    buffer[NTTRU_SECRETKEYBYTES];
+    }            t;
+    TPM2B        b;
+} TPM2B_NTTRU_SECRET_KEY;
+
+typedef union {
+    struct {
+	UINT32                  size;
+	BYTE                    buffer[NTTRU_SHAREDKEYBYTES];
+    }            t;
+    TPM2B        b;
+} TPM2B_NTTRU_SHARED_KEY;
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
 /* Table 2:90 - Definition of TPMT_TK_VERIFIED Structure  */
 typedef struct {
     TPM_ST                  tag;
@@ -1751,6 +1791,7 @@ typedef struct {
 typedef  TPMS_SCHEME_HASH    TPMS_ENC_SCHEME_OAEP;
 typedef  TPMS_EMPTY          TPMS_ENC_SCHEME_RSAES;
 typedef  TPMS_SCHEME_HASH    TPMS_ENC_SCHEME_KYBER;
+typedef  TPMS_SCHEME_HASH    TPMS_ENC_SCHEME_NTTRU;
 /* Table 2:154 - Definition of Types for ECC Key Exchange */
 typedef  TPMS_SCHEME_HASH    TPMS_KEY_SCHEME_ECDH;
 typedef  TPMS_SCHEME_HASH    TPMS_KEY_SCHEME_ECMQV;
@@ -1822,6 +1863,9 @@ typedef union {
 #if 	ALG_KYBER
     TPMS_ENC_SCHEME_KYBER        kyber;
 #endif   // ALG_KYBER
+#if 	ALG_NTTRU
+    TPMS_ENC_SCHEME_NTTRU        nttru;
+#endif   // ALG_NTTRU
     TPMS_SCHEME_HASH             anySig;
 } TPMU_ASYM_SCHEME;
 /* Table 2:160 - Definition of TPMT_ASYM_SCHEME Structure  */
@@ -1852,6 +1896,18 @@ typedef struct {
 } TPMT_KYBER_SCHEME;
 /*****************************************************************************/
 /*                               Kyber Mods                                  */
+/*****************************************************************************/
+
+/*****************************************************************************/
+/*                               NTTRU Mods                                  */
+/*****************************************************************************/
+typedef  TPM_ALG_ID         TPMI_ALG_NTTRU_SCHEME;
+typedef struct {
+    TPMI_ALG_NTTRU_SCHEME scheme;
+    TPMU_ASYM_SCHEME      details;
+} TPMT_NTTRU_SCHEME;
+/*****************************************************************************/
+/*                               NTTRU Mods                                  */
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -2052,6 +2108,9 @@ typedef union {
 #if 	ALG_KYBER
     TPM2B_KYBER_PUBLIC_KEY  kyber;
 #endif   // ALG_KYBER
+#if 	ALG_NTTRU
+    TPM2B_NTTRU_PUBLIC_KEY  nttru;
+#endif   // ALG_NTTRU
 #if 	ALG_ECC
     TPMS_ECC_POINT          ecc;
 #endif   // ALG_ECC
@@ -2106,6 +2165,17 @@ typedef struct {
 /*****************************************************************************/
 
 /*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+typedef struct {
+    TPMT_SYM_DEF_OBJECT symmetric;
+    TPMT_NTTRU_SCHEME   scheme;
+} TPMS_NTTRU_PARMS;
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
+/*****************************************************************************/
 /*                                LDAA Mods                                  */
 /*****************************************************************************/
 typedef struct {
@@ -2141,6 +2211,9 @@ typedef union {
 #if 	ALG_KYBER
     TPMS_KYBER_PARMS        kyberDetail;
 #endif   // ALG_KYBER
+#if 	ALG_NTTRU
+    TPMS_NTTRU_PARMS        nttruDetail;
+#endif   // ALG_NTTRU
     TPMS_ASYM_PARMS         asymDetail;
 } TPMU_PUBLIC_PARMS;
 /* Table 2:190 - Definition of TPMT_PUBLIC_PARMS Structure  */
@@ -2189,6 +2262,9 @@ typedef union {
 #if 	ALG_KYBER
     TPM2B_KYBER_SECRET_KEY           kyber;
 #endif   // ALG_KYBER
+#if 	ALG_NTTRU
+    TPM2B_NTTRU_SECRET_KEY           nttru;
+#endif   // ALG_NTTRU
 #if 	ALG_RSA
     TPM2B_PRIVATE_KEY_RSA            rsa;
 #endif   // ALG_RSA

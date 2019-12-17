@@ -988,3 +988,87 @@ TPM2_LDAA_SignProceed(
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#if CC_NTTRU_Enc  // Conditional expansion of this file
+#include "Tpm.h"
+#include "NTTRU_Enc_fp.h"
+#if ALG_NTTRU
+TPM_RC
+TPM2_NTTRU_Enc(
+		 NTTRU_Encapsulate_In      *in, // In: input parameter list
+		 NTTRU_Encapsulate_Out     *out // OUT: output parameter list
+		 )
+{
+    TPM_RC retVal = TPM_RC_SUCCESS;
+    OBJECT *nttruKey;
+
+    // Input Validation
+    nttruKey = HandleToObject(in->key_handle);
+    // selected key must be a NTTRU key
+    if(nttruKey->publicArea.type != TPM_ALG_NTTRU)
+        return TPM_RCS_KEY + RC_NTTRU_Encapsulate_key_handle;
+    // selected key must have the decryption attribute
+    if(!IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_NTTRU_Encapsulate_key_handle;
+    // NTTRU is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+
+    // Check key validity
+    if (CryptValidateKeys(&nttruKey->publicArea,
+                NULL, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_NTTRU_Encapsulate_key_handle;
+
+    retVal = CryptNTTRUEncapsulate(&nttruKey->publicArea, &out->shared_key,
+            &out->cipher_text);
+
+    return retVal;
+}
+#endif // ALG_NTTRU
+#endif // CC_NTTRU_Enc
+
+#if CC_NTTRU_Dec  // Conditional expansion of this file
+#include "Tpm.h"
+#include "NTTRU_Dec_fp.h"
+#if ALG_NTTRU
+TPM_RC
+TPM2_NTTRU_Dec(
+		 NTTRU_Decapsulate_In      *in,            // In: input parameter list
+		 NTTRU_Decapsulate_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *nttruKey;
+
+    // Input Validation
+    nttruKey = HandleToObject(in->key_handle);
+    // selected key must be a NTTRU key
+    if(nttruKey->publicArea.type != TPM_ALG_NTTRU)
+        return TPM_RCS_KEY + RC_NTTRU_Decapsulate_key_handle;
+    // selected key must have the decryption attribute
+    if(!IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_NTTRU_Decapsulate_key_handle;
+    // NTTRU is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+    // Check key validity
+    if (CryptValidateKeys(&nttruKey->publicArea,
+                &nttruKey->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_NTTRU_Decapsulate_key_handle;
+    // Validate Cipher Text size for static key
+    if (CryptNTTRUValidateCipherTextSize(&in->cipher_text) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_NTTRU_Decapsulate_cipher_text;
+
+    retVal = CryptNTTRUDecapsulate(&nttruKey->sensitive,
+            &in->cipher_text, &out->shared_key);
+
+    return retVal;
+}
+#endif // ALG_NTTRU
+#endif // CC_NTTRU_Dec
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/

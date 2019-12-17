@@ -180,6 +180,9 @@ static const ALGORITHM    s_algorithms[] =
 #if ALG_KYBER
 	{TPM_ALG_KYBER,          TPMA_ALGORITHM_INITIALIZER(1, 0, 0, 0, 0, 0, 1, 0, 0)},
 #endif
+#if ALG_NTTRU
+	{TPM_ALG_NTTRU,          TPMA_ALGORITHM_INITIALIZER(1, 0, 0, 0, 0, 0, 1, 0, 0)},
+#endif
     };
 /* 9.1.3 AlgorithmCapGetImplemented() */
 /* This function is used by TPM2_GetCapability() to return a list of the implemented algorithms. */

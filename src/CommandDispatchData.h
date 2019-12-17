@@ -246,8 +246,12 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 #define TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL (TPM2B_LDAA_PBSN_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_SIGN_STATE_Unmarshal,
+#define TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Unmarshal,
+#define TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL)
 
 #else
 #define TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL (TPMT_SYM_DEF_OBJECT_P_UNMARSHAL + 1)
@@ -268,8 +272,12 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_LDAA_PUBLIC_KEY_Unmarshal,
 #define TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL (TPM2B_LDAA_PBSN_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_LDAA_SIGN_STATE_Unmarshal,
+#define TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Unmarshal,
+#define TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Unmarshal,
 
-#define PARAMETER_LAST_TYPE             (TPM2B_LDAA_SIGN_STATE_P_UNMARSHAL)
+#define PARAMETER_LAST_TYPE             (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL)
 
 
 #endif	/* TPM_NUVOTON */
@@ -380,7 +388,13 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_SIGN_STATE_Marshal,
 #define TPM2B_LDAA_SIGN_GROUP_P_MARSHAL (TPM2B_LDAA_SIGN_STATE_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_SIGN_GROUP_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL)
+#define TPM2B_NTTRU_SHARED_KEY_P_MARSHAL (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Marshal,
+#define TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL (TPM2B_NTTRU_SHARED_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Marshal,
+#define TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL)
 
 #else
 
@@ -403,7 +417,13 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_LDAA_SIGN_STATE_Marshal,
 #define TPM2B_LDAA_SIGN_GROUP_P_MARSHAL (TPM2B_LDAA_SIGN_STATE_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_LDAA_SIGN_GROUP_Marshal,
-#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL)
+#define TPM2B_NTTRU_SHARED_KEY_P_MARSHAL (TPM2B_LDAA_SIGN_GROUP_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Marshal,
+#define TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL (TPM2B_NTTRU_SHARED_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Marshal,
+#define TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_PUBLIC_KEY_Marshal,
+#define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
 
@@ -4557,6 +4577,74 @@ LDAA_SignProceed_COMMAND_DESCRIPTOR_t _LDAA_SignProceedData = {
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#if CC_NTTRU_Enc
+#include "NTTRU_Enc_fp.h"
+typedef TPM_RC  (NTTRU_Enc_Entry)(
+				    NTTRU_Encapsulate_In  *in,
+				    NTTRU_Encapsulate_Out *out
+				    );
+typedef const struct {
+    NTTRU_Enc_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} NTTRU_Enc_COMMAND_DESCRIPTOR_t;
+NTTRU_Enc_COMMAND_DESCRIPTOR_t _NTTRU_EncData = {
+    /* entry  */          &TPM2_NTTRU_Enc,
+    /* inSize */          (UINT32)(sizeof(NTTRU_Encapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(NTTRU_Encapsulate_Out)),
+    /* offsetOfTypes */   offsetof(NTTRU_Enc_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(NTTRU_Encapsulate_Out, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+               END_OF_LIST,
+			   TPM2B_NTTRU_SHARED_KEY_P_MARSHAL,
+			   TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _NTTRU_EncDataAddress (&_NTTRU_EncData)
+#else
+#define _NTTRU_EncDataAddress 0
+#endif
+
+#if CC_NTTRU_Dec
+#include "NTTRU_Dec_fp.h"
+typedef TPM_RC  (NTTRU_Dec_Entry)(
+				    NTTRU_Decapsulate_In  *in,
+				    NTTRU_Decapsulate_Out *out
+				    );
+typedef const struct {
+    NTTRU_Dec_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} NTTRU_Dec_COMMAND_DESCRIPTOR_t;
+NTTRU_Dec_COMMAND_DESCRIPTOR_t _NTTRU_DecData = {
+    /* entry  */          &TPM2_NTTRU_Dec,
+    /* inSize */          (UINT32)(sizeof(NTTRU_Decapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(NTTRU_Decapsulate_Out)),
+    /* offsetOfTypes */   offsetof(NTTRU_Dec_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(NTTRU_Decapsulate_In, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_NTTRU_SHARED_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _NTTRU_DecDataAddress (&_NTTRU_DecData)
+#else
+#define _NTTRU_DecDataAddress 0
+#endif
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+
 #ifdef TPM_NUVOTON
 
 typedef TPM_RC (NTC2_PreConfig_Entry) (
@@ -5060,6 +5148,18 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_KYBER_Decrypt)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
 #endif
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
+#if (PAD_LIST || CC_NTTRU_Enc)
+    (COMMAND_DESCRIPTOR_t *)_NTTRU_EncDataAddress,
+#endif
+#if (PAD_LIST || CC_NTTRU_Dec)
+    (COMMAND_DESCRIPTOR_t *)_NTTRU_DecDataAddress,
+#endif
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
 
 #if (PAD_LIST || CC_Vendor_TCG_Test)
     (COMMAND_DESCRIPTOR_t *)_Vendor_TCG_TestDataAddress,
