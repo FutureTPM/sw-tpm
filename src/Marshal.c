@@ -2649,6 +2649,14 @@ TPM2B_NTTRU_CIPHER_TEXT_Marshal(TPM2B_NTTRU_CIPHER_TEXT *source, BYTE **buffer, 
     written += TPM2B_Marshal(&source->b, buffer, size);
     return written;
 }
+
+UINT32
+TPM2B_NTTRU_ENCRYPT_Marshal(TPM2B_NTTRU_ENCRYPT *source, BYTE **buffer, UINT32 *size)
+{
+  UINT32 written = 0;
+  written += TPM2B_Marshal(&source->b, buffer, size);
+  return written;
+}
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/

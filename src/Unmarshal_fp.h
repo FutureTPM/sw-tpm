@@ -519,6 +519,8 @@ extern "C" {
     TPMT_NTTRU_SCHEME_Unmarshal(TPMT_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
     LIB_EXPORT TPM_RC
     TPMI_ALG_NTTRU_SCHEME_Unmarshal(TPMI_ALG_NTTRU_SCHEME *target, BYTE **buffer, UINT32 *size, BOOL allowNull);
+    UINT32
+    TPM2B_NTTRU_ENCRYPT_Unmarshal(TPM2B_NTTRU_ENCRYPT *source, BYTE **buffer, UINT32 *size);
     /*****************************************************************************/
     /*                                NTTRU Mods                                 */
     /*****************************************************************************/

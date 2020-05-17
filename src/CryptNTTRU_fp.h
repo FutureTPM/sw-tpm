@@ -28,6 +28,32 @@ LIB_EXPORT BOOL CryptNTTRUInit(void);
 LIB_EXPORT BOOL CryptNTTRUStartup(void);
 
 LIB_EXPORT TPM_RC
+CryptNTTRUValidateCipherTextSize(
+                                 // IN: the cipher text
+                                 TPM2B_NTTRU_CIPHER_TEXT *ct
+                                 );
+LIB_EXPORT TPM_RC
+CryptNTTRUEncrypt(
+                  // OUT: The encrypted data
+                  TPM2B_NTTRU_ENCRYPT *cOut,
+                  // IN: The object structure in which the key is created.
+                  OBJECT              *NTTRUKey,
+                  // IN: the data to encrypt
+                  TPM2B               *dIn
+                  );
+
+LIB_EXPORT TPM_RC
+CryptNTTRUDecrypt(
+                  // OUT: The decrypted data
+                  TPM2B               *cOut,
+                  // IN: The object structure in which the key is created.
+                  OBJECT              *NTTRUKey,
+                  // IN: the data to decrypt
+                  TPM2B_NTTRU_ENCRYPT *dIn
+                  );
+
+
+LIB_EXPORT TPM_RC
 CryptNTTRUGenerateKey(
             // IN/OUT: The object structure in which the key is created.
 		    OBJECT              *nttruKey,
@@ -57,9 +83,4 @@ CryptNTTRUDecapsulate(
             TPM2B_NTTRU_SHARED_KEY  *ss
 		 );
 
-LIB_EXPORT TPM_RC
-CryptNTTRUValidateCipherTextSize(
-            // IN: the cipher text
-            TPM2B_NTTRU_CIPHER_TEXT *ct
-		 );
 #endif

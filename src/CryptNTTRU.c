@@ -129,3 +129,75 @@ CryptNTTRUDecapsulate(
 
     return retVal;
 }
+
+LIB_EXPORT TPM_RC
+CryptNTTRUEncrypt(
+            // OUT: The encrypted data
+            TPM2B_NTTRU_ENCRYPT *cOut,
+            // IN: The object structure in which the key is created.
+		    OBJECT              *NTTRUKey,
+            // IN: the data to encrypt
+            TPM2B               *dIn
+		 )
+{
+    TPM_RC result = TPM_RC_SUCCESS;
+    TPM2B_NTTRU_SHARED_KEY ss;
+    TPM2B_NTTRU_CIPHER_TEXT ct;
+
+    /* if (result == TPM_RC_SUCCESS) { */
+    /*     result = CryptNTTRUEncapsulate(&NTTRU->publicArea, &ss, &ct); */
+
+    /*     MemoryCopy(cOut->t.buffer, ct.t.buffer, ct.t.size); */
+    /*     cOut->t.size = ct.t.size; */
+    /* } */
+
+    /* if (result == TPM_RC_SUCCESS) { */
+    /*     result = CryptSymmetricEncrypt( */
+    /*                   cOut->b.buffer + ct.t.size, */
+    /*                   TPM_ALG_AES, ss.t.size * 8, ss.t.buffer, NULL, */
+    /*                   TPM_ALG_CFB, dIn->size, dIn->buffer); */
+
+    /*     cOut->t.size += dIn->size; */
+    /* } */
+
+    return result;
+}
+
+LIB_EXPORT TPM_RC
+CryptNTTRUDecrypt(
+            // OUT: The decrypted data
+            TPM2B               *cOut,
+            // IN: The object structure in which the key is created.
+		    OBJECT              *NTTRUKey,
+            // IN: the data to decrypt
+            TPM2B_NTTRU_ENCRYPT *dIn
+            )
+{
+    TPM_RC result = TPM_RC_SUCCESS;
+    TPM2B_NTTRU_SHARED_KEY ss;
+    TPM2B_NTTRU_CIPHER_TEXT ct;
+    /* NTTRUParams params; */
+
+    /* // Parameter generation */
+    /* params = generate_kyber_params(NTTRU->publicArea.parameters.kyberDetail.security); */
+
+    /* MemoryCopy(ct.t.buffer, dIn->t.buffer, params.ciphertextbytes); */
+    /* ct.t.size = params.ciphertextbytes; */
+
+    /* if (result == TPM_RC_SUCCESS) { */
+    /*     result = CryptNTTRUDecapsulate(&NTTRU->sensitive, */
+    /*             NTTRU->publicArea.parameters.kyberDetail.security, */
+    /*             &ct, &ss); */
+    /* } */
+
+    /* // cOut is the result of AES */
+    /* if (result == TPM_RC_SUCCESS) { */
+    /*     result = CryptSymmetricDecrypt(cOut->buffer, TPM_ALG_AES, ss.t.size * 8, */
+    /*               ss.t.buffer, NULL, TPM_ALG_CFB, */
+    /*               dIn->t.size - params.ciphertextbytes, */
+    /*               dIn->b.buffer + params.ciphertextbytes); */
+    /*     cOut->size = dIn->t.size - params.ciphertextbytes; */
+    /* } */
+
+    return result;
+}

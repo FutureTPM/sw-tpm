@@ -840,6 +840,8 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 #define CC_NTTRU_Enc                      (CC_YES && ALG_NTTRU)
 #define CC_NTTRU_Dec                      (CC_YES && ALG_NTTRU)
+#define CC_NTTRU_Encrypt                  (CC_YES && ALG_NTTRU)
+#define CC_NTTRU_Decrypt                  (CC_YES && ALG_NTTRU)
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
@@ -1292,7 +1294,7 @@ typedef UINT32                              TPM_CC;
 
 // Additional values for benefit of code
 #define TPM_CC_FIRST                        0x0000011F
-#define TPM_CC_LAST                         0x000001A6
+#define TPM_CC_LAST                         0x000001A8
 #if COMPRESSED_LISTS
 #define ADD_FILL            0
 #else
@@ -1435,6 +1437,8 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_LDAA_SignProceed)                     \
                       + (ADD_FILL || CC_NTTRU_Enc)                            \
                       + (ADD_FILL || CC_NTTRU_Dec)                            \
+                      + (ADD_FILL || CC_NTTRU_Encrypt)                        \
+                      + (ADD_FILL || CC_NTTRU_Decrypt)                        \
 					  )
 
 

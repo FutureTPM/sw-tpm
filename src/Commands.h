@@ -504,6 +504,12 @@
 #if CC_NTTRU_Dec
 #include "NTTRU_Dec_fp.h"
 #endif
+#if CC_NTTRU_Encrypt
+#include "NTTRU_Encrypt_fp.h"
+#endif
+#if CC_NTTRU_Decrypt
+#include "NTTRU_Decrypt_fp.h"
+#endif
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/

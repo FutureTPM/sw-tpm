@@ -615,6 +615,17 @@ CryptSecretEncrypt(
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
+#if ALG_NTTRU
+    case TPM_ALG_NTTRU:
+      {
+        // create secret data from rng
+        CryptRandomGenerate(data->t.size, data->t.buffer);
+        // encrypt the data
+        result = CryptNTTRUEncrypt((TPM2B_NTTRU_ENCRYPT *)secret,
+                                   encryptKey, &data->b);
+      }
+      break;
+#endif //TPM_ALG_NTTRU
 	  default:
 	    FAIL(FATAL_ERROR_INTERNAL);
 	    break;
@@ -742,6 +753,14 @@ CryptSecretDecrypt(
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
+#if ALG_NTTRU
+    case TPM_ALG_NTTRU:
+      {
+        result = CryptNTTRUDecrypt(&data->b, decryptKey,
+                                   (TPM2B_NTTRU_ENCRYPT *)secret);
+      }
+      break;
+#endif //TPM_ALG_NTTRU
 #if !ALG_KEYEDHASH
 #   error   "KEYEDHASH support is required"
 #endif

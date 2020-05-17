@@ -491,6 +491,12 @@ const TPMA_CC    s_ccAttr [] = {
 #if (PAD_LIST  || CC_NTTRU_Dec)
     TPMA_CC_INITIALIZER(0x01A6, 0, 0, 0, 0, 1, 0, 0, 0),
 #endif
+#if (PAD_LIST  || CC_NTTRU_Encrypt)
+    TPMA_CC_INITIALIZER(0x01A7, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
+#if (PAD_LIST  || CC_NTTRU_Decrypt)
+    TPMA_CC_INITIALIZER(0x01A8, 0, 0, 0, 0, 1, 0, 0, 0),
+#endif
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
@@ -1044,25 +1050,33 @@ const COMMAND_ATTRIBUTES    s_commandAttributes [] = {
 /*****************************************************************************/
 /*                               LDAA Mods                                   */
 /*****************************************************************************/
+
 #if (PAD_LIST  || CC_KYBER_Encrypt)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Encrypt               *  // 0x01A3
-			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
+                         (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_KYBER_Decrypt)
     (COMMAND_ATTRIBUTES)(CC_KYBER_Decrypt               *  // 0x01A4
-			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
+                         (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
-
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
 #if (PAD_LIST  || CC_NTTRU_Enc)
-    (COMMAND_ATTRIBUTES)(CC_NTTRU_Enc                   *  // 0x01A5
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Enc                   *  // 0x019A
 			 (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
 #endif
 #if (PAD_LIST  || CC_NTTRU_Dec)
-    (COMMAND_ATTRIBUTES)(CC_NTTRU_Dec                   *  // 0x01A6
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Dec                   *  // 0x019B
 			 (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
+#endif
+#if (PAD_LIST  || CC_NTTRU_Encrypt)
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Encrypt               *  // 0x019C
+                         (IS_IMPLEMENTED+DECRYPT_4+ENCRYPT_4)),
+#endif
+#if (PAD_LIST  || CC_NTTRU_Decrypt)
+    (COMMAND_ATTRIBUTES)(CC_NTTRU_Decrypt               *  // 0x019D
+                         (IS_IMPLEMENTED+DECRYPT_4+HANDLE_1_USER+ENCRYPT_4)),
 #endif
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */

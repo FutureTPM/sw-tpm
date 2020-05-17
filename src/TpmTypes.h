@@ -1345,6 +1345,14 @@ typedef union {
 } TPM2B_NTTRU_CIPHER_TEXT;
 
 typedef union {
+  struct {
+	UINT32                  size;
+	BYTE                    buffer[NTTRU_CIPHERTEXTBYTES + MAX_DIGEST_BUFFER];
+  }            t;
+  TPM2B        b;
+} TPM2B_NTTRU_ENCRYPT;
+
+typedef union {
     struct {
 	UINT32                  size;
 	BYTE                    buffer[NTTRU_PUBLICKEYBYTES];

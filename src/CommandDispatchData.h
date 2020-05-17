@@ -250,7 +250,8 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Unmarshal,
 #define TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Unmarshal,
-
+#define TPM2B_NTTRU_ENCRYPT_P_UNMARSHAL (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_ENCRYPT_Unmarshal,
 #define PARAMETER_LAST_TYPE             (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL)
 
 #else
@@ -276,7 +277,8 @@ const UNMARSHAL_t UnmarshalArray[] = {
     (UNMARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Unmarshal,
 #define TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL + 1)
     (UNMARSHAL_t)TPM2B_NTTRU_SHARED_KEY_Unmarshal,
-
+#define TPM2B_NTTRU_ENCRYPT_P_UNMARSHAL (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL + 1)
+    (UNMARSHAL_t)TPM2B_NTTRU_ENCRYPT_Unmarshal,
 #define PARAMETER_LAST_TYPE             (TPM2B_NTTRU_SHARED_KEY_P_UNMARSHAL)
 
 
@@ -394,6 +396,8 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Marshal,
 #define TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_NTTRU_PUBLIC_KEY_Marshal,
+#define TPM2B_NTTRU_ENCRYPT_P_MARSHAL (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_ENCRYPT_Marshal,
 #define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL)
 
 #else
@@ -423,6 +427,8 @@ const MARSHAL_t MarshalArray[] = {
     (MARSHAL_t)TPM2B_NTTRU_CIPHER_TEXT_Marshal,
 #define TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL (TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL + 1)
     (MARSHAL_t)TPM2B_NTTRU_PUBLIC_KEY_Marshal,
+#define TPM2B_NTTRU_ENCRYPT_P_MARSHAL (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL + 1)
+    (MARSHAL_t)TPM2B_NTTRU_ENCRYPT_Marshal,
 #define RESPONSE_PARAMETER_LAST_TYPE    (TPM2B_NTTRU_PUBLIC_KEY_P_MARSHAL)
 
 #endif	/* TPM_NUVOTON */
@@ -4641,6 +4647,70 @@ NTTRU_Dec_COMMAND_DESCRIPTOR_t _NTTRU_DecData = {
 #else
 #define _NTTRU_DecDataAddress 0
 #endif
+
+
+#if CC_NTTRU_Encrypt
+#include "NTTRU_Encrypt_fp.h"
+typedef TPM_RC  (NTTRU_Encrypt_Entry)(
+				    NTTRU_Encrypt_In  *in,
+				    NTTRU_Encrypt_Out *out
+				    );
+typedef const struct {
+    NTTRU_Encrypt_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} NTTRU_Encrypt_COMMAND_DESCRIPTOR_t;
+NTTRU_Encrypt_COMMAND_DESCRIPTOR_t _NTTRU_EncryptData = {
+    /* entry  */          &TPM2_NTTRU_Encrypt,
+    /* inSize */          (UINT32)(sizeof(NTTRU_Encrypt_In)),
+    /* outSize */         (UINT32)(sizeof(NTTRU_Encrypt_Out)),
+    /* offsetOfTypes */   offsetof(NTTRU_Encrypt_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(NTTRU_Encrypt_In, message))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+			   TPM2B_MAX_BUFFER_P_UNMARSHAL,
+               END_OF_LIST,
+               TPM2B_NTTRU_ENCRYPT_P_MARSHAL,
+               END_OF_LIST}
+};
+#define _NTTRU_EncryptDataAddress (&_NTTRU_EncryptData)
+#else
+#define _NTTRU_EncryptDataAddress 0
+#endif
+
+#if CC_NTTRU_Decrypt
+#include "NTTRU_Decrypt_fp.h"
+typedef TPM_RC  (NTTRU_Decrypt_Entry)(
+				    NTTRU_Decrypt_In  *in,
+				    NTTRU_Decrypt_Out *out
+				    );
+typedef const struct {
+    NTTRU_Decrypt_Entry      *entry;
+    UINT32               inSize;
+    UINT32               outSize;
+    UINT32               offsetOfTypes;
+    UINT32               paramOffsets[1];
+    BYTE                 types[5];
+} NTTRU_Decrypt_COMMAND_DESCRIPTOR_t;
+NTTRU_Decrypt_COMMAND_DESCRIPTOR_t _NTTRU_DecryptData = {
+    /* entry  */          &TPM2_NTTRU_Decrypt,
+    /* inSize */          (UINT32)(sizeof(NTTRU_Decrypt_In)),
+    /* outSize */         (UINT32)(sizeof(NTTRU_Decrypt_Out)),
+    /* offsetOfTypes */   offsetof(NTTRU_Decrypt_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(NTTRU_Decrypt_In, message))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_NTTRU_ENCRYPT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_MAX_BUFFER_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _NTTRU_DecryptDataAddress (&_NTTRU_DecryptData)
+#else
+#define _NTTRU_DecryptDataAddress 0
+#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
@@ -5111,6 +5181,12 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
 #endif
+#if (PAD_LIST || CC_KYBER_Encrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_EncryptDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_Decrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
+#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
@@ -5142,12 +5218,7 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
-#if (PAD_LIST || CC_KYBER_Encrypt)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_EncryptDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_Decrypt)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
-#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
@@ -5157,6 +5228,13 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_NTTRU_Dec)
     (COMMAND_DESCRIPTOR_t *)_NTTRU_DecDataAddress,
 #endif
+#if (PAD_LIST || CC_NTTRU_Encrypt)
+    (COMMAND_DESCRIPTOR_t *)_NTTRU_EncryptDataAddress,
+#endif
+#if (PAD_LIST || CC_NTTRU_Decrypt)
+    (COMMAND_DESCRIPTOR_t *)_NTTRU_DecryptDataAddress,
+#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/

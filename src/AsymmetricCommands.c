@@ -1069,6 +1069,93 @@ TPM2_NTTRU_Dec(
 }
 #endif // ALG_NTTRU
 #endif // CC_NTTRU_Dec
+
+#if CC_NTTRU_Encrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "NTTRU_Encrypt_fp.h"
+#if ALG_NTTRU
+TPM_RC
+TPM2_NTTRU_Encrypt(
+		 NTTRU_Encrypt_In      *in,            // In: input parameter list
+		 NTTRU_Encrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a NTTRU key
+    if(key_handle->publicArea.type != TPM_ALG_NTTRU)
+        return TPM_RCS_KEY + RC_NTTRU_Encrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_NTTRU_Encrypt_key_handle;
+    // NTTRU is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+
+    // Validate security parameter
+    /* if (!CryptNTTRUIsModeValid(key_handle->publicArea.parameters.kyberDetail.security)) */
+    /*     return TPM_RCS_KEY + RC_NTTRU_Encrypt_key_handle; */
+
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                NULL, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_NTTRU_Encrypt_key_handle;
+
+    retVal = CryptNTTRUEncrypt(&out->outData, key_handle, &in->message.b);
+
+    return retVal;
+}
+#endif // ALG_NTTRU
+#endif // CC_NTTRU_Encrypt
+
+#if CC_NTTRU_Decrypt  // Conditional expansion of this file
+#include "Tpm.h"
+#include "NTTRU_Decrypt_fp.h"
+#if ALG_NTTRU
+TPM_RC
+TPM2_NTTRU_Decrypt(
+		 NTTRU_Decrypt_In      *in,            // In: input parameter list
+		 NTTRU_Decrypt_Out     *out            // OUT: output parameter list
+		 )
+{
+    TPM_RC   retVal = TPM_RC_SUCCESS;
+    OBJECT *key_handle;
+
+    // Input Validation
+    key_handle = HandleToObject(in->keyHandle);
+
+    // selected key must be a NTTRU key
+    if(key_handle->publicArea.type != TPM_ALG_NTTRU)
+        return TPM_RCS_KEY + RC_NTTRU_Decrypt_key_handle;
+    // selected key must have the decryption attribute
+    if(IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, restricted)
+       || !IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_KEY + RC_NTTRU_Decrypt_key_handle;
+    // NTTRU is only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
+        return TPM_RC_NO_RESULT;
+
+    /* // Validate security parameter */
+    /* if (!CryptNTTRUIsModeValid(key_handle->publicArea.parameters.kyberDetail.security)) */
+    /*     return TPM_RCS_KEY + RC_NTTRU_Decrypt_key_handle; */
+
+    // Check static key validity
+    if (CryptValidateKeys(&key_handle->publicArea,
+                &key_handle->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY;
+
+    retVal = CryptNTTRUDecrypt(&out->outData.b, key_handle, &in->message);
+
+    return retVal;
+}
+#endif // ALG_NTTRU
+#endif // CC_NTTRU_Decrypt
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
