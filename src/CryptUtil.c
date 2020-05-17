@@ -748,8 +748,11 @@ CryptSecretDecrypt(
 #if ALG_KYBER
 	  case TPM_ALG_KYBER:
 	      {
-              result = CryptKyberDecrypt(&data->b, decryptKey,
-                      (TPM2B_KYBER_ENCRYPT *)secret);
+            // make sure secret will fit
+            if(secret->t.size > data->t.size)
+              return TPM_RC_FAILURE;
+            result = CryptKyberDecrypt(&data->b, decryptKey,
+                                       (TPM2B_KYBER_ENCRYPT *)secret);
 	      }
 	      break;
 #endif //TPM_ALG_KYBER
