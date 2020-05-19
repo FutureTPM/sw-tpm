@@ -5181,12 +5181,6 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_KYBER_Dec)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
 #endif
-#if (PAD_LIST || CC_KYBER_Encrypt)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_EncryptDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_Decrypt)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
-#endif
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
@@ -5218,7 +5212,12 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
-
+#if (PAD_LIST || CC_KYBER_Encrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_EncryptDataAddress,
+#endif
+#if (PAD_LIST || CC_KYBER_Decrypt)
+    (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
+#endif
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
