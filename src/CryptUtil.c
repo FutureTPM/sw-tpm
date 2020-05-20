@@ -759,6 +759,9 @@ CryptSecretDecrypt(
 #if ALG_NTTRU
     case TPM_ALG_NTTRU:
       {
+        // make sure secret will fit
+        if(secret->t.size > data->t.size)
+          return TPM_RC_FAILURE;
         result = CryptNTTRUDecrypt(&data->b, decryptKey,
                                    (TPM2B_NTTRU_ENCRYPT *)secret);
       }

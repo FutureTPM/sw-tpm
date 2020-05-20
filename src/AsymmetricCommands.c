@@ -1097,10 +1097,6 @@ TPM2_NTTRU_Encrypt(
     if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
         return TPM_RC_NO_RESULT;
 
-    // Validate security parameter
-    /* if (!CryptNTTRUIsModeValid(key_handle->publicArea.parameters.kyberDetail.security)) */
-    /*     return TPM_RCS_KEY + RC_NTTRU_Encrypt_key_handle; */
-
     // Check static key validity
     if (CryptValidateKeys(&key_handle->publicArea,
                 NULL, 0, 0) != TPM_RC_SUCCESS)
@@ -1139,10 +1135,6 @@ TPM2_NTTRU_Decrypt(
     // NTTRU is only used for encryption/decryption, no signing
     if (IS_ATTRIBUTE(key_handle->publicArea.objectAttributes, TPMA_OBJECT, sign))
         return TPM_RC_NO_RESULT;
-
-    /* // Validate security parameter */
-    /* if (!CryptNTTRUIsModeValid(key_handle->publicArea.parameters.kyberDetail.security)) */
-    /*     return TPM_RCS_KEY + RC_NTTRU_Decrypt_key_handle; */
 
     // Check static key validity
     if (CryptValidateKeys(&key_handle->publicArea,
