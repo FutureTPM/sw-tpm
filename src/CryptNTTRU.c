@@ -187,13 +187,14 @@ CryptNTTRUDecrypt(
     }
 
     // cOut is the result of AES
-    if (result == TPM_RC_SUCCESS) {
+    if (result == TPM_RC_SUCCESS && (dIn->t.size - NTTRU_CIPHERTEXTBYTES) > 0) {
         result = CryptSymmetricDecrypt(cOut->buffer, TPM_ALG_AES, ss.t.size * 8,
                   ss.t.buffer, NULL, TPM_ALG_CFB,
                   dIn->t.size - NTTRU_CIPHERTEXTBYTES,
                   dIn->b.buffer + NTTRU_CIPHERTEXTBYTES);
         cOut->size = dIn->t.size - NTTRU_CIPHERTEXTBYTES;
-    }
+    } else
+      return TPM_RC_FAILURE;
 
     return result;
 }

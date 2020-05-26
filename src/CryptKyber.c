@@ -194,13 +194,14 @@ CryptKyberDecrypt(
     }
 
     // cOut is the result of AES
-    if (result == TPM_RC_SUCCESS) {
+    if (result == TPM_RC_SUCCESS && (dIn->t.size - params.ciphertextbytes) > 0) {
         result = CryptSymmetricDecrypt(cOut->buffer, TPM_ALG_AES, ss.t.size * 8,
                   ss.t.buffer, NULL, TPM_ALG_CFB,
                   dIn->t.size - params.ciphertextbytes,
                   dIn->b.buffer + params.ciphertextbytes);
         cOut->size = dIn->t.size - params.ciphertextbytes;
-    }
+    } else
+      return TPM_RC_FAILURE;
 
     return result;
 }
