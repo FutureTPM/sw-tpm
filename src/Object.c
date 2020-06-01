@@ -856,7 +856,8 @@ ObjectIsStorage(
 	    && !IS_ATTRIBUTE(publicArea->objectAttributes, TPMA_OBJECT, sign)
 	    && (object->publicArea.type == ALG_RSA_VALUE
 		|| object->publicArea.type == ALG_ECC_VALUE
-        || object->publicArea.type == ALG_KYBER_VALUE));
+        || object->publicArea.type == ALG_KYBER_VALUE
+        || object->publicArea.type == ALG_NTTRU_VALUE));
 }
 /* 8.6.3.30 ObjectCapGetLoaded() */
 /* This function returns a a list of handles of loaded object, starting from handle. Handle must be
