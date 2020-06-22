@@ -813,7 +813,6 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#define CC_KYBER_Enc                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Dec                      (CC_YES && ALG_KYBER)
 #define CC_KYBER_Encrypt                  (CC_YES && ALG_KYBER)
 #define CC_KYBER_Decrypt                  (CC_YES && ALG_KYBER)
@@ -834,11 +833,14 @@ typedef  UINT16             TPM_ECC_CURVE;
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
+// encapsulate
+#define CC_Enc                            (CC_YES && ALG_YES)
+// decapsulate
+#define CC_Dec                            (CC_YES && ALG_YES)
 
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
-#define CC_NTTRU_Enc                      (CC_YES && ALG_NTTRU)
 #define CC_NTTRU_Dec                      (CC_YES && ALG_NTTRU)
 #define CC_NTTRU_Encrypt                  (CC_YES && ALG_NTTRU)
 #define CC_NTTRU_Decrypt                  (CC_YES && ALG_NTTRU)
@@ -1209,12 +1211,6 @@ typedef UINT32                              TPM_CC;
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if         CC_KYBER_Enc
-#define TPM_CC_KYBER_Enc                    (TPM_CC)(0x0000019A)
-#endif
-#if         CC_KYBER_Dec
-#define TPM_CC_KYBER_Dec                    (TPM_CC)(0x0000019B)
-#endif
 #if         CC_KYBER_Encrypt
 #define TPM_CC_KYBER_Encrypt                (TPM_CC)(0x000001A3)
 #endif
@@ -1253,14 +1249,21 @@ typedef UINT32                              TPM_CC;
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
+#if         CC_Enc
+#define TPM_CC_Enc                          (TPM_CC)(0x000001A5)
+#endif
+#if         CC_Dec
+#define TPM_CC_Dec                          (TPM_CC)(0x000001A6)
+#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
-#if         CC_NTTRU_Enc
-#define TPM_CC_NTTRU_Enc                    (TPM_CC)(0x000001A5)
+#if         CC_NTTRU_Encrypt
+#define TPM_CC_NTTRU_Encrypt                (TPM_CC)(0x000001A7)
 #endif
-#if         CC_NTTRU_Dec
-#define TPM_CC_NTTRU_Dec                    (TPM_CC)(0x000001A6)
+#if         CC_NTTRU_Decrypt
+#define TPM_CC_NTTRU_Decrypt                (TPM_CC)(0x000001A8)
 #endif
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
@@ -1424,8 +1427,6 @@ typedef UINT32                              TPM_CC;
 					  + (ADD_FILL || CC_AC_GetCapability)                     \
 					  + (ADD_FILL || CC_AC_Send)                              \
 					  + (ADD_FILL || CC_Policy_AC_SendSelect)                 \
-                      + (ADD_FILL || CC_KYBER_Enc)                            \
-                      + (ADD_FILL || CC_KYBER_Dec)                            \
                       + (ADD_FILL || CC_KYBER_Encrypt)                        \
                       + (ADD_FILL || CC_KYBER_Decrypt)                        \
                       + (ADD_FILL || CC_LDAA_Join)                            \
@@ -1435,8 +1436,8 @@ typedef UINT32                              TPM_CC;
                       + (ADD_FILL || CC_LDAA_CommitTokenLink)                 \
                       + (ADD_FILL || CC_LDAA_SignProof)                       \
                       + (ADD_FILL || CC_LDAA_SignProceed)                     \
-                      + (ADD_FILL || CC_NTTRU_Enc)                            \
-                      + (ADD_FILL || CC_NTTRU_Dec)                            \
+                      + (ADD_FILL || CC_Enc)                                  \
+                      + (ADD_FILL || CC_Dec)                                  \
                       + (ADD_FILL || CC_NTTRU_Encrypt)                        \
                       + (ADD_FILL || CC_NTTRU_Decrypt)                        \
 					  )

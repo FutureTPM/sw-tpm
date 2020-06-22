@@ -451,12 +451,6 @@
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if CC_KYBER_Enc
-#include "Kyber_Enc_fp.h"
-#endif
-#if CC_KYBER_Dec
-#include "Kyber_Dec_fp.h"
-#endif
 #if CC_KYBER_Encrypt
 #include "Kyber_Encrypt_fp.h"
 #endif
@@ -494,16 +488,18 @@
 /*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
+// encapsulation
+#if CC_Enc
+#include "Enc_fp.h"
+#endif
+// decapsulation
+#if CC_Dec
+#include "Dec_fp.h"
+#endif
 
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
-#if CC_NTTRU_Enc
-#include "NTTRU_Enc_fp.h"
-#endif
-#if CC_NTTRU_Dec
-#include "NTTRU_Dec_fp.h"
-#endif
 #if CC_NTTRU_Encrypt
 #include "NTTRU_Encrypt_fp.h"
 #endif

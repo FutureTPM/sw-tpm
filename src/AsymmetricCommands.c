@@ -311,94 +311,6 @@ TPM2_ZGen_2Phase(
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if CC_KYBER_Enc  // Conditional expansion of this file
-#include "Tpm.h"
-#include "Kyber_Enc_fp.h"
-#if ALG_KYBER
-TPM_RC
-TPM2_Kyber_Enc(
-		 Kyber_Encapsulate_In      *in, // In: input parameter list
-		 Kyber_Encapsulate_Out     *out // OUT: output parameter list
-		 )
-{
-    TPM_RC retVal = TPM_RC_SUCCESS;
-    OBJECT *kyberKey;
-
-    // Input Validation
-    kyberKey = HandleToObject(in->key_handle);
-    // selected key must be a Kyber key
-    if(kyberKey->publicArea.type != TPM_ALG_KYBER)
-        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
-    // selected key must have the decryption attribute
-    if(!IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
-        return TPM_RCS_ATTRIBUTES + RC_Kyber_Encapsulate_key_handle;
-    // Kyber is only used for encryption/decryption, no signing
-    if (IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
-        return TPM_RC_NO_RESULT;
-    // Validate security parameter
-    if (!CryptKyberIsModeValid(kyberKey->publicArea.parameters.kyberDetail.security))
-        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
-
-    // Check key validity
-    if (CryptValidateKeys(&kyberKey->publicArea,
-                NULL, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY + RC_Kyber_Encapsulate_key_handle;
-
-    retVal = CryptKyberEncapsulate(&kyberKey->publicArea, &out->shared_key,
-            &out->cipher_text);
-
-    return retVal;
-}
-#endif // ALG_KYBER
-#endif // CC_KYBER_Enc
-
-#if CC_KYBER_Dec  // Conditional expansion of this file
-#include "Tpm.h"
-#include "Kyber_Dec_fp.h"
-#if ALG_KYBER
-TPM_RC
-TPM2_Kyber_Dec(
-		 Kyber_Decapsulate_In      *in,            // In: input parameter list
-		 Kyber_Decapsulate_Out     *out            // OUT: output parameter list
-		 )
-{
-    TPM_RC   retVal = TPM_RC_SUCCESS;
-    OBJECT *kyberKey;
-
-    // Input Validation
-    kyberKey = HandleToObject(in->key_handle);
-    // selected key must be a Kyber key
-    if(kyberKey->publicArea.type != TPM_ALG_KYBER)
-        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
-    // selected key must have the decryption attribute
-    if(!IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
-        return TPM_RCS_ATTRIBUTES + RC_Kyber_Decapsulate_key_handle;
-    // Kyber is only used for encryption/decryption, no signing
-    if (IS_ATTRIBUTE(kyberKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
-        return TPM_RC_NO_RESULT;
-    // Validate security parameter
-    if (!CryptKyberIsModeValid(kyberKey->publicArea.parameters.kyberDetail.security))
-        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
-    // Check key validity
-    if (CryptValidateKeys(&kyberKey->publicArea,
-                &kyberKey->sensitive, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY + RC_Kyber_Decapsulate_key_handle;
-    // Validate Cipher Text size for static key
-    if (CryptKyberValidateCipherTextSize(
-                &in->cipher_text,
-                kyberKey->publicArea.parameters.kyberDetail.security
-                ) != TPM_RC_SUCCESS)
-        return TPM_RC_VALUE + RC_Kyber_Decapsulate_cipher_text;
-
-    retVal = CryptKyberDecapsulate(&kyberKey->sensitive,
-            kyberKey->publicArea.parameters.kyberDetail.security,
-            &in->cipher_text, &out->shared_key);
-
-    return retVal;
-}
-#endif // ALG_KYBER
-#endif // CC_KYBER_Dec
-
 #if CC_KYBER_Encrypt  // Conditional expansion of this file
 #include "Tpm.h"
 #include "Kyber_Encrypt_fp.h"
@@ -989,86 +901,190 @@ TPM2_LDAA_SignProceed(
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
-/*****************************************************************************/
-/*                                NTTRU Mods                                 */
-/*****************************************************************************/
-#if CC_NTTRU_Enc  // Conditional expansion of this file
+// encapsulate
+#if CC_Enc  // Conditional expansion of this file
 #include "Tpm.h"
-#include "NTTRU_Enc_fp.h"
-#if ALG_NTTRU
+#include "Enc_fp.h"
 TPM_RC
-TPM2_NTTRU_Enc(
-		 NTTRU_Encapsulate_In      *in, // In: input parameter list
-		 NTTRU_Encapsulate_Out     *out // OUT: output parameter list
+TPM2_Enc(
+		 Encapsulate_In      *in, // In: input parameter list
+		 Encapsulate_Out     *out // OUT: output parameter list
 		 )
 {
     TPM_RC retVal = TPM_RC_SUCCESS;
-    OBJECT *nttruKey;
+    OBJECT *Key;
+    TPM2B_KYBER_SHARED_KEY kyber_shared_key;
+    TPM2B_KYBER_CIPHER_TEXT kyber_cipher_text;
+    TPM2B_NTTRU_SHARED_KEY nttru_shared_key;
+    TPM2B_NTTRU_CIPHER_TEXT nttru_cipher_text;
+    // kyber
+    kyber_shared_key.b = out->shared_key.b;
+    kyber_shared_key.t.size = out->shared_key.t.size;
+    kyber_cipher_text.b = out->cipher_text.b;
+    kyber_cipher_text.t.size = out->cipher_text.t.size;
+
+    // nttru
+    nttru_shared_key.b = out->shared_key.b;
+    nttru_shared_key.t.size = out->shared_key.t.size;
+    nttru_cipher_text.b = out->cipher_text.b;
+    nttru_cipher_text.t.size = out->cipher_text.t.size;
 
     // Input Validation
-    nttruKey = HandleToObject(in->key_handle);
-    // selected key must be a NTTRU key
-    if(nttruKey->publicArea.type != TPM_ALG_NTTRU)
-        return TPM_RCS_KEY + RC_NTTRU_Encapsulate_key_handle;
+    Key = HandleToObject(in->key_handle);
+    // selected key
+    if (Key->publicArea.type != TPM_ALG_NTTRU &&
+       Key->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Encapsulate_key_handle;
     // selected key must have the decryption attribute
-    if(!IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
-        return TPM_RCS_ATTRIBUTES + RC_NTTRU_Encapsulate_key_handle;
-    // NTTRU is only used for encryption/decryption, no signing
-    if (IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+    if (!IS_ATTRIBUTE(Key->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_Encapsulate_key_handle;
+    // only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(Key->publicArea.objectAttributes, TPMA_OBJECT, sign))
         return TPM_RC_NO_RESULT;
 
     // Check key validity
-    if (CryptValidateKeys(&nttruKey->publicArea,
+    if (CryptValidateKeys(&Key->publicArea,
                 NULL, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY + RC_NTTRU_Encapsulate_key_handle;
+        return TPM_RCS_KEY + RC_Encapsulate_key_handle;
 
-    retVal = CryptNTTRUEncapsulate(&nttruKey->publicArea, &out->shared_key,
-            &out->cipher_text);
+    switch(Key->publicArea.type)
+    {
+#if ALG_KYBER
+    case TPM_ALG_KYBER:
+      // encapsulate
+      retVal = CryptKyberEncapsulate(&Key->publicArea, &kyber_shared_key,
+                                     &kyber_cipher_text);
+      out->shared_key.b = kyber_shared_key.b;
+      out->shared_key.t.size = kyber_shared_key.t.size;
+      memcpy(out->shared_key.t.buffer,
+             kyber_shared_key.t.buffer, kyber_shared_key.t.size);
 
+      out->cipher_text.b = kyber_cipher_text.b;
+      out->cipher_text.t.size = kyber_cipher_text.t.size;
+      memcpy(out->cipher_text.t.buffer,
+             kyber_cipher_text.t.buffer, kyber_cipher_text.t.size);
+      break;
+#endif // ALG_KYBER
+#if ALG_NTTRU
+    case TPM_ALG_NTTRU:
+      // encapsulate
+      retVal = CryptNTTRUEncapsulate(&Key->publicArea, &nttru_shared_key,
+                                     &nttru_cipher_text);
+      // out assignments
+      out->shared_key.b = nttru_shared_key.b;
+      out->shared_key.t.size = nttru_shared_key.t.size;
+      memcpy(out->shared_key.t.buffer,
+             nttru_shared_key.t.buffer, nttru_shared_key.t.size);
+
+      out->cipher_text.b = nttru_cipher_text.b;
+      out->cipher_text.t.size = nttru_cipher_text.t.size;
+      memcpy(out->cipher_text.t.buffer,
+             nttru_cipher_text.t.buffer, nttru_cipher_text.t.size);
+      break;
+#endif // ALG_NTTRU
+    default:
+      return TPM_RC_SCHEME;
+    }
     return retVal;
 }
-#endif // ALG_NTTRU
-#endif // CC_NTTRU_Enc
+#endif // CC_Enc
 
-#if CC_NTTRU_Dec  // Conditional expansion of this file
+// Decapsulate
+#if CC_Dec  // Conditional expansion of this file
 #include "Tpm.h"
-#include "NTTRU_Dec_fp.h"
-#if ALG_NTTRU
+#include "Dec_fp.h"
 TPM_RC
-TPM2_NTTRU_Dec(
-		 NTTRU_Decapsulate_In      *in,            // In: input parameter list
-		 NTTRU_Decapsulate_Out     *out            // OUT: output parameter list
+TPM2_Dec(
+		 Decapsulate_In      *in, // In: input parameter list
+		 Decapsulate_Out     *out // OUT: output parameter list
 		 )
 {
-    TPM_RC   retVal = TPM_RC_SUCCESS;
-    OBJECT *nttruKey;
+    TPM_RC retVal = TPM_RC_SUCCESS;
+    OBJECT *Key;
+    TPM2B_KYBER_SHARED_KEY kyber_shared_key;
+    TPM2B_KYBER_CIPHER_TEXT kyber_cipher_text;
+    TPM2B_NTTRU_SHARED_KEY nttru_shared_key;
+    TPM2B_NTTRU_CIPHER_TEXT nttru_cipher_text;
+    // kyber
+    kyber_shared_key.b = out->shared_key.b;
+    kyber_shared_key.t.size = out->shared_key.t.size;
+    kyber_cipher_text.b = in->cipher_text.b;
+    kyber_cipher_text.t.size = in->cipher_text.t.size;
+
+    // nttru
+    nttru_shared_key.b = out->shared_key.b;
+    nttru_shared_key.t.size = out->shared_key.t.size;
+    nttru_cipher_text.b = in->cipher_text.b;
+    nttru_cipher_text.t.size = in->cipher_text.t.size;
 
     // Input Validation
-    nttruKey = HandleToObject(in->key_handle);
-    // selected key must be a NTTRU key
-    if(nttruKey->publicArea.type != TPM_ALG_NTTRU)
-        return TPM_RCS_KEY + RC_NTTRU_Decapsulate_key_handle;
+    Key = HandleToObject(in->key_handle);
+    // selected key
+    if (Key->publicArea.type != TPM_ALG_NTTRU &&
+        Key->publicArea.type != TPM_ALG_KYBER)
+        return TPM_RCS_KEY + RC_Decapsulate_key_handle;
     // selected key must have the decryption attribute
-    if(!IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
-        return TPM_RCS_ATTRIBUTES + RC_NTTRU_Decapsulate_key_handle;
-    // NTTRU is only used for encryption/decryption, no signing
-    if (IS_ATTRIBUTE(nttruKey->publicArea.objectAttributes, TPMA_OBJECT, sign))
+    if (!IS_ATTRIBUTE(Key->publicArea.objectAttributes, TPMA_OBJECT, decrypt))
+        return TPM_RCS_ATTRIBUTES + RC_Decapsulate_key_handle;
+    // only used for encryption/decryption, no signing
+    if (IS_ATTRIBUTE(Key->publicArea.objectAttributes, TPMA_OBJECT, sign))
         return TPM_RC_NO_RESULT;
+
     // Check key validity
-    if (CryptValidateKeys(&nttruKey->publicArea,
-                &nttruKey->sensitive, 0, 0) != TPM_RC_SUCCESS)
-        return TPM_RCS_KEY + RC_NTTRU_Decapsulate_key_handle;
-    // Validate Cipher Text size for static key
-    if (CryptNTTRUValidateCipherTextSize(&in->cipher_text) != TPM_RC_SUCCESS)
-        return TPM_RC_VALUE + RC_NTTRU_Decapsulate_cipher_text;
+    if (CryptValidateKeys(&Key->publicArea,
+                          &Key->sensitive, 0, 0) != TPM_RC_SUCCESS)
+        return TPM_RCS_KEY + RC_Decapsulate_key_handle;
 
-    retVal = CryptNTTRUDecapsulate(&nttruKey->sensitive,
-            &in->cipher_text, &out->shared_key);
+    switch(Key->publicArea.type)
+    {
+#if ALG_KYBER
+    case TPM_ALG_KYBER:
+      memcpy(kyber_cipher_text.t.buffer,
+             in->cipher_text.t.buffer, kyber_cipher_text.t.size);
+      // Validate security parameter
+      if (!CryptKyberIsModeValid(Key->publicArea.parameters.kyberDetail.security))
+        return TPM_RCS_KEY + RC_Decapsulate_key_handle;
+      // Validate Cipher Text size for static key
+      if (CryptKyberValidateCipherTextSize(
+                 &kyber_cipher_text,
+                 Key->publicArea.parameters.kyberDetail.security
+                 ) != TPM_RC_SUCCESS)
+        return TPM_RC_VALUE + RC_Decapsulate_cipher_text;
 
+      // Decapsulate
+      retVal = CryptKyberDecapsulate(&Key->sensitive,
+             Key->publicArea.parameters.kyberDetail.security,
+             &kyber_cipher_text, &kyber_shared_key);
+
+      out->shared_key.b = kyber_shared_key.b;
+      out->shared_key.t.size = kyber_shared_key.t.size;
+      memcpy(out->shared_key.t.buffer,
+             kyber_shared_key.t.buffer, kyber_shared_key.t.size);
+      break;
+#endif // ALG_KYBER
+#if ALG_NTTRU
+    case TPM_ALG_NTTRU:
+      memcpy(nttru_cipher_text.t.buffer,
+             in->cipher_text.t.buffer, nttru_cipher_text.t.size);
+      // decapsulate
+      retVal = CryptNTTRUDecapsulate(&Key->sensitive,
+             &nttru_cipher_text, &nttru_shared_key);
+      out->shared_key.b = nttru_shared_key.b;
+      out->shared_key.t.size = nttru_shared_key.t.size;
+      memcpy(out->shared_key.t.buffer,
+             nttru_shared_key.t.buffer, nttru_shared_key.t.size);
+      break;
+#endif // ALG_NTTRU
+    default:
+      return TPM_RC_SCHEME;
+    }
     return retVal;
 }
-#endif // ALG_NTTRU
-#endif // CC_NTTRU_Dec
+#endif // CC_Dec
+
+/*****************************************************************************/
+/*                                NTTRU Mods                                 */
+/*****************************************************************************/
 
 #if CC_NTTRU_Encrypt  // Conditional expansion of this file
 #include "Tpm.h"

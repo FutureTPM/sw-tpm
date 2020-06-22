@@ -1331,6 +1331,40 @@ typedef union {
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
 
+// for key encapsulation/decapsulation
+typedef union {
+  struct {
+	UINT32                  size;
+	BYTE                    buffer[MAX_KYBER_SHARED_KEY_SIZE];
+  }            t;
+  TPM2B        b;
+} TPM2B_ENC_SHARED_KEY;
+
+typedef union {
+  struct {
+	UINT32                  size;
+	BYTE                    buffer[MAX_KYBER_CIPHER_TEXT_SIZE];
+  }            t;
+  TPM2B        b;
+} TPM2B_ENC_CIPHER_TEXT;
+
+typedef union {
+  struct {
+	UINT32                  size;
+	BYTE                    buffer[MAX_KYBER_SHARED_KEY_SIZE];
+  }            t;
+  TPM2B        b;
+} TPM2B_DEC_SHARED_KEY;
+
+typedef union {
+  struct {
+	UINT32                  size;
+	BYTE                    buffer[MAX_KYBER_CIPHER_TEXT_SIZE];
+  }            t;
+  TPM2B        b;
+} TPM2B_DEC_CIPHER_TEXT;
+
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/

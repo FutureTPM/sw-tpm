@@ -4159,68 +4159,6 @@ Vendor_TCG_Test_COMMAND_DESCRIPTOR_t _Vendor_TCG_TestData = {
 /*****************************************************************************/
 /*                                Kyber Mods                                 */
 /*****************************************************************************/
-#if CC_KYBER_Enc
-#include "Kyber_Enc_fp.h"
-typedef TPM_RC  (Kyber_Enc_Entry)(
-				    Kyber_Encapsulate_In  *in,
-				    Kyber_Encapsulate_Out *out
-				    );
-typedef const struct {
-    Kyber_Enc_Entry      *entry;
-    UINT32               inSize;
-    UINT32               outSize;
-    UINT32               offsetOfTypes;
-    UINT32               paramOffsets[1];
-    BYTE                 types[5];
-} Kyber_Enc_COMMAND_DESCRIPTOR_t;
-Kyber_Enc_COMMAND_DESCRIPTOR_t _Kyber_EncData = {
-    /* entry  */          &TPM2_Kyber_Enc,
-    /* inSize */          (UINT32)(sizeof(Kyber_Encapsulate_In)),
-    /* outSize */         (UINT32)(sizeof(Kyber_Encapsulate_Out)),
-    /* offsetOfTypes */   offsetof(Kyber_Enc_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(Kyber_Encapsulate_Out, cipher_text))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-               END_OF_LIST,
-			   TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
-			   TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
-               END_OF_LIST}
-};
-#define _KYBER_EncDataAddress (&_Kyber_EncData)
-#else
-#define _KYBER_EncDataAddress 0
-#endif
-
-#if CC_KYBER_Dec
-#include "Kyber_Dec_fp.h"
-typedef TPM_RC  (Kyber_Dec_Entry)(
-				    Kyber_Decapsulate_In  *in,
-				    Kyber_Decapsulate_Out *out
-				    );
-typedef const struct {
-    Kyber_Dec_Entry      *entry;
-    UINT32               inSize;
-    UINT32               outSize;
-    UINT32               offsetOfTypes;
-    UINT32               paramOffsets[1];
-    BYTE                 types[5];
-} Kyber_Dec_COMMAND_DESCRIPTOR_t;
-Kyber_Dec_COMMAND_DESCRIPTOR_t _Kyber_DecData = {
-    /* entry  */          &TPM2_Kyber_Dec,
-    /* inSize */          (UINT32)(sizeof(Kyber_Decapsulate_In)),
-    /* outSize */         (UINT32)(sizeof(Kyber_Decapsulate_Out)),
-    /* offsetOfTypes */   offsetof(Kyber_Dec_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(Kyber_Decapsulate_In, cipher_text))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
-                           END_OF_LIST,
-                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
-                           END_OF_LIST}
-};
-#define _KYBER_DecDataAddress (&_Kyber_DecData)
-#else
-#define _KYBER_DecDataAddress 0
-#endif
-
 #if CC_KYBER_Encrypt
 #include "Kyber_Encrypt_fp.h"
 typedef TPM_RC  (Kyber_Encrypt_Entry)(
@@ -4583,72 +4521,73 @@ LDAA_SignProceed_COMMAND_DESCRIPTOR_t _LDAA_SignProceedData = {
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 
+// encapsulate
+#if CC_Enc
+#include "Enc_fp.h"
+typedef TPM_RC  (Enc_Entry)(
+				    Encapsulate_In  *in,
+				    Encapsulate_Out *out
+				    );
+typedef const struct {
+    Enc_Entry       *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[1];
+    BYTE            types[5];
+} Enc_COMMAND_DESCRIPTOR_t;
+Enc_COMMAND_DESCRIPTOR_t _EncData = {
+    /* entry  */          &TPM2_Enc,
+    /* inSize */          (UINT32)(sizeof(Encapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(Encapsulate_Out)),
+    /* offsetOfTypes */   offsetof(Enc_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(Encapsulate_Out, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _EncDataAddress (&_EncData)
+#else
+#define _EncDataAddress 0
+#endif
+
+// decapsulate
+#if CC_Dec
+#include "Dec_fp.h"
+typedef TPM_RC  (Dec_Entry)(
+				    Decapsulate_In  *in,
+				    Decapsulate_Out *out
+				    );
+typedef const struct {
+    Dec_Entry       *entry;
+    UINT32          inSize;
+    UINT32          outSize;
+    UINT32          offsetOfTypes;
+    UINT32          paramOffsets[1];
+    BYTE            types[5];
+} Dec_COMMAND_DESCRIPTOR_t;
+Dec_COMMAND_DESCRIPTOR_t _DecData = {
+    /* entry  */          &TPM2_Dec,
+    /* inSize */          (UINT32)(sizeof(Decapsulate_In)),
+    /* outSize */         (UINT32)(sizeof(Decapsulate_Out)),
+    /* offsetOfTypes */   offsetof(Dec_COMMAND_DESCRIPTOR_t, types),
+    /* offsets */         {(UINT32)(offsetof(Decapsulate_In, cipher_text))},
+    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
+                           TPM2B_KYBER_CIPHER_TEXT_P_UNMARSHAL,
+                           END_OF_LIST,
+                           TPM2B_KYBER_SHARED_KEY_P_MARSHAL,
+                           END_OF_LIST}
+};
+#define _DecDataAddress (&_DecData)
+#else
+#define _DecDataAddress 0
+#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
-#if CC_NTTRU_Enc
-#include "NTTRU_Enc_fp.h"
-typedef TPM_RC  (NTTRU_Enc_Entry)(
-				    NTTRU_Encapsulate_In  *in,
-				    NTTRU_Encapsulate_Out *out
-				    );
-typedef const struct {
-    NTTRU_Enc_Entry      *entry;
-    UINT32               inSize;
-    UINT32               outSize;
-    UINT32               offsetOfTypes;
-    UINT32               paramOffsets[1];
-    BYTE                 types[5];
-} NTTRU_Enc_COMMAND_DESCRIPTOR_t;
-NTTRU_Enc_COMMAND_DESCRIPTOR_t _NTTRU_EncData = {
-    /* entry  */          &TPM2_NTTRU_Enc,
-    /* inSize */          (UINT32)(sizeof(NTTRU_Encapsulate_In)),
-    /* outSize */         (UINT32)(sizeof(NTTRU_Encapsulate_Out)),
-    /* offsetOfTypes */   offsetof(NTTRU_Enc_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(NTTRU_Encapsulate_Out, cipher_text))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-               END_OF_LIST,
-			   TPM2B_NTTRU_SHARED_KEY_P_MARSHAL,
-			   TPM2B_NTTRU_CIPHER_TEXT_P_MARSHAL,
-               END_OF_LIST}
-};
-#define _NTTRU_EncDataAddress (&_NTTRU_EncData)
-#else
-#define _NTTRU_EncDataAddress 0
-#endif
-
-#if CC_NTTRU_Dec
-#include "NTTRU_Dec_fp.h"
-typedef TPM_RC  (NTTRU_Dec_Entry)(
-				    NTTRU_Decapsulate_In  *in,
-				    NTTRU_Decapsulate_Out *out
-				    );
-typedef const struct {
-    NTTRU_Dec_Entry      *entry;
-    UINT32               inSize;
-    UINT32               outSize;
-    UINT32               offsetOfTypes;
-    UINT32               paramOffsets[1];
-    BYTE                 types[5];
-} NTTRU_Dec_COMMAND_DESCRIPTOR_t;
-NTTRU_Dec_COMMAND_DESCRIPTOR_t _NTTRU_DecData = {
-    /* entry  */          &TPM2_NTTRU_Dec,
-    /* inSize */          (UINT32)(sizeof(NTTRU_Decapsulate_In)),
-    /* outSize */         (UINT32)(sizeof(NTTRU_Decapsulate_Out)),
-    /* offsetOfTypes */   offsetof(NTTRU_Dec_COMMAND_DESCRIPTOR_t, types),
-    /* offsets */         {(UINT32)(offsetof(NTTRU_Decapsulate_In, cipher_text))},
-    /* types */           {TPMI_DH_OBJECT_H_UNMARSHAL,
-                           TPM2B_NTTRU_CIPHER_TEXT_P_UNMARSHAL,
-                           END_OF_LIST,
-                           TPM2B_NTTRU_SHARED_KEY_P_MARSHAL,
-                           END_OF_LIST}
-};
-#define _NTTRU_DecDataAddress (&_NTTRU_DecData)
-#else
-#define _NTTRU_DecDataAddress 0
-#endif
-
-
 #if CC_NTTRU_Encrypt
 #include "NTTRU_Encrypt_fp.h"
 typedef TPM_RC  (NTTRU_Encrypt_Entry)(
@@ -5173,19 +5112,6 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #endif // CC_Policy_AC_SendSelect
 
 /*****************************************************************************/
-/*                                Kyber Mods                                 */
-/*****************************************************************************/
-#if (PAD_LIST || CC_KYBER_Enc)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_EncDataAddress,
-#endif
-#if (PAD_LIST || CC_KYBER_Dec)
-    (COMMAND_DESCRIPTOR_t *)_KYBER_DecDataAddress,
-#endif
-/*****************************************************************************/
-/*                                Kyber Mods                                 */
-/*****************************************************************************/
-
-/*****************************************************************************/
 /*                                 LDAA Mods                                 */
 /*****************************************************************************/
 #if (PAD_LIST || CC_LDAA_Join)
@@ -5218,15 +5144,21 @@ COMMAND_DESCRIPTOR_t *s_CommandDataArray[] = {
 #if (PAD_LIST || CC_KYBER_Decrypt)
     (COMMAND_DESCRIPTOR_t *)_KYBER_DecryptDataAddress,
 #endif
+
+// encapsulate
+#if (PAD_LIST || CC_Enc)
+    (COMMAND_DESCRIPTOR_t *)_EncDataAddress,
+#endif
+
+// decapsulate
+#if (PAD_LIST || CC_Dec)
+    (COMMAND_DESCRIPTOR_t *)_DecDataAddress,
+#endif
+
 /*****************************************************************************/
 /*                                NTTRU Mods                                 */
 /*****************************************************************************/
-#if (PAD_LIST || CC_NTTRU_Enc)
-    (COMMAND_DESCRIPTOR_t *)_NTTRU_EncDataAddress,
-#endif
-#if (PAD_LIST || CC_NTTRU_Dec)
-    (COMMAND_DESCRIPTOR_t *)_NTTRU_DecDataAddress,
-#endif
+
 #if (PAD_LIST || CC_NTTRU_Encrypt)
     (COMMAND_DESCRIPTOR_t *)_NTTRU_EncryptDataAddress,
 #endif
