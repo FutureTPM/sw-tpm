@@ -214,7 +214,7 @@
 #define  NUM_AUTHVALUE_PCR_GROUP        1
 #define  MAX_CONTEXT_SIZE               134217728
 #define  MAX_DIGEST_BUFFER              2048
-#define  MAX_NV_INDEX_SIZE              2048
+#define  MAX_NV_INDEX_SIZE              4623
 #define  MAX_NV_BUFFER_SIZE             1024
 #define  MAX_CAP_BUFFER                 1024
 #define  NV_MEMORY_SIZE                 34971520 // NV increase due to LDAA (31MB)
